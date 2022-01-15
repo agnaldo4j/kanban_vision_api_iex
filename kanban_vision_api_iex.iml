@@ -15,7 +15,15 @@
       <excludeFolder url="file://$MODULE_DIR$/logs" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/elixir_uuid" />
       <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/elixir_uuid" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mix_test_watch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/mix_test_watch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/file_system" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/file_system" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="mix_test_watch" level="project" />
+    <orderEntry type="library" name="file_system" level="project" />
+    <orderEntry type="library" name="temporary_env" level="project" />
+    <orderEntry type="library" name="ex_doc" level="project" />
   </component>
 </module>
