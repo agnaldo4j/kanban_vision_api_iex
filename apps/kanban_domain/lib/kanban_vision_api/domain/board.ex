@@ -37,7 +37,6 @@ defmodule KanbanVisionApi.Domain.Board do
   def start_link(default \\ %KanbanVisionApi.Domain.Board{}) do
     GenServer.start_link(__MODULE__, default, name: String.to_atom(default.id))
   end
-
   # Server (callbacks)
 
   @impl true
