@@ -10,10 +10,10 @@ defmodule KanbanVisionApi.Domain.Ability do
              }
 
   def new(name, simulations \\ %{}, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
-    initial_state = %KanbanVisionApi.Domain.Ability{
+    %KanbanVisionApi.Domain.Ability{
       id: id,
-      audit: audit
+      audit: audit,
+      name: name,
     }
-    initial_state
   end
 end
