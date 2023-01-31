@@ -19,7 +19,6 @@ defmodule KanbanVisionApi.Domain.Organization do
       name: name,
       simulations: simulations
     }
-    KanbanVisionApi.Domain.Organization.start_link(initial_state)
     initial_state
   end
 
@@ -30,6 +29,10 @@ defmodule KanbanVisionApi.Domain.Organization do
     GenServer.start_link(__MODULE__, default, name: String.to_atom(default.id))
   end
 
+  def get_state(pid) do
+    GenServer.call(pid, :get_state)
+  end
+
   # Server (callbacks)
 
   @impl true
@@ -37,4 +40,8 @@ defmodule KanbanVisionApi.Domain.Organization do
     {:ok, stack}
   end
 
+  @impl true
+  def handle_call(:get_state, _from, state) do
+    {:reply, {:ok, state}, state}
+  end
 end
