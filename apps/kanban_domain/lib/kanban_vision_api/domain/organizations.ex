@@ -30,18 +30,16 @@ defmodule KanbanVisionApi.Domain.Organizations do
 
   def get_by_id(pid, domain_id) do
     Agent.get(pid, fn state ->
-      result = case Map.get(state.organizations, domain_id) do
+      case Map.get(state.organizations, domain_id) do
         nil -> {:error, "Organization with id: #{domain_id} not found"}
         domain -> {:ok, domain}
       end
-      result
     end)
   end
 
   def get_by_name(pid, domain_name) do
     Agent.get(pid, fn state ->
-      result = internal_get_by_name(state.organizations, domain_name)
-      result
+      internal_get_by_name(state.organizations, domain_name)
     end)
   end
 
@@ -49,7 +47,10 @@ defmodule KanbanVisionApi.Domain.Organizations do
     Agent.update(pid, fn state ->
       case internal_get_by_name(state.organizations, new_organization.name) do
         {:error, _} ->
-          new_state = put_in(state.organizations, Map.put(state.organizations, new_organization.id, new_organization))
+          put_in(
+            state.organizations,
+            Map.put(state.organizations, new_organization.id, new_organization)
+          )
         {:ok, _} ->
           state
       end
