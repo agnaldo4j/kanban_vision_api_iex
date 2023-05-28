@@ -1,79 +1,59 @@
 defmodule KanbanVisionApi.Domain.Organizations do
   @moduledoc false
 
-  @behaviour GenServer
+  use Agent
 
-  defstruct [:organizations]
+  defstruct [:id, :organizations]
 
   @type t :: %KanbanVisionApi.Domain.Organizations {
+               id: String.t,
                organizations: Map.t
              }
 
-  def new(organizations \\ %{}) do
+  def new(organizations \\ %{}, id \\ UUID.uuid4()) do
     %KanbanVisionApi.Domain.Organizations{
+      id: id,
       organizations: organizations
     }
   end
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Domain.Organizations.t) :: GenServer.on_start()
+  @spec start_link(KanbanVisionApi.Domain.Organizations.t) :: Agent.on_start()
   def start_link(default \\ KanbanVisionApi.Domain.Organizations.new) do
-    GenServer.start_link(__MODULE__, default)
+    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
   end
 
-  def get_all(pid) do
-    GenServer.call(pid, :get_all)
+  def get_all(id) do
+    Agent.get(id, fn state -> state end)
   end
 
   def get_by_id(pid, domain_id) do
-    GenServer.call(pid, {:get_by_id, domain_id})
+    Agent.get(pid, fn state ->
+      result = case Map.get(state.organizations, domain_id) do
+        nil -> {:error, "Organization with id: #{domain_id} not found"}
+        domain -> {:ok, domain}
+      end
+      result
+    end)
   end
 
   def get_by_name(pid, domain_name) do
-    GenServer.call(pid, {:get_by_name, domain_name})
+    Agent.get(pid, fn state ->
+      result = internal_get_by_name(state.organizations, domain_name)
+      result
+    end)
   end
 
   def add(pid, new_organization = %KanbanVisionApi.Domain.Organization{}) do
-    GenServer.call(pid, {:add, new_organization})
-  end
-
-  # Server (callbacks)
-
-  @impl true
-  def init(stack) do
-    {:ok, stack}
-  end
-
-  @impl true
-  def handle_call(:get_all, _from, state) do
-    {:reply, {:ok, state}, state}
-  end
-
-  @impl true
-  def handle_call({:get_by_id, domain_id}, _from, state) do
-    result = case Map.get(state.organizations, domain_id) do
-      nil -> {:error, "Organization with id: #{domain_id} not found"}
-      domain -> {:ok, domain}
-    end
-    {:reply, result, state}
-  end
-
-  @impl true
-  def handle_call({:get_by_name, domain_name}, _from, state) do
-    result = internal_get_by_name(state.organizations, domain_name)
-    {:reply, result, state}
-  end
-
-  @impl true
-  def handle_call({:add, new_organization}, _from, state) do
-    case internal_get_by_name(state.organizations, new_organization.name) do
-      {:error, _} ->
-        new_state = put_in(state.organizations, Map.put(state.organizations, new_organization.id, new_organization))
-        {:reply, {:ok, new_organization}, new_state}
-      {:ok, _} ->
-        {:reply, {:error, "Organization with name #{new_organization.name} already exists"}, state}
-    end
+    Agent.update(pid, fn state ->
+      case internal_get_by_name(state.organizations, new_organization.name) do
+        {:error, _} ->
+          new_state = put_in(state.organizations, Map.put(state.organizations, new_organization.id, new_organization))
+        {:ok, _} ->
+          state
+      end
+    end)
   end
 
   defp internal_get_by_name(state, domain_name) do
