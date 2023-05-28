@@ -1,7 +1,7 @@
 defmodule KanbanVisionApi.Domain.Organization do
   @moduledoc false
 
-  @behaviour GenServer
+  use Agent
 
   defstruct [:id, :audit, :name, :simulations]
 
@@ -24,24 +24,12 @@ defmodule KanbanVisionApi.Domain.Organization do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Domain.Organization.t) :: GenServer.on_start()
+  @spec start_link(KanbanVisionApi.Domain.Organization.t) :: Agent.on_start()
   def start_link(default \\ %KanbanVisionApi.Domain.Organization{}) do
-    GenServer.start_link(__MODULE__, default, name: String.to_atom(default.id))
+    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
   end
 
-  def get_state(pid) do
-    GenServer.call(pid, :get_state)
-  end
-
-  # Server (callbacks)
-
-  @impl true
-  def init(stack) do
-    {:ok, stack}
-  end
-
-  @impl true
-  def handle_call(:get_state, _from, state) do
-    {:reply, {:ok, state}, state}
+  def get_state(id) do
+    Agent.get(id, fn state -> state end)
   end
 end

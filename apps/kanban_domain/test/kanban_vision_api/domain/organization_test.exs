@@ -7,7 +7,7 @@ defmodule KanbanVisionApi.Domain.OrganizationTest do
 
     @tag :domain_organization
     test "should not have any simulation", %{actor_pid: pid, domain: domain} = _context do
-      template = {:ok, KanbanVisionApi.Domain.Organization.new(domain.name, %{}, domain.id, domain.audit)}
+      template = KanbanVisionApi.Domain.Organization.new(domain.name, %{}, domain.id, domain.audit)
       assert KanbanVisionApi.Domain.Organization.get_state(pid) == template
     end
   end
