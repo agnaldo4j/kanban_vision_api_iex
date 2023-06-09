@@ -13,13 +13,12 @@ defmodule KanbanVisionApi.Domain.Organization do
              }
 
   def new(name, simulations \\ %{}, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
-    initial_state = %KanbanVisionApi.Domain.Organization{
+    %KanbanVisionApi.Domain.Organization{
       id: id,
       audit: audit,
       name: name,
       simulations: simulations
     }
-    initial_state
   end
 
   # Client

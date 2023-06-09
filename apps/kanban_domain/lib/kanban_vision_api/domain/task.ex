@@ -1,7 +1,7 @@
 defmodule KanbanVisionApi.Domain.Task do
   @moduledoc false
 
-  @behaviour GenServer
+  use Agent
 
   defstruct [:id, :audit, :order, :service_class]
 
@@ -30,16 +30,13 @@ defmodule KanbanVisionApi.Domain.Task do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Domain.Task.t) :: GenServer.on_start()
+  @spec start_link(KanbanVisionApi.Domain.Task.t) :: Agent.on_start()
   def start_link(default \\ %KanbanVisionApi.Domain.Task{}) do
-    GenServer.start_link(__MODULE__, default, name: String.to_atom(default.id))
+    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
   end
 
-  # Server (callbacks)
-
-  @impl true
-  def init(stack) do
-    {:ok, stack}
+  def get_state(id) do
+    Agent.get(id, fn state -> state end)
   end
 
 end
