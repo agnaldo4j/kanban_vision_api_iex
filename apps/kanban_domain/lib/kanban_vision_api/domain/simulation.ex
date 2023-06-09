@@ -1,17 +1,19 @@
 defmodule KanbanVisionApi.Domain.Simulation do
   @moduledoc false
 
-  defstruct name: "John", age: 27
+  defstruct [:id, :name, :description, :board, :defualt_projects]
 
   @type t :: %KanbanVisionApi.Domain.Simulation{
+               id: String.t(),
                name: String.t(),
-               age: integer()
+               description: String.t(),
+               board: KanbanVisionApi.Domain.Board.t(),
+               defualt_projects: List.t(KanbanVisionApi.Domain.Project.t())
              }
 
-  def new(name, age) do
+  def new(name) do
     %KanbanVisionApi.Domain.Simulation{
-      name: name,
-      age: age
+      name: name
     }
   end
 
