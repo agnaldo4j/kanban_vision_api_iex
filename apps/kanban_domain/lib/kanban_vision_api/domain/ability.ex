@@ -9,7 +9,7 @@ defmodule KanbanVisionApi.Domain.Ability do
                name: String.t,
              }
 
-  def new(name, simulations \\ %{}, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
+  def new(name, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
     %KanbanVisionApi.Domain.Ability{
       id: id,
       audit: audit,

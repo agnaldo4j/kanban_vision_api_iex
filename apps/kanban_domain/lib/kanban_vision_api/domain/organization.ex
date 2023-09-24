@@ -52,6 +52,15 @@ defmodule KanbanVisionApi.Domain.Organization do
     end)
   end
 
+  def get_simulation_by_id(pid, simulation_id) do
+    Agent.get(pid, fn state ->
+      case Map.get(state.simulations, simulation_id) do
+        nil -> {:error, "Simulation with id: #{simulation_id} not found"}
+        simulation -> {:ok, simulation}
+      end
+    end)
+  end
+
   defp internal_get_by_name(state, domain_name) do
     Map.values(state)
     |> Enum.filter(fn domain -> domain.name == domain_name end)

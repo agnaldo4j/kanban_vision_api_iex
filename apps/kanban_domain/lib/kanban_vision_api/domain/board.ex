@@ -14,7 +14,7 @@ defmodule KanbanVisionApi.Domain.Board do
              }
 
   def new(
-        name, 
+        name \\ "Default",
         workflow  \\ %KanbanVisionApi.Domain.Workflow{}, 
         workers \\ %{}, 
         id \\ UUID.uuid4(), 

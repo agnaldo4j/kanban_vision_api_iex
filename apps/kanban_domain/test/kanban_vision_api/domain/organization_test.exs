@@ -12,14 +12,14 @@ defmodule KanbanVisionApi.Domain.OrganizationTest do
     end
 
     @tag :domain_organization
-    test "should be able to add new simulation", %{actor_pid: pid, domain: domain} = _context do
+    test "should be able to add new simulation", %{actor_pid: pid, domain: _domain} = _context do
       simulation = KanbanVisionApi.Domain.Simulation.new("ExampleSim")
       assert KanbanVisionApi.Domain.Organization.add_simulation(pid, simulation) == :ok
       assert KanbanVisionApi.Domain.Organization.get_state(pid).simulations == %{simulation.id => simulation}
     end
 
     @tag :domain_organization
-    test "try to find a simulation by name", %{actor_pid: pid, domain: domain} = _context do
+    test "try to find a simulation by name", %{actor_pid: pid, domain: _domain} = _context do
       simulation = KanbanVisionApi.Domain.Simulation.new("ExampleSim")
       assert KanbanVisionApi.Domain.Organization.add_simulation(pid, simulation) == :ok
       assert KanbanVisionApi.Domain.Organization.get_state(pid).simulations == %{simulation.id => simulation}
@@ -27,7 +27,15 @@ defmodule KanbanVisionApi.Domain.OrganizationTest do
     end
 
     @tag :domain_organization
-    test "try to add the same simulation twice", %{actor_pid: pid, domain: domain} = _context do
+    test "try to find a simulation by id", %{actor_pid: pid, domain: _domain} = _context do
+      simulation = KanbanVisionApi.Domain.Simulation.new("ExampleSim")
+      assert KanbanVisionApi.Domain.Organization.add_simulation(pid, simulation) == :ok
+      assert KanbanVisionApi.Domain.Organization.get_state(pid).simulations == %{simulation.id => simulation}
+      assert KanbanVisionApi.Domain.Organization.get_simulation_by_id(pid, simulation.id) == {:ok, simulation}
+    end
+
+    @tag :domain_organization
+    test "try to add the same simulation twice", %{actor_pid: pid, domain: _domain} = _context do
       simulation = KanbanVisionApi.Domain.Simulation.new("ExampleSim")
       assert KanbanVisionApi.Domain.Organization.add_simulation(pid, simulation) == :ok
       assert KanbanVisionApi.Domain.Organization.add_simulation(pid, simulation) == :ok
