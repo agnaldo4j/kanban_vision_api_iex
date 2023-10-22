@@ -44,17 +44,19 @@ defmodule KanbanVisionApi.Agent.Organizations do
   end
 
   def add(pid, new_organization = %KanbanVisionApi.Domain.Organization{}) do
+    result = get_by_name(pid, new_organization.name)
+
     Agent.update(pid, fn state ->
-      case internal_get_by_name(state.organizations, new_organization.name) do
-        {:error, _} ->
-          put_in(
-            state.organizations,
-            Map.put(state.organizations, new_organization.id, new_organization)
-          )
-        {:ok, _} ->
-          state
+      case result do
+        {:error, _} -> put_in(state.organizations, Map.put(state.organizations, new_organization.id, new_organization))
+        {:ok, _} -> state
       end
     end)
+
+    case result do
+      {:error, _} -> {:ok, new_organization}
+      {:ok, _} -> {:error, "Organization with name: #{new_organization.name} already exist"}
+    end
   end
 
   def delete(pid, domain_id) do
