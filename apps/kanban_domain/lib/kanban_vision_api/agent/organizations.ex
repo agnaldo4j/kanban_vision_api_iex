@@ -48,7 +48,10 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
     Agent.update(pid, fn state ->
       case result do
-        {:error, _} -> put_in(state.organizations, Map.put(state.organizations, new_organization.id, new_organization))
+        {:error, _} -> put_in(
+                         state.organizations,
+                         Map.put(state.organizations, new_organization.id, new_organization)
+                       )
         {:ok, _} -> state
       end
     end)
@@ -84,5 +87,4 @@ defmodule KanbanVisionApi.Agent.Organizations do
       values -> {:ok, values}
     end
   end
-
 end
