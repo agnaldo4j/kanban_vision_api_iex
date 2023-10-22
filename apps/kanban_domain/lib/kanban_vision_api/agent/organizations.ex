@@ -1,17 +1,17 @@
-defmodule KanbanVisionApi.Domain.Organizations do
+defmodule KanbanVisionApi.Agent.Organizations do
   @moduledoc false
 
   use Agent
 
   defstruct [:id, :organizations]
 
-  @type t :: %KanbanVisionApi.Domain.Organizations {
+  @type t :: %KanbanVisionApi.Agent.Organizations {
                id: String.t,
                organizations: Map.t
              }
 
   def new(organizations \\ %{}, id \\ UUID.uuid4()) do
-    %KanbanVisionApi.Domain.Organizations{
+    %KanbanVisionApi.Agent.Organizations{
       id: id,
       organizations: organizations
     }
@@ -19,8 +19,8 @@ defmodule KanbanVisionApi.Domain.Organizations do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Domain.Organizations.t) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Domain.Organizations.new) do
+  @spec start_link(KanbanVisionApi.Agent.Organizations.t) :: Agent.on_start()
+  def start_link(default \\ KanbanVisionApi.Agent.Organizations.new) do
     Agent.start_link(fn -> default end, name: String.to_atom(default.id))
   end
 
@@ -55,6 +55,19 @@ defmodule KanbanVisionApi.Domain.Organizations do
           state
       end
     end)
+  end
+
+  def delete(pid, domain_id) do
+    result = get_by_id(pid, domain_id)
+
+    Agent.update(pid, fn state ->
+      case result do
+        {:error, _} -> state
+        {:ok, domain} -> put_in(state.organizations, Map.delete(state.organizations, domain.id))
+      end
+    end)
+
+    result
   end
 
   defp internal_get_by_name(state, domain_name) do

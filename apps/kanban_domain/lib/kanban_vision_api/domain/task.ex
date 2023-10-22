@@ -1,8 +1,6 @@
 defmodule KanbanVisionApi.Domain.Task do
   @moduledoc false
 
-  use Agent
-
   defstruct [:id, :audit, :order, :service_class]
 
   @type t :: %KanbanVisionApi.Domain.Task {
@@ -27,16 +25,4 @@ defmodule KanbanVisionApi.Domain.Task do
     KanbanVisionApi.Domain.Task.start_link(initial_state)
     initial_state
   end
-
-  # Client
-
-  @spec start_link(KanbanVisionApi.Domain.Task.t) :: Agent.on_start()
-  def start_link(default \\ %KanbanVisionApi.Domain.Task{}) do
-    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
-  end
-
-  def get_state(id) do
-    Agent.get(id, fn state -> state end)
-  end
-
 end
