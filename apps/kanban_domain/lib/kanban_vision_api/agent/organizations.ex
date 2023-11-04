@@ -25,7 +25,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
   end
 
   def get_all(id) do
-    Agent.get(id, fn state -> state end)
+    Agent.get(id, fn state -> state.organizations end)
   end
 
   def get_by_id(pid, domain_id) do

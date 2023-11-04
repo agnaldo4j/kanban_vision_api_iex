@@ -25,6 +25,6 @@ defmodule KanbanVisionApi.Agent.Simulations do
   end
 
   def get_all(id) do
-    Agent.get(id, fn state -> state end)
+    Agent.get(id, fn state -> state.simulations_by_organization end)
   end
 end

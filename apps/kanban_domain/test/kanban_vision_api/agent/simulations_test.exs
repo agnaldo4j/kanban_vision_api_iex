@@ -8,13 +8,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_smulations
     test "should not have any simulation for any organization", %{
            actor_pid: pid,
-           simulations: simulations
+           simulations: _simulations
          } = _context do
 
-      template = %KanbanVisionApi.Agent.Simulations{
-        id: simulations.id,
-        simulations_by_organization: %{}
-      }
+      template = %{}
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end

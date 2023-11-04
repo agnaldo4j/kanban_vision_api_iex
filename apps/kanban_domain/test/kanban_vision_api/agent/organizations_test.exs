@@ -8,10 +8,10 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     @tag :domain_organizations
     test "should not have any organization", %{
            actor_pid: pid,
-           organizations: organizations
+           organizations: _organizations
          } = _context do
 
-      template = %KanbanVisionApi.Agent.Organizations{id: organizations.id, organizations: %{}}
+      template = %{}
       assert KanbanVisionApi.Agent.Organizations.get_all(pid) == template
     end
 
@@ -53,14 +53,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     @tag :domain_organizations
     test "should has one organization", %{
            actor_pid: pid,
-           organizations: organizations,
+           organizations: _organizations,
            domain: my_domain
          } = _context do
 
-      template = %KanbanVisionApi.Agent.Organizations{
-        id: organizations.id,
-        organizations: %{my_domain.id => my_domain}
-      }
+      template = %{my_domain.id => my_domain}
 
       assert KanbanVisionApi.Agent.Organizations.get_all(pid) == template
     end
