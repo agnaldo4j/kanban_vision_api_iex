@@ -17,7 +17,6 @@ defmodule KanbanVisionApi.Domain.Worker do
       name: name,
       abilities: abilities
     }
-    KanbanVisionApi.Domain.Worker.start_link(initial_state)
     initial_state
   end
 end

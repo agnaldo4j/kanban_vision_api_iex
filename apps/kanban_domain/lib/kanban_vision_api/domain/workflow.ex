@@ -15,7 +15,6 @@ defmodule KanbanVisionApi.Domain.Workflow do
       audit: audit,
       steps: steps
     }
-    KanbanVisionApi.Domain.Workflow.start_link(initial_state)
     initial_state
   end
 end

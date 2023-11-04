@@ -22,7 +22,6 @@ defmodule KanbanVisionApi.Domain.Task do
       order: order,
       service_class: service_class
     }
-    KanbanVisionApi.Domain.Task.start_link(initial_state)
     initial_state
   end
 end

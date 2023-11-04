@@ -25,7 +25,6 @@ defmodule KanbanVisionApi.Domain.Board do
       workflow: workflow, 
       workers: workers
     }
-    KanbanVisionApi.Domain.Board.start_link(initial_state)
     initial_state
   end
 end
