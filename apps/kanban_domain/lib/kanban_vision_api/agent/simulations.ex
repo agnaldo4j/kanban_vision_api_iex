@@ -27,4 +27,55 @@ defmodule KanbanVisionApi.Agent.Simulations do
   def get_all(id) do
     Agent.get(id, fn state -> state.simulations_by_organization end)
   end
+
+  def add(pid, new_simulation = %KanbanVisionApi.Domain.Simulation{}) do
+    result = get_by_organization_id_and_simulation_name(pid, new_simulation.organization_id, new_simulation.name)
+
+    Agent.update(pid, fn state ->
+      case result do
+        {:error, _} -> put_in(
+                         state.simulations_by_organization,
+                         Map.put(state.simulations_by_organization, new_simulation.organization_id, new_simulation)
+                       )
+        {:ok, _} -> state
+      end
+    end)
+
+    case result do
+      {:error, _} -> {:ok, new_simulation}
+      {:ok, _} -> {
+                    :error,
+                    """
+                    Simulation with organization_id: #{new_simulation.organization_id}
+                    name: #{new_simulation.name} already exist
+                    """
+                  }
+    end
+  end
+
+  defp get_by_organization_id_and_simulation_name(pid, organization_id, simulation_name) do
+    result = get_by_organization_id(pid, organization_id)
+
+    case result do
+      {:error, _} -> result
+      {:ok, map_of_simulations} ->
+        case Map.values(map_of_simulations) do
+          [] -> {:error, "Simulation with organization id: #{organization_id} not found"}
+          list_of_simulations ->
+            case Enum.find(list_of_simulations, fn simulation -> simulation.name == simulation_name end) do
+              nil -> {:error, "Simulation with name: #{simulation_name} not found"}
+              simulation -> {:ok, simulation}
+            end
+        end
+    end
+  end
+
+  defp get_by_organization_id(pid, organization_id) do
+    Agent.get(pid, fn state ->
+      case Map.get(state.simulations_by_organization, organization_id) do
+        nil -> {:error, "Simulation with organization id: #{organization_id} not found"}
+        map_of_simulations -> {:ok, map_of_simulations}
+      end
+    end)
+  end
 end
