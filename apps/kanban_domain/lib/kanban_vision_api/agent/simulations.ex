@@ -29,13 +29,23 @@ defmodule KanbanVisionApi.Agent.Simulations do
   end
 
   def add(pid, new_simulation = %KanbanVisionApi.Domain.Simulation{}) do
-    result = get_by_organization_id_and_simulation_name(pid, new_simulation.organization_id, new_simulation.name)
+    result = get_by_organization_id_and_simulation_name(
+      pid,
+      new_simulation.organization_id,
+      new_simulation.name)
 
     Agent.update(pid, fn state ->
+
+      map_of_simulations = Map.get(state.simulations_by_organization, new_simulation.organization_id, %{})
+      new_simulations_by_organization = Map.put_new(map_of_simulations, new_simulation.id, new_simulation)
+
       case result do
         {:error, _} -> put_in(
                          state.simulations_by_organization,
-                         Map.put(state.simulations_by_organization, new_simulation.organization_id, %{new_simulation.id => new_simulation})
+                         Map.put(
+                           state.simulations_by_organization,
+                           new_simulation.organization_id, new_simulations_by_organization
+                         )
                        )
         {:ok, _} -> state
       end
@@ -62,7 +72,10 @@ defmodule KanbanVisionApi.Agent.Simulations do
         case Map.values(map_of_simulations) do
           [] -> {:error, "Simulation with organization id: #{organization_id} not found"}
           list_of_simulations ->
-            case Enum.find(list_of_simulations, fn simulation -> simulation.name == simulation_name end) do
+            case Enum.find(
+                   list_of_simulations,
+                   fn simulation -> simulation.name == simulation_name end
+                 ) do
               nil -> {:error, "Simulation with name: #{simulation_name} not found"}
               simulation -> {:ok, simulation}
             end

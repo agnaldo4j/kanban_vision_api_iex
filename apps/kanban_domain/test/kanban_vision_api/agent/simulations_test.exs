@@ -49,6 +49,27 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
+
+    @tag :domain_smulations
+    test "should be able to add a new simulation to a specific organization", %{
+           actor_pid: pid,
+           simulations: _simulations,
+           simulation: simulation,
+           organization: organization
+         } = _context do
+
+      new_simulation = KanbanVisionApi.Domain.Simulation.new(
+        "AnotherExampleOfSimulation",
+        "AnotherExampleOfSimulationDescription",
+        organization.id
+      )
+
+      assert KanbanVisionApi.Agent.Simulations.add(pid, new_simulation) == {:ok, new_simulation}
+
+      template = %{organization.id => %{new_simulation.id => new_simulation, simulation.id => simulation}}
+
+      assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
+    end
   end
 
   defp prepare_empty_context(_context) do
