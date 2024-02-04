@@ -70,6 +70,23 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
+
+    @tag :domain_smulations
+    test "Try to add a simulation that already exists", %{
+           actor_pid: pid,
+           simulations: _simulations,
+           simulation: simulation,
+           organization: _organization
+         } = _context do
+
+      assert KanbanVisionApi.Agent.Simulations.add(pid, simulation) == {
+        :error,
+        """
+        Simulation with organization_id: #{simulation.organization_id}
+        name: #{simulation.name} already exist
+        """
+      }
+    end
   end
 
   defp prepare_empty_context(_context) do
