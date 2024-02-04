@@ -41,16 +41,11 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     test "should be able to get all simulations for a specific organization", %{
            actor_pid: pid,
            simulations: _simulations,
+           simulation: simulation,
            organization: organization
          } = _context do
 
-      simulation_domain = KanbanVisionApi.Domain.Simulation.new(
-        "ExampleSimulation",
-        "ExampleSimulationDescription",
-        organization.id
-      )
-
-      template = %{organization.id => %{simulation_domain.id => simulation_domain}}
+      template = %{organization.id => %{simulation.id => simulation}}
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
@@ -68,20 +63,24 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   end
 
   defp prepare_context_with_data(_context) do
-    simulations_domain = KanbanVisionApi.Agent.Simulations.new()
     organization_domain = KanbanVisionApi.Agent.Organizations.new("ExampleOrg")
     simulation_domain = KanbanVisionApi.Domain.Simulation.new(
       "ExampleSimulation",
       "ExampleSimulationDescription",
       organization_domain.id
     )
-    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
 
-    KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain)
+    simulations_by_organization = %{
+      organization_domain.id => %{simulation_domain.id => simulation_domain}
+    }
+    simulations_domain = KanbanVisionApi.Agent.Simulations.new(simulations_by_organization)
+
+    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
 
     [
       actor_pid: pid,
       simulations: simulations_domain,
+      simulation: simulation_domain,
       organization: organization_domain
     ]
   end

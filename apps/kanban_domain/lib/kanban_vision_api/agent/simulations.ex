@@ -35,7 +35,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
       case result do
         {:error, _} -> put_in(
                          state.simulations_by_organization,
-                         Map.put(state.simulations_by_organization, new_simulation.organization_id, new_simulation)
+                         Map.put(state.simulations_by_organization, new_simulation.organization_id, %{new_simulation.id => new_simulation})
                        )
         {:ok, _} -> state
       end
