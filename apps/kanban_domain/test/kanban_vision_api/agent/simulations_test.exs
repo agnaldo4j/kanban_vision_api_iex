@@ -33,11 +33,52 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       assert KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain) == {:ok, simulation_domain}
     end
   end
+  
+  describe "When the system is already started and already has data" do
+    setup [:prepare_context_with_data]
+
+    @tag :domain_smulations
+    test "should be able to get all simulations for a specific organization", %{
+           actor_pid: pid,
+           simulations: _simulations,
+           organization: organization
+         } = _context do
+
+      simulation_domain = KanbanVisionApi.Domain.Simulation.new(
+        "ExampleSimulation",
+        "ExampleSimulationDescription",
+        organization.id
+      )
+
+      template = %{organization.id => %{simulation_domain.id => simulation_domain}}
+
+      assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
+    end
+  end
 
   defp prepare_empty_context(_context) do
     simulations_domain = KanbanVisionApi.Agent.Simulations.new()
     organization_domain = KanbanVisionApi.Agent.Organizations.new("ExampleOrg")
     {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+    [
+      actor_pid: pid,
+      simulations: simulations_domain,
+      organization: organization_domain
+    ]
+  end
+
+  defp prepare_context_with_data(_context) do
+    simulations_domain = KanbanVisionApi.Agent.Simulations.new()
+    organization_domain = KanbanVisionApi.Agent.Organizations.new("ExampleOrg")
+    simulation_domain = KanbanVisionApi.Domain.Simulation.new(
+      "ExampleSimulation",
+      "ExampleSimulationDescription",
+      organization_domain.id
+    )
+    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+
+    KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain)
+
     [
       actor_pid: pid,
       simulations: simulations_domain,
