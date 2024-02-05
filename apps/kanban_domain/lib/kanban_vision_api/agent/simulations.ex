@@ -32,12 +32,20 @@ defmodule KanbanVisionApi.Agent.Simulations do
     result = get_by_organization_id_and_simulation_name(
       pid,
       new_simulation.organization_id,
-      new_simulation.name)
+      new_simulation.name
+    )
 
     Agent.update(pid, fn state ->
 
-      map_of_simulations = Map.get(state.simulations_by_organization, new_simulation.organization_id, %{})
-      new_simulations_by_organization = Map.put_new(map_of_simulations, new_simulation.id, new_simulation)
+      map_of_simulations = Map.get(
+        state.simulations_by_organization,
+        new_simulation.organization_id, %{}
+      )
+
+      new_simulations_by_organization = Map.put_new(
+        map_of_simulations,
+        new_simulation.id, new_simulation
+      )
 
       case result do
         {:error, _} -> put_in(
