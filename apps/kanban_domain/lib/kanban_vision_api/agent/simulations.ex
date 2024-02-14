@@ -1,5 +1,4 @@
 defmodule KanbanVisionApi.Agent.Simulations do
-  @moduledoc false
 
   use Agent
 
