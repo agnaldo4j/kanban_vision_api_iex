@@ -1,4 +1,5 @@
 defmodule KanbanVisionApi.Agent.Organizations do
+  @moduledoc false
 
   use Agent
 

@@ -1,4 +1,5 @@
 defmodule KanbanVisionApi.Agent.Simulations do
+  @moduledoc false
 
   use Agent
 
@@ -76,17 +77,24 @@ defmodule KanbanVisionApi.Agent.Simulations do
     case result do
       {:error, _} -> result
       {:ok, map_of_simulations} ->
-        case Map.values(map_of_simulations) do
-          [] -> {:error, "Simulation with organization id: #{organization_id} not found"}
-          list_of_simulations ->
-            case Enum.find(
-                   list_of_simulations,
-                   fn simulation -> simulation.name == simulation_name end
-                 ) do
-              nil -> {:error, "Simulation with name: #{simulation_name} not found"}
-              simulation -> {:ok, simulation}
-            end
-        end
+        find_by_symulation_name(map_of_simulations, organization_id, simulation_name)
+    end
+  end
+
+  defp find_by_symulation_name(map_of_simulations, organization_id, simulation_name) do
+    case Map.values(map_of_simulations) do
+      [] -> {:error, "Simulation with organization id: #{organization_id} not found"}
+      list_of_simulations -> find_by_symulation_name(list_of_simulations, simulation_name)
+    end
+  end
+
+  defp find_by_symulation_name(list_of_simulations, simulation_name) do
+    case Enum.find(
+           list_of_simulations,
+           fn simulation -> simulation.name == simulation_name end
+         ) do
+      nil -> {:error, "Simulation with name: #{simulation_name} not found"}
+      simulation -> {:ok, simulation}
     end
   end
 

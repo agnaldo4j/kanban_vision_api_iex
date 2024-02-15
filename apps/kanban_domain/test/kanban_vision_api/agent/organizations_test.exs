@@ -83,7 +83,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     end
 
     @tag :domain_organizations
-    test "should not be possible to find the organization by the wrong id",%{
+    test "should not be possible to find the organization by the wrong id", %{
            actor_pid: pid,
            organizations: _organizations,
            domain: _domain
@@ -94,7 +94,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     end
 
     @tag :domain_organizations
-    test "should no be possible to find the organization by the wrong name",%{
+    test "should no be possible to find the organization by the wrong name", %{
            actor_pid: pid,
            organizations: _organizations,
            domain: _domain
@@ -105,7 +105,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     end
 
     @tag :domain_organizations
-    test "should no be possible to add one organization with the name already exist",%{
+    test "should no be possible to add one organization with the name already exist", %{
            actor_pid: pid,
            organizations: _organizations,
            domain: domain
