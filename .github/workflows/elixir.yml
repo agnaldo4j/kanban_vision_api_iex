@@ -37,7 +37,7 @@ jobs:
     - name: Run Credo
       run: mix credo
     - name: Run Coverage
-      run: MIX_ENV=test mix coveralls.github
+      run: MIX_ENV=test mix coveralls.github --umbrella
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Run tests
