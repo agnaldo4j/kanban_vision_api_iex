@@ -6,8 +6,8 @@ defmodule KanbanVisionApiIex.MixProject do
       apps_path: "apps",
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
-      test_coverage: [tool: ExCoveralls],
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
