@@ -87,6 +87,19 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
         """
       }
     end
+
+    @tag :domain_smulations
+    test "try to find a simulation on a non existent organization", %{
+           actor_pid: pid,
+           simulations: _simulations,
+           organization: _organization
+         } = _context do
+
+      template = {:error, "Simulation with organization id: INVALID not found"}
+
+      assert KanbanVisionApi.Agent.Simulations
+             .get_by_organization_id_and_simulation_name(pid, "INVALID", "Simulation Name") == template
+    end
   end
 
   defp prepare_empty_context(_context) do

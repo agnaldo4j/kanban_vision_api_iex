@@ -71,7 +71,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
     end
   end
 
-  defp get_by_organization_id_and_simulation_name(pid, organization_id, simulation_name) do
+  def get_by_organization_id_and_simulation_name(pid, organization_id, simulation_name) do
     result = get_by_organization_id(pid, organization_id)
 
     case result do
