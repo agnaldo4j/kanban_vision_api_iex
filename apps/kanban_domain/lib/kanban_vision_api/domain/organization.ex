@@ -1,19 +1,21 @@
 defmodule KanbanVisionApi.Domain.Organization do
   @moduledoc false
 
-  defstruct [:id, :audit, :name]
+  defstruct [:id, :audit, :name, :tribes]
 
   @type t :: %KanbanVisionApi.Domain.Organization {
                id: String.t,
                audit: KanbanVisionApi.Domain.Audit.t,
-               name: String.t
+               name: String.t,
+               tribes: List.t
              }
 
-  def new(name, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
+  def new(name, tribes \\ [], id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new) do
     %KanbanVisionApi.Domain.Organization{
       id: id,
       audit: audit,
-      name: name
+      name: name,
+      tribes: tribes
     }
   end
 end

@@ -6,12 +6,23 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     setup [:prepare_empty_context]
 
     @tag :domain_boards
-    test "should not have any boards by a simulation", %{
-           actor_pid: _pid,
+    test "should not have any boards by any simulation", %{
+           actor_pid: pid,
            boards: _boards
          } = _context do
 
-      assert nil == nil
+      template = %{}
+      assert KanbanVisionApi.Agent.Boards.get_all(pid) == template
+    end
+
+    @tag :domain_boards
+    test "should not have any board by simulation_id", %{
+           actor_pid: pid,
+           boards: _boards
+         } = _context do
+
+      template = {:error, "Boards by simulation_id: nada not found"}
+      assert KanbanVisionApi.Agent.Boards.get_all_by_simulation_id(pid, "nada") == template
     end
   end
 
