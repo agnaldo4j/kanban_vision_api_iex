@@ -24,6 +24,21 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
       template = {:error, "Boards by simulation_id: nada not found"}
       assert KanbanVisionApi.Agent.Boards.get_all_by_simulation_id(pid, "nada") == template
     end
+
+    @tag :domain_boards
+    test "not be able to add a new board to a not found simulation id", %{
+           actor_pid: pid,
+           boards: _boards,
+           workflow: _workflow
+         } = _context do
+
+      board_domain = KanbanVisionApi.Domain.Board.new(
+        "ExampleBoard"
+      )
+
+      template = {:error, "Boards by simulation_id: Default Simulation ID not found"}
+      assert KanbanVisionApi.Agent.Boards.add(pid, board_domain) == template
+    end
   end
 
   defp prepare_empty_context(_context) do
