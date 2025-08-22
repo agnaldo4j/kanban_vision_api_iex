@@ -40,6 +40,53 @@ The project includes a suite of tests to ensure its functionality. You can run t
 mix test
 ```
 
+### Running tests with @moduletag/@tag
+
+You can organize and filter tests using ExUnit tags. For example, to group slower or external dependency tests as integration:
+
+In a test module:
+
+```elixir
+defmodule MyModuleTest do
+  use ExUnit.Case
+
+  @moduletag :integration
+
+  test "something", do: assert true
+end
+```
+
+Or on a single test:
+
+```elixir
+  @tag :integration
+  test "only this is integration", do: assert true
+```
+
+By default, this repo excludes :integration tests in apps/ast/test/test_helper.exs. You can control what to run:
+
+- Run only integration tests:
+
+```bash
+mix test --only integration
+```
+
+- Exclude integration tests explicitly (default behavior):
+
+```bash
+mix test --exclude integration
+```
+
+- Run a specific tag key/value (e.g., @tag :slow true):
+
+```bash
+mix test --only slow
+# or
+mix test --only slow:true
+```
+
+Tip: multiple @moduletag lines are allowed (e.g., @moduletag :capture_log and @moduletag :integration).
+
 ## Contributing
 
 Contributions to the Kanban Vision API are welcome. Please ensure that you have tested your changes thoroughly before submitting a pull request.
