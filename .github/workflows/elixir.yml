@@ -24,6 +24,11 @@ jobs:
       with:
         elixir-version: '1.18.4' # Define the elixir version [required]
         otp-version: '28.0.2_1' # Define the OTP version [required]
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.18.0'
+        cache: 'npm'
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
