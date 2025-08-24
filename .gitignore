@@ -26,6 +26,8 @@ erl_crash.dump
 # Temporary files, for example, from tests.
 /tmp/
 
-/node_modules
+node_modules/
+
+/node_modules/
 
 *.~undo-tree~
