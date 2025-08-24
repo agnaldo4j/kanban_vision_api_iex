@@ -40,7 +40,7 @@ jobs:
       run: |
         if [ -f apps/ast/asset/package.json ]; then
           cd apps/ast/asset/
-          npm ci
+          npm install
         fi
     - name: Install dependencies
       run: mix deps.get
