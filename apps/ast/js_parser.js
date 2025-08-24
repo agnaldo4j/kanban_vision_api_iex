@@ -1,6 +1,6 @@
 // js_parser.js
-const acorn = require('"asset/node_modules/acorn');
-const ts = require('"asset/node_modules/typescript');
+const acorn = require('asset/node_modules/acorn');
+const ts = require('asset/node_modules/typescript');
 
 process.stdin.on('data', (data) => {
     try {
