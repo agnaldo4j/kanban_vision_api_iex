@@ -39,7 +39,7 @@ jobs:
     - name: Install Node.js dependencies
       run: |
         if [ -f apps/ast/asset/package.json ]; then
-          cd apps/ast/assets/
+          cd apps/ast/asset/
           npm ci
         fi
     - name: Install dependencies
