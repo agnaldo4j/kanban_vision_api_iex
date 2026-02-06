@@ -32,6 +32,13 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   @impl true
   def handle_call({:push, element}, _from, state) do
-    {:reply, {:ok, element}, state}
+    new_state =
+      case element do
+        %{id: id} when is_binary(id) -> Map.put(state, id, element)
+        {id, value} when is_binary(id) -> Map.put(state, id, value)
+        _ -> Map.put(state, UUID.uuid4(), element)
+      end
+
+    {:reply, {:ok, element}, new_state}
   end
 end

@@ -16,7 +16,7 @@ defmodule KanbanVisionApi.Domain.Board do
         name \\ "Default",
         simulation_id \\ "Default Simulation ID",
         workflow  \\ %KanbanVisionApi.Domain.Workflow{}, 
-        workers \\ %{}, 
+        workers \\ [],
         id \\ UUID.uuid4(), 
         audit \\ KanbanVisionApi.Domain.Audit.new
       ) do

@@ -7,6 +7,15 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
       {:ok, pid} = KanbanVisionApi.Usecase.Simulation.start_link()
       assert KanbanVisionApi.Usecase.Simulation.fetch(pid) == {:ok, %{}}
     end
+
+    test "should persist pushed elements" do
+      {:ok, pid} = KanbanVisionApi.Usecase.Simulation.start_link()
+      assert KanbanVisionApi.Usecase.Simulation.push(pid, {"simulation-1", %{name: "Sim 1"}}) ==
+               {:ok, {"simulation-1", %{name: "Sim 1"}}}
+
+      assert KanbanVisionApi.Usecase.Simulation.fetch(pid) ==
+               {:ok, %{"simulation-1" => %{name: "Sim 1"}}}
+    end
   end
 
 end

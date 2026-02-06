@@ -61,7 +61,7 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defp get_by_simulation_id(boards, simulation_id) do
     Map.values(boards)
-    |> Enum.filter(fn {_, board} -> board.simulation_id == simulation_id end)
+    |> Enum.filter(fn board -> board.simulation_id == simulation_id end)
     |> prepare_by_boards_result(simulation_id)
   end
 

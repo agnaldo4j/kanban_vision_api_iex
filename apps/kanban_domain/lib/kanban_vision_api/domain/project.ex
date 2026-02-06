@@ -10,9 +10,12 @@ defmodule KanbanVisionApi.Domain.Project do
                tasks: List.t(KanbanVisionApi.Domain.Task.t())
              }
 
-  def new(name) do
+  def new(name, order \\ 0, tasks \\ [], id \\ UUID.uuid4()) do
     %KanbanVisionApi.Domain.Project{
-      name: name
+      id: id,
+      name: name,
+      order: order,
+      tasks: tasks
     }
   end
 end
