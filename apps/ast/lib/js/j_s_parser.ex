@@ -23,7 +23,7 @@ defmodule JS.JSParser do
       {^port, {:exit_status, 0}} ->
         Jason.decode(acc)
       {^port, {:exit_status, status}} ->
-        {:error, {:exit_status, status}}
+        {:error, {:exit_status, status}} 
     after 5000 ->
       Port.close(port)
       {:error, :timeout}
