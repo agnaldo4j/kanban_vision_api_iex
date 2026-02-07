@@ -21,11 +21,11 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   @spec start_link(KanbanVisionApi.Agent.Organizations.t) :: Agent.on_start()
   def start_link(default \\ KanbanVisionApi.Agent.Organizations.new) do
-    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
+    Agent.start_link(fn -> default end)
   end
 
-  def get_all(id) do
-    Agent.get(id, fn state -> state.organizations end)
+  def get_all(pid) do
+    Agent.get(pid, fn state -> state.organizations end)
   end
 
   def get_by_id(pid, domain_id) do
@@ -44,39 +44,33 @@ defmodule KanbanVisionApi.Agent.Organizations do
   end
 
   def add(pid, new_organization = %KanbanVisionApi.Domain.Organization{}) do
-    result = get_by_name(pid, new_organization.name)
-
-    Agent.update(pid, fn state ->
-      case result do
-        {:error, _} -> put_in(
-                         state.organizations,
-                         Map.put(state.organizations, new_organization.id, new_organization)
-                       )
-        {:ok, _} -> state
+    Agent.get_and_update(pid, fn state ->
+      case internal_get_by_name(state.organizations, new_organization.name) do
+        {:error, _} ->
+          new_orgs = Map.put(state.organizations, new_organization.id, new_organization)
+          new_state = put_in(state.organizations, new_orgs)
+          {{:ok, new_organization}, new_state}
+        {:ok, _} ->
+          {{:error, "Organization with name: #{new_organization.name} already exist"}, state}
       end
     end)
-
-    case result do
-      {:error, _} -> {:ok, new_organization}
-      {:ok, _} -> {:error, "Organization with name: #{new_organization.name} already exist"}
-    end
   end
 
   def delete(pid, domain_id) do
-    result = get_by_id(pid, domain_id)
-
-    Agent.update(pid, fn state ->
-      case result do
-        {:error, _} -> state
-        {:ok, domain} -> put_in(state.organizations, Map.delete(state.organizations, domain.id))
+    Agent.get_and_update(pid, fn state ->
+      case Map.get(state.organizations, domain_id) do
+        nil ->
+          {{:error, "Organization with id: #{domain_id} not found"}, state}
+        domain ->
+          new_orgs = Map.delete(state.organizations, domain.id)
+          new_state = put_in(state.organizations, new_orgs)
+          {{:ok, domain}, new_state}
       end
     end)
-
-    result
   end
 
-  defp internal_get_by_name(state, domain_name) do
-    Map.values(state)
+  defp internal_get_by_name(organizations, domain_name) do
+    Map.values(organizations)
     |> Enum.filter(fn domain -> domain.name == domain_name end)
     |> prepare_by_name_result(domain_name)
   end

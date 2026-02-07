@@ -1,7 +1,7 @@
 defmodule KanbanVisionApi.Domain.Simulation do
   @moduledoc false
 
-  defstruct [:id, :audit, :name, :description, :organization_id, :board, :defualt_projects]
+  defstruct [:id, :audit, :name, :description, :organization_id, :board, :default_projects]
 
   @type t :: %KanbanVisionApi.Domain.Simulation{
                id: String.t(),
@@ -9,8 +9,8 @@ defmodule KanbanVisionApi.Domain.Simulation do
                name: String.t(),
                description: String.t(),
                organization_id: String.t(),
-               board: KanbanVisionApi.Domain.Board.t(),
-               defualt_projects: List.t(KanbanVisionApi.Domain.Project.t())
+               board: KanbanVisionApi.Domain.Board.t() | nil,
+               default_projects: List.t(KanbanVisionApi.Domain.Project.t())
              }
 
   def new(
@@ -29,7 +29,7 @@ defmodule KanbanVisionApi.Domain.Simulation do
       description: description,
       organization_id: organization_id,
       board: board,
-      defualt_projects: default_projects
+      default_projects: default_projects
     }
   end
 end

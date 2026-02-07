@@ -21,36 +21,30 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   @spec start_link(KanbanVisionApi.Agent.Boards.t) :: Agent.on_start()
   def start_link(default \\ KanbanVisionApi.Agent.Boards.new) do
-    Agent.start_link(fn -> default end, name: String.to_atom(default.id))
+    Agent.start_link(fn -> default end)
   end
 
   def add(pid, new_board = %KanbanVisionApi.Domain.Board{}) do
-    result = Agent.get(pid, fn state -> get_by_board(state.boards, new_board) end)
-
-    Agent.update(pid, fn state ->
-      case result do
-        {:error, _} -> put_in(
-                         state.boards,
-                         Map.put(state.boards, new_board.id, new_board)
-                       )
-        {:ok, _} -> state
+    Agent.get_and_update(pid, fn state ->
+      case get_by_board(state.boards, new_board) do
+        {:error, _} ->
+          new_state = put_in(
+            state.boards,
+            Map.put(state.boards, new_board.id, new_board)
+          )
+          {{:ok, new_board}, new_state}
+        {:ok, _} ->
+          {{:error,
+            """
+            Board with name: #{new_board.name}
+            from simulation_id: #{new_board.simulation_id} already exist
+            """}, state}
       end
     end)
-
-    case result do
-      {:error, _} -> {:ok, new_board}
-      {:ok, _} -> {
-                    :error,
-                    """
-                    Board with name: #{new_board.name}
-                    from simulation_id: #{new_board.simulation_id} already exist
-                    """
-                  }
-    end
   end
 
-  def get_all(id) do
-    Agent.get(id, fn state -> state.boards end)
+  def get_all(pid) do
+    Agent.get(pid, fn state -> state.boards end)
   end
 
   def get_all_by_simulation_id(pid, simulation_id) do
@@ -61,7 +55,7 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defp get_by_simulation_id(boards, simulation_id) do
     Map.values(boards)
-    |> Enum.filter(fn {_, board} -> board.simulation_id == simulation_id end)
+    |> Enum.filter(fn board -> board.simulation_id == simulation_id end)
     |> prepare_by_boards_result(simulation_id)
   end
 
@@ -79,8 +73,8 @@ defmodule KanbanVisionApi.Agent.Boards do
   defp get_by_name_and_simulation_id(boards, name, simulation_id) do
     result = get_by_simulation_id(boards, simulation_id)
     case result do
-      {:ok, boards} ->
-        boards_by_name = Enum.filter(boards, fn board -> board.name == name end)
+      {:ok, filtered_boards} ->
+        boards_by_name = Enum.filter(filtered_boards, fn board -> board.name == name end)
         case boards_by_name do
           [] -> {:error, "Boards by name: #{name} and simulation_id: #{simulation_id} not found"}
           _ -> {:ok, boards_by_name}

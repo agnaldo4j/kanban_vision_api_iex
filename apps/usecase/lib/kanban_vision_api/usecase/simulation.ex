@@ -1,11 +1,11 @@
 defmodule KanbanVisionApi.Usecase.Simulation do
   @moduledoc false
 
-  @behaviour GenServer
+  use GenServer
 
   # Client
 
-  @spec start_link(list) :: GenServer.on_start()
+  @spec start_link(map) :: GenServer.on_start()
   def start_link(default \\ %{}) when is_map(default) do
     GenServer.start_link(__MODULE__, default)
   end
@@ -32,6 +32,7 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   @impl true
   def handle_call({:push, element}, _from, state) do
-    {:reply, {:ok, element}, state}
+    new_state = Map.put(state, element.id, element)
+    {:reply, {:ok, element}, new_state}
   end
 end

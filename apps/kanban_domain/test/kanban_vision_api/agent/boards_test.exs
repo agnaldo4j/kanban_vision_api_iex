@@ -28,7 +28,7 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
 
   defp prepare_empty_context(_context) do
     boards_domain = KanbanVisionApi.Agent.Boards.new()
-    workflow_domain = KanbanVisionApi.Domain.Workflow.new("ExampleWorkflow")
+    workflow_domain = KanbanVisionApi.Domain.Workflow.new()
     {:ok, pid} = KanbanVisionApi.Agent.Boards.start_link(boards_domain)
     [
       actor_pid: pid,
