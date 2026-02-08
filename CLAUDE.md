@@ -71,4 +71,4 @@ Per-app minimums enforced in each `coveralls.json`:
 
 ## CI
 
-GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28, Node.js 20. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
+GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
