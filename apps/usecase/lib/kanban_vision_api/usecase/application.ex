@@ -8,8 +8,8 @@ defmodule KanbanVisionApi.Usecase.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: Usecase.Worker.start_link(arg)
-      # {Usecase.Worker, arg}
+      {KanbanVisionApi.Usecase.Organization, name: KanbanVisionApi.Usecase.Organization},
+      {KanbanVisionApi.Usecase.Simulation, name: KanbanVisionApi.Usecase.Simulation}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -100,6 +100,42 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       assert KanbanVisionApi.Agent.Simulations
              .get_by_organization_id_and_simulation_name(pid, "INVALID", "Simulation Name") == template
     end
+
+    @tag :domain_smulations
+    test "try to find a simulation by name that does not exist", %{
+           actor_pid: pid,
+           organization: organization
+         } = _context do
+
+      template = {:error, "Simulation with name: Missing Simulation not found"}
+
+      assert KanbanVisionApi.Agent.Simulations
+             .get_by_organization_id_and_simulation_name(
+               pid,
+               organization.id,
+               "Missing Simulation"
+             ) == template
+    end
+  end
+
+  describe "When the system has an organization with no simulations" do
+    setup [:prepare_context_with_empty_org]
+
+    @tag :domain_smulations
+    test "should return error for missing simulations on existing organization", %{
+           actor_pid: pid,
+           organization: organization
+         } = _context do
+
+      template = {:error, "Simulation with organization id: #{organization.id} not found"}
+
+      assert KanbanVisionApi.Agent.Simulations
+             .get_by_organization_id_and_simulation_name(
+               pid,
+               organization.id,
+               "Any Simulation"
+             ) == template
+    end
   end
 
   defp prepare_empty_context(_context) do
@@ -132,6 +168,18 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       actor_pid: pid,
       simulations: simulations_domain,
       simulation: simulation_domain,
+      organization: organization_domain
+    ]
+  end
+
+  defp prepare_context_with_empty_org(_context) do
+    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
+    simulations_domain = KanbanVisionApi.Agent.Simulations.new(%{organization_domain.id => %{}})
+    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+
+    [
+      actor_pid: pid,
+      simulations: simulations_domain,
       organization: organization_domain
     ]
   end
