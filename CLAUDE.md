@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Install dependencies
 mix deps.get
-cd apps/ast/asset && npm ci   # Node.js deps for AST parser
 
 # Run all tests
 mix test
@@ -44,7 +43,6 @@ Elixir **umbrella project** implementing a Kanban board simulator using OTP and 
 - **kanban_domain** — Core domain structs and Agent-based state stores. The Agents (Organizations, Simulations, Boards) hold the entire object graph in memory using `Agent.get_and_update` for atomic operations. Domain structs all have UUID `id` fields and `Audit` timestamps.
 - **usecase** — GenServer-based application layer that orchestrates domain operations. Contains the OTP Application supervisor (`KanbanVisionApi.Usecase.Application`).
 - **persistence** — Placeholder for event sourcing / CQRS persistence (event logs + snapshots).
-- **ast** — JavaScript/TypeScript AST parser via Node.js Port. The `js_parser.js` lives at `apps/ast/` root (not `priv/`) and requires modules from `./asset/node_modules/`.
 
 ### Data Flow
 
@@ -73,4 +71,4 @@ Per-app minimums enforced in each `coveralls.json`:
 
 ## CI
 
-GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28, Node.js 20. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
+GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
