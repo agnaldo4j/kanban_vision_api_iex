@@ -1,11 +1,11 @@
 defmodule KanbanVisionApi.Usecase.Organization do
   @moduledoc false
 
-  @behaviour GenServer
+  use GenServer
 
   # Client
 
-  @spec start_link(list) :: GenServer.on_start()
+  @spec start_link(map) :: GenServer.on_start()
   def start_link(default \\ %{}) when is_map(default) do
     GenServer.start_link(__MODULE__, default)
   end

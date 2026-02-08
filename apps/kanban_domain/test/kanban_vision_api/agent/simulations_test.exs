@@ -104,7 +104,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
   defp prepare_empty_context(_context) do
     simulations_domain = KanbanVisionApi.Agent.Simulations.new()
-    organization_domain = KanbanVisionApi.Agent.Organizations.new("ExampleOrg")
+    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
     {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
     [
       actor_pid: pid,
@@ -114,7 +114,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   end
 
   defp prepare_context_with_data(_context) do
-    organization_domain = KanbanVisionApi.Agent.Organizations.new("ExampleOrg")
+    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
     simulation_domain = KanbanVisionApi.Domain.Simulation.new(
       "ExampleSimulation",
       "ExampleSimulationDescription",
