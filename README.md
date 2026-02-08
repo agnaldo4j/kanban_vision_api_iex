@@ -49,7 +49,6 @@ All domain entities are created via `Module.new(...)` factory functions that aut
 ## Prerequisites
 
 - **Elixir** >= 1.18 with **OTP** >= 28
-- **Node.js** >= 20 (for the AST parser)
 
 ## Getting Started
 
@@ -60,8 +59,6 @@ cd kanban_vision_api_iex
 
 # Install Elixir dependencies
 mix deps.get
-
-
 # Compile
 mix compile
 
@@ -124,9 +121,9 @@ mix format
 
 GitHub Actions runs on every push and PR to `main`:
 
-**Elixir 1.18.4** | **OTP 28** | **Node.js 20** | **Ubuntu**
+**Elixir 1.18.4** | **OTP 28** | **Ubuntu**
 
-Pipeline: `npm ci` -> `mix deps.get` -> `mix credo` -> `mix coveralls` -> `mix test --cover`
+Pipeline: `mix deps.get` -> `mix credo` -> `mix coveralls` -> `mix test --cover`
 
 ## Contributing
 
