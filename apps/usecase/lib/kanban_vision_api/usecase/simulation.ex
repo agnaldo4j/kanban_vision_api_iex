@@ -5,9 +5,18 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   # Client
 
-  @spec start_link(map) :: GenServer.on_start()
-  def start_link(default \\ %{}) when is_map(default) do
+  @spec start_link(map | keyword) :: GenServer.on_start()
+  def start_link() do
+    start_link(%{})
+  end
+
+  def start_link(default) when is_map(default) do
     GenServer.start_link(__MODULE__, default)
+  end
+
+  def start_link(opts) when is_list(opts) do
+    {initial, opts} = Keyword.pop(opts, :initial, %{})
+    GenServer.start_link(__MODULE__, initial, opts)
   end
 
   def push(pid, element) do
