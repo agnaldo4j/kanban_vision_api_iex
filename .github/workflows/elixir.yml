@@ -24,21 +24,12 @@ jobs:
       with:
         elixir-version: '1.18.4' # Define the elixir version [required]
         otp-version: '28.0.2_1' # Define the OTP version [required]
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        cache-dependency-path: apps/ast/asset/package-lock.json
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
         path: deps
         key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: ${{ runner.os }}-mix-
-    - name: Install Node.js dependencies
-      working-directory: apps/ast/asset
-      run: npm ci
     - name: Install dependencies
       run: mix deps.get
     - name: Compile dependencies
