@@ -10,12 +10,11 @@ A Kanban board simulator built with **Elixir/OTP** that uses the [Object Prevale
 - **Kanban Simulation** — Model organizations, teams, and workflows to simulate how work items flow through a Kanban board
 - **Object Prevalence** — In-memory state managed by OTP Agents (inspired by [Prevayler](https://prevayler.org/)), providing fast reads and atomic mutations
 - **Real Data Integration** — Import project data from tools like Jira to simulate with actual workflow metrics
-- **JS/TS AST Parser** — Built-in JavaScript and TypeScript parser via Node.js Port, producing ESTree-compatible ASTs
 - **Event Sourcing Ready** — Persistence layer designed for CQRS with event logs and snapshots
 
 ## Architecture
 
-Elixir **umbrella project** with four applications:
+Elixir **umbrella project** with three applications:
 
 ```
 Client -> GenServer (usecase) -> Agent (kanban_domain) -> In-Memory Map
@@ -26,7 +25,6 @@ Client -> GenServer (usecase) -> Agent (kanban_domain) -> In-Memory Map
 | **kanban_domain** | Core domain structs and Agent-based state stores. Agents hold the entire object graph in memory using `Agent.get_and_update` for atomic operations. |
 | **usecase** | GenServer-based application layer that orchestrates domain operations. Contains the OTP Application supervisor. |
 | **persistence** | Event sourcing / CQRS persistence layer with event logs and snapshots (inspired by Prevayler and Akka Persistence). |
-| **ast** | JavaScript/TypeScript AST parser via Node.js Port. Uses [Acorn](https://github.com/acornjs/acorn) for JS and the [TypeScript Compiler API](https://www.typescriptlang.org/) for TS. |
 
 ### Domain Model
 
@@ -63,8 +61,6 @@ cd kanban_vision_api_iex
 # Install Elixir dependencies
 mix deps.get
 
-# Install Node.js dependencies (for AST parser)
-cd apps/ast/asset && npm ci && cd ../../..
 
 # Compile
 mix compile
@@ -82,7 +78,6 @@ mix test
 # Run tests for a specific app
 mix test --app kanban_domain
 mix test --app usecase
-mix test --app ast
 
 # Run a single test file
 mix test apps/kanban_domain/test/kanban_vision_api/agent/organizations_test.exs
