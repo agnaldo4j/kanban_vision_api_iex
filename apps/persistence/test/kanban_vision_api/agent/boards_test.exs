@@ -62,6 +62,17 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     end
 
     @tag :domain_boards
+    test "should allow adding board with a different name for the same simulation_id", %{
+           actor_pid: pid,
+           board: board
+         } = _context do
+
+      new_board = KanbanVisionApi.Domain.Board.new("QA Board", board.simulation_id)
+      assert {:ok, ^new_board} = KanbanVisionApi.Agent.Boards.add(pid, new_board)
+      assert 2 = map_size(KanbanVisionApi.Agent.Boards.get_all(pid))
+    end
+
+    @tag :domain_boards
     test "should return error for unknown simulation_id", %{
            actor_pid: pid
          } = _context do
