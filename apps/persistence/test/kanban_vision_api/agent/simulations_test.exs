@@ -6,111 +6,118 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     setup [:prepare_empty_context]
 
     @tag :domain_smulations
-    test "should not have any simulation for any organization", %{
+    test "should not have any simulation for any organization",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            organization: _organization
          } = _context do
-
       template = %{}
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
-    test "should be able to add a new simulation to a specific organization", %{
+    test "should be able to add a new simulation to a specific organization",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            organization: organization
          } = _context do
+      simulation_domain =
+        KanbanVisionApi.Domain.Simulation.new(
+          "ExampleSimulation",
+          "ExampleSimulationDescription",
+          organization.id
+        )
 
-      simulation_domain = KanbanVisionApi.Domain.Simulation.new(
-        "ExampleSimulation",
-        "ExampleSimulationDescription",
-        organization.id
-      )
-
-      assert KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain) == {:ok, simulation_domain}
+      assert KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain) ==
+               {:ok, simulation_domain}
     end
   end
-  
+
   describe "When the system is already started and already has data" do
     setup [:prepare_context_with_data]
 
     @tag :domain_smulations
-    test "should be able to get all simulations for a specific organization", %{
+    test "should be able to get all simulations for a specific organization",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            simulation: simulation,
            organization: organization
          } = _context do
-
       template = %{organization.id => %{simulation.id => simulation}}
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
-    test "should be able to add a new simulation to a specific organization", %{
+    test "should be able to add a new simulation to a specific organization",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            simulation: simulation,
            organization: organization
          } = _context do
-
-      new_simulation = KanbanVisionApi.Domain.Simulation.new(
-        "AnotherExampleOfSimulation",
-        "AnotherExampleOfSimulationDescription",
-        organization.id
-      )
+      new_simulation =
+        KanbanVisionApi.Domain.Simulation.new(
+          "AnotherExampleOfSimulation",
+          "AnotherExampleOfSimulationDescription",
+          organization.id
+        )
 
       assert KanbanVisionApi.Agent.Simulations.add(pid, new_simulation) == {:ok, new_simulation}
 
-      template = %{organization.id => %{new_simulation.id => new_simulation, simulation.id => simulation}}
+      template = %{
+        organization.id => %{new_simulation.id => new_simulation, simulation.id => simulation}
+      }
 
       assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
-    test "Try to add a simulation that already exists", %{
+    test "Try to add a simulation that already exists",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            simulation: simulation,
            organization: _organization
          } = _context do
-
       assert KanbanVisionApi.Agent.Simulations.add(pid, simulation) == {
-        :error,
-        """
-        Simulation with organization_id: #{simulation.organization_id}
-        name: #{simulation.name} already exist
-        """
-      }
+               :error,
+               """
+               Simulation with organization_id: #{simulation.organization_id}
+               name: #{simulation.name} already exist
+               """
+             }
     end
 
     @tag :domain_smulations
-    test "try to find a simulation on a non existent organization", %{
+    test "try to find a simulation on a non existent organization",
+         %{
            actor_pid: pid,
            simulations: _simulations,
            organization: _organization
          } = _context do
-
       template = {:error, "Simulation with organization id: INVALID not found"}
 
-      assert KanbanVisionApi.Agent.Simulations
-             .get_by_organization_id_and_simulation_name(pid, "INVALID", "Simulation Name") == template
+      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
+               pid,
+               "INVALID",
+               "Simulation Name"
+             ) == template
     end
 
     @tag :domain_smulations
-    test "try to find a simulation by name that does not exist", %{
+    test "try to find a simulation by name that does not exist",
+         %{
            actor_pid: pid,
            organization: organization
          } = _context do
-
       template = {:error, "Simulation with name: Missing Simulation not found"}
 
-      assert KanbanVisionApi.Agent.Simulations
-             .get_by_organization_id_and_simulation_name(
+      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
                pid,
                organization.id,
                "Missing Simulation"
@@ -122,15 +129,14 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     setup [:prepare_context_with_empty_org]
 
     @tag :domain_smulations
-    test "should return error for missing simulations on existing organization", %{
+    test "should return error for missing simulations on existing organization",
+         %{
            actor_pid: pid,
            organization: organization
          } = _context do
-
       template = {:error, "Simulation with organization id: #{organization.id} not found"}
 
-      assert KanbanVisionApi.Agent.Simulations
-             .get_by_organization_id_and_simulation_name(
+      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
                pid,
                organization.id,
                "Any Simulation"
@@ -142,6 +148,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     simulations_domain = KanbanVisionApi.Agent.Simulations.new()
     organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
     {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+
     [
       actor_pid: pid,
       simulations: simulations_domain,
@@ -151,15 +158,18 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
   defp prepare_context_with_data(_context) do
     organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
-    simulation_domain = KanbanVisionApi.Domain.Simulation.new(
-      "ExampleSimulation",
-      "ExampleSimulationDescription",
-      organization_domain.id
-    )
+
+    simulation_domain =
+      KanbanVisionApi.Domain.Simulation.new(
+        "ExampleSimulation",
+        "ExampleSimulationDescription",
+        organization_domain.id
+      )
 
     simulations_by_organization = %{
       organization_domain.id => %{simulation_domain.id => simulation_domain}
     }
+
     simulations_domain = KanbanVisionApi.Agent.Simulations.new(simulations_by_organization)
 
     {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)

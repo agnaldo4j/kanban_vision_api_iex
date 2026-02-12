@@ -3,12 +3,14 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   use Agent
 
+  @behaviour KanbanVisionApi.Domain.Ports.SimulationRepository
+
   defstruct [:id, :simulations_by_organization]
 
-  @type t :: %KanbanVisionApi.Agent.Simulations {
-               id: String.t,
-               simulations_by_organization: Map.t
-             }
+  @type t :: %KanbanVisionApi.Agent.Simulations{
+          id: String.t(),
+          simulations_by_organization: Map.t()
+        }
 
   def new(simulations_by_organization \\ %{}, id \\ UUID.uuid4()) do
     %KanbanVisionApi.Agent.Simulations{
@@ -19,8 +21,8 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Agent.Simulations.t) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Agent.Simulations.new) do
+  @spec start_link(KanbanVisionApi.Agent.Simulations.t()) :: Agent.on_start()
+  def start_link(default \\ KanbanVisionApi.Agent.Simulations.new()) do
     Agent.start_link(fn -> default end)
   end
 
@@ -28,31 +30,40 @@ defmodule KanbanVisionApi.Agent.Simulations do
     Agent.get(pid, fn state -> state.simulations_by_organization end)
   end
 
-  def add(pid, new_simulation = %KanbanVisionApi.Domain.Simulation{}) do
+  def add(pid, %KanbanVisionApi.Domain.Simulation{} = new_simulation) do
     Agent.get_and_update(pid, fn state ->
-      result = internal_find_by_org_and_name(
-        state, new_simulation.organization_id, new_simulation.name
-      )
+      result =
+        internal_find_by_org_and_name(
+          state,
+          new_simulation.organization_id,
+          new_simulation.name
+        )
 
       case result do
         {:error, _} ->
-          map_of_simulations = Map.get(
-            state.simulations_by_organization,
-            new_simulation.organization_id, %{}
-          )
-
-          new_simulations_map = Map.put_new(
-            map_of_simulations,
-            new_simulation.id, new_simulation
-          )
-
-          new_state = put_in(
-            state.simulations_by_organization,
-            Map.put(
+          map_of_simulations =
+            Map.get(
               state.simulations_by_organization,
-              new_simulation.organization_id, new_simulations_map
+              new_simulation.organization_id,
+              %{}
             )
-          )
+
+          new_simulations_map =
+            Map.put_new(
+              map_of_simulations,
+              new_simulation.id,
+              new_simulation
+            )
+
+          new_state =
+            put_in(
+              state.simulations_by_organization,
+              Map.put(
+                state.simulations_by_organization,
+                new_simulation.organization_id,
+                new_simulations_map
+              )
+            )
 
           {{:ok, new_simulation}, new_state}
 
@@ -74,7 +85,9 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   defp internal_find_by_org_and_name(state, organization_id, simulation_name) do
     case Map.get(state.simulations_by_organization, organization_id) do
-      nil -> {:error, "Simulation with organization id: #{organization_id} not found"}
+      nil ->
+        {:error, "Simulation with organization id: #{organization_id} not found"}
+
       map_of_simulations ->
         find_by_simulation_name(map_of_simulations, organization_id, simulation_name)
     end

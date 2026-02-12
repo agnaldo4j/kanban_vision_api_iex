@@ -3,12 +3,14 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   use Agent
 
+  @behaviour KanbanVisionApi.Domain.Ports.BoardRepository
+
   defstruct [:id, :boards]
 
-  @type t :: %KanbanVisionApi.Agent.Boards {
-               id: String.t,
-               boards: Map.t
-             }
+  @type t :: %KanbanVisionApi.Agent.Boards{
+          id: String.t(),
+          boards: Map.t()
+        }
 
   def new(boards \\ %{}, id \\ UUID.uuid4()) do
     %KanbanVisionApi.Agent.Boards{
@@ -19,20 +21,23 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Agent.Boards.t) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Agent.Boards.new) do
+  @spec start_link(KanbanVisionApi.Agent.Boards.t()) :: Agent.on_start()
+  def start_link(default \\ KanbanVisionApi.Agent.Boards.new()) do
     Agent.start_link(fn -> default end)
   end
 
-  def add(pid, new_board = %KanbanVisionApi.Domain.Board{}) do
+  def add(pid, %KanbanVisionApi.Domain.Board{} = new_board) do
     Agent.get_and_update(pid, fn state ->
       case get_by_board(state.boards, new_board) do
         {:error, _} ->
-          new_state = put_in(
-            state.boards,
-            Map.put(state.boards, new_board.id, new_board)
-          )
+          new_state =
+            put_in(
+              state.boards,
+              Map.put(state.boards, new_board.id, new_board)
+            )
+
           {{:ok, new_board}, new_state}
+
         {:ok, _} ->
           {{:error,
             """
@@ -72,14 +77,18 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defp get_by_name_and_simulation_id(boards, name, simulation_id) do
     result = get_by_simulation_id(boards, simulation_id)
+
     case result do
       {:ok, filtered_boards} ->
         boards_by_name = Enum.filter(filtered_boards, fn board -> board.name == name end)
+
         case boards_by_name do
           [] -> {:error, "Boards by name: #{name} and simulation_id: #{simulation_id} not found"}
           _ -> {:ok, boards_by_name}
         end
-      _ -> result
+
+      _ ->
+        result
     end
   end
 end

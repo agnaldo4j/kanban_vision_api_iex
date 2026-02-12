@@ -3,10 +3,10 @@ defmodule KanbanVisionApi.Domain.Audit do
 
   defstruct [:created, :updated]
 
-  @type t :: %KanbanVisionApi.Domain.Audit {
-               created: DateTime,
-               updated: DateTime
-             }
+  @type t :: %KanbanVisionApi.Domain.Audit{
+          created: DateTime,
+          updated: DateTime
+        }
 
   def new do
     %KanbanVisionApi.Domain.Audit{
@@ -14,5 +14,4 @@ defmodule KanbanVisionApi.Domain.Audit do
       updated: DateTime.utc_now()
     }
   end
-
 end

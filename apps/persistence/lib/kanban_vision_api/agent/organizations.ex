@@ -3,12 +3,14 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   use Agent
 
+  @behaviour KanbanVisionApi.Domain.Ports.OrganizationRepository
+
   defstruct [:id, :organizations]
 
-  @type t :: %KanbanVisionApi.Agent.Organizations {
-               id: String.t,
-               organizations: Map.t
-             }
+  @type t :: %KanbanVisionApi.Agent.Organizations{
+          id: String.t(),
+          organizations: Map.t()
+        }
 
   def new(organizations \\ %{}, id \\ UUID.uuid4()) do
     %KanbanVisionApi.Agent.Organizations{
@@ -19,8 +21,8 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Agent.Organizations.t) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Agent.Organizations.new) do
+  @spec start_link(KanbanVisionApi.Agent.Organizations.t()) :: Agent.on_start()
+  def start_link(default \\ KanbanVisionApi.Agent.Organizations.new()) do
     Agent.start_link(fn -> default end)
   end
 
@@ -43,13 +45,14 @@ defmodule KanbanVisionApi.Agent.Organizations do
     end)
   end
 
-  def add(pid, new_organization = %KanbanVisionApi.Domain.Organization{}) do
+  def add(pid, %KanbanVisionApi.Domain.Organization{} = new_organization) do
     Agent.get_and_update(pid, fn state ->
       case internal_get_by_name(state.organizations, new_organization.name) do
         {:error, _} ->
           new_orgs = Map.put(state.organizations, new_organization.id, new_organization)
           new_state = put_in(state.organizations, new_orgs)
           {{:ok, new_organization}, new_state}
+
         {:ok, _} ->
           {{:error, "Organization with name: #{new_organization.name} already exist"}, state}
       end
@@ -61,6 +64,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
       case Map.get(state.organizations, domain_id) do
         nil ->
           {{:error, "Organization with id: #{domain_id} not found"}, state}
+
         domain ->
           new_orgs = Map.delete(state.organizations, domain.id)
           new_state = put_in(state.organizations, new_orgs)

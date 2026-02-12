@@ -3,86 +3,71 @@ defmodule KanbanVisionApi.Usecase.Organization do
 
   use GenServer
 
-  # Client
+  alias KanbanVisionApi.Usecase.Organization.CreateOrganizationCommand
+  alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
+  alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
+  alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
 
-  @spec start_link(map | keyword) :: GenServer.on_start()
-  def start_link() do
-    start_link(%{})
+  # Client API
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, Keyword.take(opts, [:name]))
   end
 
-  def start_link(default) when is_map(default) do
-    GenServer.start_link(__MODULE__, default)
+  def get_all(pid), do: GenServer.call(pid, :get_all)
+
+  def get_by_id(pid, %GetOrganizationByIdQuery{} = query) do
+    GenServer.call(pid, {:get_by_id, query.id})
   end
 
-  def start_link(opts) when is_list(opts) do
-    {initial, opts} = Keyword.pop(opts, :initial, %{})
-    GenServer.start_link(__MODULE__, initial, opts)
+  def get_by_name(pid, %GetOrganizationByNameQuery{} = query) do
+    GenServer.call(pid, {:get_by_name, query.name})
   end
 
-  def get_all(pid) do
-    GenServer.call(pid, :get_all)
+  def add(pid, %CreateOrganizationCommand{} = cmd) do
+    organization = KanbanVisionApi.Domain.Organization.new(cmd.name, cmd.tribes)
+    GenServer.call(pid, {:add, organization})
   end
 
-  def get_by_id(pid, domain_id) do
-    GenServer.call(pid, {:get_by_id, domain_id})
+  def delete(pid, %DeleteOrganizationCommand{} = cmd) do
+    GenServer.call(pid, {:delete, cmd.id})
   end
 
-  def get_by_name(pid, domain_name) do
-    GenServer.call(pid, {:get_by_name, domain_name})
-  end
-
-  def add(pid, new_organization = %KanbanVisionApi.Domain.Organization{}) do
-    GenServer.call(pid, {:add, new_organization})
-  end
-
-  # Server (callbacks)
+  # Server — delegates to Agent
 
   @impl true
-  def init(stack) do
-    {:ok, stack}
+  def init(_opts) do
+    {:ok, agent_pid} = KanbanVisionApi.Agent.Organizations.start_link()
+    {:ok, %{agent_pid: agent_pid}}
   end
 
   @impl true
   def handle_call(:get_all, _from, state) do
-    {:reply, {:ok, state}, state}
+    result = KanbanVisionApi.Agent.Organizations.get_all(state.agent_pid)
+    {:reply, {:ok, result}, state}
   end
 
   @impl true
-  def handle_call({:get_by_id, domain_id}, _from, state) do
-    result = case Map.get(state, domain_id) do
-      nil -> {:error, "Organization with id: #{domain_id} not found"}
-      domain -> {:ok, domain}
-    end
+  def handle_call({:get_by_id, id}, _from, state) do
+    result = KanbanVisionApi.Agent.Organizations.get_by_id(state.agent_pid, id)
     {:reply, result, state}
   end
 
   @impl true
-  def handle_call({:get_by_name, domain_name}, _from, state) do
-    result = internal_get_by_name(state, domain_name)
+  def handle_call({:get_by_name, name}, _from, state) do
+    result = KanbanVisionApi.Agent.Organizations.get_by_name(state.agent_pid, name)
     {:reply, result, state}
   end
 
   @impl true
-  def handle_call({:add, new_organization}, _from, state) do
-    case internal_get_by_name(state, new_organization.name) do
-      {:error, _} ->
-        new_state = Map.put(state, new_organization.id, new_organization)
-        {:reply, {:ok, new_organization}, new_state}
-      {:ok, _} ->
-        {:reply, {:error, "Organization with name #{new_organization.name} already exists"}, state}
-    end
+  def handle_call({:add, organization}, _from, state) do
+    result = KanbanVisionApi.Agent.Organizations.add(state.agent_pid, organization)
+    {:reply, result, state}
   end
 
-  defp internal_get_by_name(state, domain_name) do
-    Map.values(state)
-    |> Enum.filter(fn domain -> domain.name == domain_name end)
-    |> prepare_by_name_result(domain_name)
-  end
-
-  defp prepare_by_name_result(result_list, domain_name) do
-    case result_list do
-      values when values == [] -> {:error, "Organization with name: #{domain_name} not found"}
-      values -> {:ok, values}
-    end
+  @impl true
+  def handle_call({:delete, id}, _from, state) do
+    result = KanbanVisionApi.Agent.Organizations.delete(state.agent_pid, id)
+    {:reply, result, state}
   end
 end

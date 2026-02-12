@@ -1,33 +1,32 @@
 defmodule KanbanVisionApi.Domain.Step do
   @moduledoc false
 
-  defstruct [:id, :audit, :name, :order, :requiredAbility, :tasks]
+  defstruct [:id, :audit, :name, :order, :required_ability, :tasks]
 
-  @type t :: %KanbanVisionApi.Domain.Step {
-               id: String.t,
-               audit: KanbanVisionApi.Domain.Audit.t,
-               name: String.t,
-               order: Integer.t,
-               requiredAbility: KanbanVisionApi.Domain.Ability.t,
-               tasks: List.t
-             }
+  @type t :: %KanbanVisionApi.Domain.Step{
+          id: String.t(),
+          audit: KanbanVisionApi.Domain.Audit.t(),
+          name: String.t(),
+          order: Integer.t(),
+          required_ability: KanbanVisionApi.Domain.Ability.t(),
+          tasks: List.t()
+        }
 
   def new(
         name,
         order,
-        requiredAbility \\ %KanbanVisionApi.Domain.Ability{},
+        required_ability \\ %KanbanVisionApi.Domain.Ability{},
         tasks,
         id \\ UUID.uuid4(),
-        audit \\ KanbanVisionApi.Domain.Audit.new
+        audit \\ KanbanVisionApi.Domain.Audit.new()
       ) do
-    initial_state = %KanbanVisionApi.Domain.Step{
+    %KanbanVisionApi.Domain.Step{
       id: id,
       audit: audit,
       name: name,
       order: order,
-      requiredAbility: requiredAbility,
+      required_ability: required_ability,
       tasks: tasks
     }
-    initial_state
   end
 end
