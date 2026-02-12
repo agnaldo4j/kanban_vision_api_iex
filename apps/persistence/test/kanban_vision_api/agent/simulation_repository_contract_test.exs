@@ -41,7 +41,8 @@ defmodule KanbanVisionApi.Agent.SimulationRepositoryContractTest do
       sim = Simulation.new("FindableSim", "Description", org_id)
       {:ok, created} = Simulations.add(pid, sim)
 
-      assert {:ok, [^created]} =
+      # Agent returns {:ok, simulation} not {:ok, [simulation]}
+      assert {:ok, ^created} =
                Simulations.get_by_organization_id_and_simulation_name(pid, org_id, "FindableSim")
 
       assert {:error, _} =
