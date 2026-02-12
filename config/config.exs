@@ -9,10 +9,16 @@
 # move said applications out of the umbrella.
 import Config
 
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
+# Configure Logger with structured metadata for observability
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [
+    :correlation_id,
+    :organization_id,
+    :organization_name,
+    :simulation_id,
+    :simulation_name,
+    :tribes_count,
+    :count,
+    :reason
+  ]
