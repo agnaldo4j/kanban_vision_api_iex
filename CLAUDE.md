@@ -73,7 +73,7 @@ Per-app minimums enforced in each `coveralls.json`:
 
 GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
 
-# CLAUDE.md — Platform Engineering Standards
+# Platform Engineering Standards
 
 This file defines the engineering quality agreements for this project.
 Claude (and any AI agent) must follow these standards when generating,
@@ -171,6 +171,73 @@ src/
 
 ---
 
+## Continuous Integration Rules
+
+Every code change must be integration-ready. The team deploys at least once every two days,
+even with partially complete features. **Deployment ≠ Release** — use the patterns below
+to ship safely without exposing incomplete work to users.
+
+### Delivery patterns (use when a feature is not fully complete)
+- **Feature Flags/Toggles**: Hide incomplete features behind a flag. Default off in production.
+- **Dark Launch**: Code deployed but completely inaccessible to users. Used for internal testing and validation in production environment.
+- **Branch by Abstraction**: Evolve complexity in phases via CI, delivering value incrementally while the feature is being built.
+
+### Branch rules
+- Every development branch must be based on `main`.
+- Branches must be short-lived. Long-running branches are a risk signal.
+- Never merge directly into main without CI passing.
+
+---
+
+## Tests — Non-Negotiable
+
+Tests are part of design, not an optional step. Every new or changed code must include tests.
+
+### Unit tests
+- Fast, deterministic, isolated.
+- Follow **given–when–then** structure.
+- Cover both happy paths and error/edge cases.
+- Must run without database, network, or filesystem.
+
+### Integration tests
+- Required whenever there is a boundary: database, external API, queue, or inter-module contract.
+- Must validate: contracts, schemas, mappings, queries, and messages.
+- Keep OpenAPI / AsyncAPI / CDC specs updated alongside the tests.
+
+### Rule
+Coverage is a consequence, not a goal. Aim for quality of relevant cases and observable behavior,
+not for hitting a percentage number.
+
+---
+
+## Versioning and Backward Compatibility
+
+Every change starts from the contract. Breaking changes are a deployment risk and a trust issue.
+
+- Use explicit versioning (`v1`, `v2` in path or header).
+- **Additive changes** (new fields, new endpoints) stay in the same version.
+- **Breaking changes** only in major versions with a migration path provided.
+- Every change ships with updated OpenAPI docs and a clear changelog entry.
+- Never remove or change the meaning of existing fields in active versions.
+- Deprecated fields must be marked, maintained for an agreed period, and offer a migration path.
+
+---
+
+## Observability — "Done" requires telemetry
+
+A feature is not done without observable behavior in production. When generating code that
+touches business flows, always include or ask about:
+
+- **Metrics**: error rates, response times, business event counts.
+- **Logs**: structured, with correlation ID, service name, log level. Never log PII.
+- **Traces**: distributed tracing headers propagated across service boundaries.
+- **Business events**: instrument hypotheses, adoption, conversion, retention, revenue/cost impact.
+- **Alerts**: high signal, low noise — triggered by user impact or SLO risk, pointing to a runbook.
+
+If a new Use Case or adapter has no instrumentation, flag it explicitly before calling it done.
+
+---
+
 ## What AI must NOT do when generating code for this project
 
 - Do not put business logic in controllers, resolvers, or HTTP handlers.
@@ -180,6 +247,9 @@ src/
 - Do not create deeply nested conditionals — extract to methods or use polymorphism.
 - Do not mutate input parameters or shared state in domain functions.
 - Do not skip writing/suggesting tests for Use Cases and domain logic.
+- Do not generate code without at least mentioning where instrumentation (logs, metrics, traces) should be added.
+- Do not hardcode secrets, credentials, or environment-specific URLs — use environment variables.
+- Do not remove or rename existing public API fields without flagging it as a breaking change.
 
 ---
 
@@ -193,6 +263,18 @@ When creating a new service or microservice, include from the start:
 - [ ] External configuration (env vars / config service — never hardcoded)
 - [ ] Circuit breaker for external dependencies
 - [ ] Graceful shutdown handling
+
+---
+
+## Skills — Read before acting
+
+Before completing a task, read the relevant skill:
+
+| Task | Skill |
+|------|-------|
+| Finishing any feature, bug fix, or tech debt item | `docs/skills/definition-of-done.md` |
+
+**The Definition of Done skill is mandatory before declaring any task complete.**
 
 ---
 
