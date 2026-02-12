@@ -1,18 +1,5 @@
 defmodule Persistence do
   @moduledoc """
-  Documentation for `Persistence`.
+  Agent-based persistence layer implementing the Object Prevalence pattern.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Persistence.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

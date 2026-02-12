@@ -3,45 +3,57 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   use GenServer
 
-  # Client
+  alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
+  alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
 
-  @spec start_link(map | keyword) :: GenServer.on_start()
-  def start_link() do
-    start_link(%{})
+  # Client API
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, Keyword.take(opts, [:name]))
   end
 
-  def start_link(default) when is_map(default) do
-    GenServer.start_link(__MODULE__, default)
+  def get_all(pid), do: GenServer.call(pid, :get_all)
+
+  def add(pid, %CreateSimulationCommand{} = cmd) do
+    simulation =
+      KanbanVisionApi.Domain.Simulation.new(cmd.name, cmd.description, cmd.organization_id)
+
+    GenServer.call(pid, {:add, simulation})
   end
 
-  def start_link(opts) when is_list(opts) do
-    {initial, opts} = Keyword.pop(opts, :initial, %{})
-    GenServer.start_link(__MODULE__, initial, opts)
+  def get_by_org_and_name(pid, %GetSimulationByOrgAndNameQuery{} = query) do
+    GenServer.call(pid, {:get_by_org_and_name, query.organization_id, query.name})
   end
 
-  def push(pid, element) do
-    GenServer.call(pid, {:push, element})
-  end
-
-  def fetch(pid) do
-    GenServer.call(pid, :fetch)
-  end
-
-  # Server (callbacks)
+  # Server — delegates to Agent
 
   @impl true
-  def init(stack) do
-    {:ok, stack}
-  end
-
-  @impl true
-  def handle_call(:fetch, _from, state) do
-    {:reply, {:ok, state}, state}
+  def init(_opts) do
+    {:ok, agent_pid} = KanbanVisionApi.Agent.Simulations.start_link()
+    {:ok, %{agent_pid: agent_pid}}
   end
 
   @impl true
-  def handle_call({:push, element}, _from, state) do
-    new_state = Map.put(state, element.id, element)
-    {:reply, {:ok, element}, new_state}
+  def handle_call(:get_all, _from, state) do
+    result = KanbanVisionApi.Agent.Simulations.get_all(state.agent_pid)
+    {:reply, {:ok, result}, state}
+  end
+
+  @impl true
+  def handle_call({:add, simulation}, _from, state) do
+    result = KanbanVisionApi.Agent.Simulations.add(state.agent_pid, simulation)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_by_org_and_name, organization_id, name}, _from, state) do
+    result =
+      KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
+        state.agent_pid,
+        organization_id,
+        name
+      )
+
+    {:reply, result, state}
   end
 end
