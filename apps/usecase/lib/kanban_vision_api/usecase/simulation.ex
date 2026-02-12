@@ -1,10 +1,19 @@
 defmodule KanbanVisionApi.Usecase.Simulation do
-  @moduledoc false
+  @moduledoc """
+  GenServer orchestrating simulation use cases.
+
+  Maintains repository state and delegates operations to specialized Use Case modules.
+  Follows Single Responsibility Principle by acting as a coordinator, not a business logic container.
+  """
 
   use GenServer
 
+  alias KanbanVisionApi.Agent.Simulations
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
+  alias KanbanVisionApi.Usecase.Simulations.CreateSimulation
+  alias KanbanVisionApi.Usecase.Simulations.GetAllSimulations
+  alias KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName
 
   # Client API
 
@@ -12,48 +21,39 @@ defmodule KanbanVisionApi.Usecase.Simulation do
     GenServer.start_link(__MODULE__, opts, Keyword.take(opts, [:name]))
   end
 
-  def get_all(pid), do: GenServer.call(pid, :get_all)
+  def get_all(pid, opts \\ []), do: GenServer.call(pid, {:get_all, opts})
 
-  def add(pid, %CreateSimulationCommand{} = cmd) do
-    simulation =
-      KanbanVisionApi.Domain.Simulation.new(cmd.name, cmd.description, cmd.organization_id)
-
-    GenServer.call(pid, {:add, simulation})
+  def add(pid, %CreateSimulationCommand{} = cmd, opts \\ []) do
+    GenServer.call(pid, {:add, cmd, opts})
   end
 
-  def get_by_org_and_name(pid, %GetSimulationByOrgAndNameQuery{} = query) do
-    GenServer.call(pid, {:get_by_org_and_name, query.organization_id, query.name})
+  def get_by_org_and_name(pid, %GetSimulationByOrgAndNameQuery{} = query, opts \\ []) do
+    GenServer.call(pid, {:get_by_org_and_name, query, opts})
   end
 
-  # Server — delegates to Agent
+  # Server — delegates to Use Cases
 
   @impl true
   def init(_opts) do
-    {:ok, agent_pid} = KanbanVisionApi.Agent.Simulations.start_link()
-    {:ok, %{agent_pid: agent_pid}}
+    {:ok, agent_pid} = Simulations.start_link()
+    {:ok, %{repository_pid: agent_pid}}
   end
 
   @impl true
-  def handle_call(:get_all, _from, state) do
-    result = KanbanVisionApi.Agent.Simulations.get_all(state.agent_pid)
-    {:reply, {:ok, result}, state}
-  end
-
-  @impl true
-  def handle_call({:add, simulation}, _from, state) do
-    result = KanbanVisionApi.Agent.Simulations.add(state.agent_pid, simulation)
+  def handle_call({:get_all, opts}, _from, state) do
+    result = GetAllSimulations.execute(state.repository_pid, opts)
     {:reply, result, state}
   end
 
   @impl true
-  def handle_call({:get_by_org_and_name, organization_id, name}, _from, state) do
-    result =
-      KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
-        state.agent_pid,
-        organization_id,
-        name
-      )
+  def handle_call({:add, cmd, opts}, _from, state) do
+    result = CreateSimulation.execute(cmd, state.repository_pid, opts)
+    {:reply, result, state}
+  end
 
+  @impl true
+  def handle_call({:get_by_org_and_name, query, opts}, _from, state) do
+    result = GetSimulationByOrgAndName.execute(query, state.repository_pid, opts)
     {:reply, result, state}
   end
 end

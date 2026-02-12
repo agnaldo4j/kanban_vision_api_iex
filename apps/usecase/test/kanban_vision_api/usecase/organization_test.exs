@@ -15,53 +15,58 @@ defmodule KanbanVisionApi.Usecase.OrganizationTest do
     end
 
     test "should add a new organization via command", %{pid: pid} do
-      cmd = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd} = CreateOrganizationCommand.new("TestOrg")
       assert {:ok, org} = Organization.add(pid, cmd)
       assert org.name == "TestOrg"
       assert org.id != nil
     end
 
     test "should find organization by id via query", %{pid: pid} do
-      cmd = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd} = CreateOrganizationCommand.new("TestOrg")
       {:ok, org} = Organization.add(pid, cmd)
 
-      query = %GetOrganizationByIdQuery{id: org.id}
+      {:ok, query} = GetOrganizationByIdQuery.new(org.id)
       assert {:ok, ^org} = Organization.get_by_id(pid, query)
     end
 
     test "should find organization by name via query", %{pid: pid} do
-      cmd = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd} = CreateOrganizationCommand.new("TestOrg")
       {:ok, org} = Organization.add(pid, cmd)
 
-      query = %GetOrganizationByNameQuery{name: "TestOrg"}
+      {:ok, query} = GetOrganizationByNameQuery.new("TestOrg")
       assert {:ok, [^org]} = Organization.get_by_name(pid, query)
     end
 
     test "should delete an organization via command", %{pid: pid} do
-      cmd = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd} = CreateOrganizationCommand.new("TestOrg")
       {:ok, org} = Organization.add(pid, cmd)
 
-      delete_cmd = %DeleteOrganizationCommand{id: org.id}
+      {:ok, delete_cmd} = DeleteOrganizationCommand.new(org.id)
       assert {:ok, ^org} = Organization.delete(pid, delete_cmd)
       assert {:ok, %{}} = Organization.get_all(pid)
     end
 
     test "should return error for non-existent id", %{pid: pid} do
-      query = %GetOrganizationByIdQuery{id: "invalid"}
+      {:ok, query} = GetOrganizationByIdQuery.new("invalid")
       assert {:error, _} = Organization.get_by_id(pid, query)
     end
 
     test "should return error for non-existent name", %{pid: pid} do
-      query = %GetOrganizationByNameQuery{name: "Invalid"}
+      {:ok, query} = GetOrganizationByNameQuery.new("Invalid")
       assert {:error, _} = Organization.get_by_name(pid, query)
     end
 
     test "should not allow duplicate organization names", %{pid: pid} do
-      cmd = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd} = CreateOrganizationCommand.new("TestOrg")
       {:ok, _} = Organization.add(pid, cmd)
 
-      cmd2 = %CreateOrganizationCommand{name: "TestOrg"}
+      {:ok, cmd2} = CreateOrganizationCommand.new("TestOrg")
       assert {:error, _} = Organization.add(pid, cmd2)
+    end
+
+    test "should reject invalid command", %{pid: pid} do
+      assert {:error, :invalid_name} = CreateOrganizationCommand.new("")
+      assert {:error, :invalid_name} = CreateOrganizationCommand.new(nil)
     end
   end
 
