@@ -9,22 +9,32 @@ A Kanban board simulator built with **Elixir/OTP** that uses the [Object Prevale
 
 - **Kanban Simulation** — Model organizations, teams, and workflows to simulate how work items flow through a Kanban board
 - **Object Prevalence** — In-memory state managed by OTP Agents (inspired by [Prevayler](https://prevayler.org/)), providing fast reads and atomic mutations
+- **Ports & Adapters** — Domain defines behaviour contracts (ports); infrastructure implements them as adapters
+- **Command/Query Separation** — Use cases accept explicit Command and Query DTOs, keeping the public API clean and decoupled from domain internals
 - **Real Data Integration** — Import project data from tools like Jira to simulate with actual workflow metrics
 - **Event Sourcing Ready** — Persistence layer designed for CQRS with event logs and snapshots
 
 ## Architecture
 
-Elixir **umbrella project** with three applications:
+**Screaming Architecture + Ports & Adapters + DDD** organized as an Elixir **umbrella project**.
+
+### Data Flow
 
 ```
-Client -> GenServer (usecase) -> Agent (kanban_domain) -> In-Memory Map
+Adapter (HTTP/CLI) → UseCase GenServer → Agent (Persistence) → In-Memory Map
+                          │                     │
+                     Commands/Queries      @behaviour Port
+                          │                     │
+                     Domain Entities      domain/ports/
 ```
 
-| App | Description |
-|-----|-------------|
-| **kanban_domain** | Core domain structs and Agent-based state stores. Agents hold the entire object graph in memory using `Agent.get_and_update` for atomic operations. |
-| **usecase** | GenServer-based application layer that orchestrates domain operations. Contains the OTP Application supervisor. |
-| **persistence** | Event sourcing / CQRS persistence layer with event logs and snapshots (inspired by Prevayler and Akka Persistence). |
+### Apps
+
+| App | Role | Description |
+|-----|------|-------------|
+| **kanban_domain** | Domain | Core entities, value objects, and Port behaviours (`domain/ports/`). Pure business logic with no infrastructure dependencies. |
+| **persistence** | Adapter | Agent-based state stores implementing domain Ports. Holds the entire object graph in memory using `Agent.get_and_update` for atomic operations. |
+| **usecase** | Application | GenServer-based orchestration layer. Accepts Command/Query DTOs, creates domain entities, and delegates to persistence Agents. Contains the OTP Application supervisor. |
 
 ### Domain Model
 
@@ -46,6 +56,65 @@ Simulation (linked to Organization)
 
 All domain entities are created via `Module.new(...)` factory functions that auto-generate UUIDs and Audit timestamps.
 
+### Ports & Adapters
+
+The domain defines behaviour contracts that the persistence layer implements:
+
+| Port (Domain) | Adapter (Persistence) |
+|----------------|----------------------|
+| `Domain.Ports.OrganizationRepository` | `Agent.Organizations` |
+| `Domain.Ports.SimulationRepository` | `Agent.Simulations` |
+| `Domain.Ports.BoardRepository` | `Agent.Boards` |
+
+### Command/Query DTOs
+
+Use cases accept explicit DTOs instead of raw domain structs:
+
+| Use Case | Commands | Queries |
+|----------|----------|---------|
+| Organization | `CreateOrganizationCommand`, `DeleteOrganizationCommand` | `GetOrganizationByIdQuery`, `GetOrganizationByNameQuery` |
+| Simulation | `CreateSimulationCommand` | `GetSimulationByOrgAndNameQuery` |
+
+### Project Structure
+
+```
+apps/
+  kanban_domain/
+    lib/kanban_vision_api/domain/
+      ports/                        # Behaviour contracts (interfaces)
+        organization_repository.ex
+        simulation_repository.ex
+        board_repository.ex
+      organization.ex               # Domain entities
+      simulation.ex
+      board.ex
+      ...
+  persistence/
+    lib/kanban_vision_api/agent/
+      organizations.ex              # @behaviour OrganizationRepository
+      simulations.ex                # @behaviour SimulationRepository
+      boards.ex                     # @behaviour BoardRepository
+  usecase/
+    lib/kanban_vision_api/usecase/
+      organization.ex               # GenServer use case
+      organization/
+        commands.ex                 # CreateOrganizationCommand, DeleteOrganizationCommand
+        queries.ex                  # GetOrganizationByIdQuery, GetOrganizationByNameQuery
+      simulation.ex                 # GenServer use case
+      simulation/
+        commands.ex                 # CreateSimulationCommand
+        queries.ex                  # GetSimulationByOrgAndNameQuery
+      application.ex                # OTP Supervisor
+```
+
+## Key Design Decisions
+
+- **Agents use pid-based access** (no atom name registration) to avoid atom table exhaustion
+- **Agent mutations use `Agent.get_and_update`** (not separate get + update) to prevent race conditions
+- **GenServers delegate to Agents** — no duplicated business logic between layers
+- **Use cases create domain entities internally** — callers only provide Commands/Queries, never raw structs
+- **All domain entities have UUID ids and Audit timestamps** — consistent identity and traceability
+
 ## Prerequisites
 
 - **Elixir** >= 1.18 with **OTP** >= 28
@@ -57,8 +126,9 @@ All domain entities are created via `Module.new(...)` factory functions that aut
 git clone https://github.com/agnaldo4j/kanban_vision_api_iex.git
 cd kanban_vision_api_iex
 
-# Install Elixir dependencies
+# Install dependencies
 mix deps.get
+
 # Compile
 mix compile
 
@@ -73,11 +143,11 @@ mix run --no-halt
 mix test
 
 # Run tests for a specific app
-mix test --app kanban_domain
+mix test --app persistence
 mix test --app usecase
 
 # Run a single test file
-mix test apps/kanban_domain/test/kanban_vision_api/agent/organizations_test.exs
+mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs
 
 # Run tests by tag
 mix test --only domain_boards
@@ -97,6 +167,7 @@ MIX_ENV=test mix coveralls --umbrella
 |-----|-------|
 | `:domain_organizations` | Organization agent tests |
 | `:domain_boards` | Board agent tests |
+| `:domain_smulations` | Simulation agent tests |
 | `:integration` | Integration tests (excluded by default) |
 
 ## Code Quality
@@ -107,6 +178,12 @@ mix credo
 
 # Code formatting
 mix format
+
+# Check formatting (CI)
+mix format --check-formatted
+
+# Compile with warnings as errors
+mix compile --warnings-as-errors
 ```
 
 ### Coverage Thresholds
@@ -114,8 +191,8 @@ mix format
 | App | Minimum |
 |-----|---------|
 | kanban_domain | 61% |
-| usecase | 12% |
 | persistence | 100% |
+| usecase | 12% |
 
 ## CI
 
@@ -133,7 +210,8 @@ Contributions are welcome! Please:
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Ensure all tests pass (`mix test`)
 4. Run the linter (`mix credo`)
-5. Submit a pull request
+5. Check formatting (`mix format --check-formatted`)
+6. Submit a pull request
 
 ## License
 
