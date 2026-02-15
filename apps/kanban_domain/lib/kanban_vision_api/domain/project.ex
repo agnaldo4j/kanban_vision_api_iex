@@ -7,8 +7,8 @@ defmodule KanbanVisionApi.Domain.Project do
           id: String.t(),
           audit: KanbanVisionApi.Domain.Audit.t(),
           name: String.t(),
-          order: Integer.t(),
-          tasks: List.t(KanbanVisionApi.Domain.Task.t())
+          order: non_neg_integer(),
+          tasks: [KanbanVisionApi.Domain.Task.t()]
         }
 
   def new(

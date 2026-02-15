@@ -7,9 +7,9 @@ defmodule KanbanVisionApi.Domain.Step do
           id: String.t(),
           audit: KanbanVisionApi.Domain.Audit.t(),
           name: String.t(),
-          order: Integer.t(),
+          order: non_neg_integer(),
           required_ability: KanbanVisionApi.Domain.Ability.t(),
-          tasks: List.t()
+          tasks: [KanbanVisionApi.Domain.Task.t()]
         }
 
   def new(

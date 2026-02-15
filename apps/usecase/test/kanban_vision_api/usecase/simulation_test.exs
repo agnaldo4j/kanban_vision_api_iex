@@ -29,8 +29,7 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
       {:ok, sim} = Simulation.add(pid, cmd)
 
       {:ok, query} = GetSimulationByOrgAndNameQuery.new(org.id, "TestSim")
-      # The result is a list, not a single simulation
-      assert {:ok, [^sim]} = Simulation.get_by_org_and_name(pid, query)
+      assert {:ok, ^sim} = Simulation.get_by_org_and_name(pid, query)
     end
 
     test "should return error for non-existent simulation", %{pid: pid} do
@@ -38,7 +37,7 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
       assert {:error, _} = Simulation.get_by_org_and_name(pid, query)
     end
 
-    test "should reject invalid command", %{pid: pid} do
+    test "should reject invalid command", %{pid: _pid} do
       assert {:error, :invalid_name} = CreateSimulationCommand.new("", "org-id")
 
       assert {:error, :invalid_organization_id} =

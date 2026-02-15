@@ -9,7 +9,7 @@ defmodule KanbanVisionApi.Domain.Board do
           name: String.t(),
           simulation_id: String.t(),
           workflow: KanbanVisionApi.Domain.Workflow.t(),
-          workers: List.t()
+          workers: %{optional(String.t()) => KanbanVisionApi.Domain.Worker.t()}
         }
 
   def new(
@@ -20,7 +20,7 @@ defmodule KanbanVisionApi.Domain.Board do
         id \\ UUID.uuid4(),
         audit \\ KanbanVisionApi.Domain.Audit.new()
       ) do
-    initial_state = %KanbanVisionApi.Domain.Board{
+    %KanbanVisionApi.Domain.Board{
       id: id,
       audit: audit,
       name: name,
@@ -28,7 +28,5 @@ defmodule KanbanVisionApi.Domain.Board do
       workflow: workflow,
       workers: workers
     }
-
-    initial_state
   end
 end

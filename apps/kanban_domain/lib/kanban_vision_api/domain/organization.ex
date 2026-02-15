@@ -7,7 +7,7 @@ defmodule KanbanVisionApi.Domain.Organization do
           id: String.t(),
           audit: KanbanVisionApi.Domain.Audit.t(),
           name: String.t(),
-          tribes: List.t()
+          tribes: [KanbanVisionApi.Domain.Tribe.t()]
         }
 
   def new(name, tribes \\ [], id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new()) do

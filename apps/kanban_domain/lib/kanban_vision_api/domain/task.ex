@@ -6,7 +6,7 @@ defmodule KanbanVisionApi.Domain.Task do
   @type t :: %KanbanVisionApi.Domain.Task{
           id: String.t(),
           audit: KanbanVisionApi.Domain.Audit.t(),
-          order: Integer.t(),
+          order: non_neg_integer(),
           service_class: KanbanVisionApi.Domain.ServiceClass.t()
         }
 
@@ -16,13 +16,11 @@ defmodule KanbanVisionApi.Domain.Task do
         id \\ UUID.uuid4(),
         audit \\ KanbanVisionApi.Domain.Audit.new()
       ) do
-    initial_state = %KanbanVisionApi.Domain.Task{
+    %KanbanVisionApi.Domain.Task{
       id: id,
       audit: audit,
       order: order,
       service_class: service_class
     }
-
-    initial_state
   end
 end

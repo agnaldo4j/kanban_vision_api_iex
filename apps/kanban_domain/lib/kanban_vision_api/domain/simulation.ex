@@ -10,7 +10,7 @@ defmodule KanbanVisionApi.Domain.Simulation do
           description: String.t(),
           organization_id: String.t(),
           board: KanbanVisionApi.Domain.Board.t() | nil,
-          default_projects: List.t(KanbanVisionApi.Domain.Project.t())
+          default_projects: [KanbanVisionApi.Domain.Project.t()]
         }
 
   def new(

@@ -9,21 +9,24 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
   require Logger
 
   alias KanbanVisionApi.Domain.Organization
-  alias KanbanVisionApi.Agent.Organizations, as: OrganizationRepository
+  alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
+
+  @default_repository KanbanVisionApi.Agent.Organizations
 
   @type result :: {:ok, Organization.t()} | {:error, String.t()}
 
   @spec execute(DeleteOrganizationCommand.t(), pid(), keyword()) :: result()
   def execute(%DeleteOrganizationCommand{} = cmd, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
+    repository = Keyword.get(opts, :repository, @default_repository)
 
     Logger.info("Deleting organization",
       correlation_id: correlation_id,
       organization_id: cmd.id
     )
 
-    case OrganizationRepository.delete(repository_pid, cmd.id) do
+    case repository.delete(repository_pid, cmd.id) do
       {:ok, org} ->
         Logger.info("Organization deleted successfully",
           correlation_id: correlation_id,
@@ -31,7 +34,16 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
           organization_name: org.name
         )
 
-        emit_event(:organization_deleted, org, correlation_id)
+        EventEmitter.emit(
+          :organization,
+          :organization_deleted,
+          %{
+            organization_id: org.id,
+            organization_name: org.name
+          },
+          correlation_id
+        )
+
         {:ok, org}
 
       {:error, reason} = error ->
@@ -42,23 +54,6 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
         )
 
         error
-    end
-  end
-
-  defp emit_event(event_type, organization, correlation_id) do
-    try do
-      :telemetry.execute(
-        [:kanban_vision_api, :organization, event_type],
-        %{count: 1},
-        %{
-          organization_id: organization.id,
-          organization_name: organization.name,
-          correlation_id: correlation_id
-        }
-      )
-    rescue
-      UndefinedFunctionError ->
-        :ok
     end
   end
 end

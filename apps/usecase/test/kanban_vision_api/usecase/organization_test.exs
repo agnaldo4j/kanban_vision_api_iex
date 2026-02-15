@@ -64,7 +64,7 @@ defmodule KanbanVisionApi.Usecase.OrganizationTest do
       assert {:error, _} = Organization.add(pid, cmd2)
     end
 
-    test "should reject invalid command", %{pid: pid} do
+    test "should reject invalid command", %{pid: _pid} do
       assert {:error, :invalid_name} = CreateOrganizationCommand.new("")
       assert {:error, :invalid_name} = CreateOrganizationCommand.new(nil)
     end

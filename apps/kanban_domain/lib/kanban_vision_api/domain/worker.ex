@@ -7,17 +7,15 @@ defmodule KanbanVisionApi.Domain.Worker do
           id: String.t(),
           audit: KanbanVisionApi.Domain.Audit.t(),
           name: String.t(),
-          abilities: List.t()
+          abilities: [KanbanVisionApi.Domain.Ability.t()]
         }
 
   def new(name, abilities \\ [], id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new()) do
-    initial_state = %KanbanVisionApi.Domain.Worker{
+    %KanbanVisionApi.Domain.Worker{
       id: id,
       audit: audit,
       name: name,
       abilities: abilities
     }
-
-    initial_state
   end
 end

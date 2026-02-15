@@ -7,17 +7,18 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetAllSimulations do
 
   require Logger
 
-  alias KanbanVisionApi.Agent.Simulations, as: SimulationRepository
+  @default_repository KanbanVisionApi.Agent.Simulations
 
   @type result :: {:ok, map()}
 
   @spec execute(pid(), keyword()) :: result()
   def execute(repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
+    repository = Keyword.get(opts, :repository, @default_repository)
 
     Logger.debug("Retrieving all simulations", correlation_id: correlation_id)
 
-    simulations = SimulationRepository.get_all(repository_pid)
+    simulations = repository.get_all(repository_pid)
 
     Logger.debug("All simulations retrieved",
       correlation_id: correlation_id,

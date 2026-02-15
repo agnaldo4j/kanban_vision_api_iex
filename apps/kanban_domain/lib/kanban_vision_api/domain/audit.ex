@@ -4,8 +4,8 @@ defmodule KanbanVisionApi.Domain.Audit do
   defstruct [:created, :updated]
 
   @type t :: %KanbanVisionApi.Domain.Audit{
-          created: DateTime,
-          updated: DateTime
+          created: DateTime.t(),
+          updated: DateTime.t()
         }
 
   def new do
