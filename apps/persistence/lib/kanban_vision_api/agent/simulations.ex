@@ -7,13 +7,13 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   defstruct [:id, :simulations_by_organization]
 
-  @type t :: %KanbanVisionApi.Agent.Simulations{
+  @type t :: %__MODULE__{
           id: String.t(),
-          simulations_by_organization: Map.t()
+          simulations_by_organization: map()
         }
 
   def new(simulations_by_organization \\ %{}, id \\ UUID.uuid4()) do
-    %KanbanVisionApi.Agent.Simulations{
+    %__MODULE__{
       id: id,
       simulations_by_organization: simulations_by_organization
     }
@@ -21,8 +21,8 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Agent.Simulations.t()) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Agent.Simulations.new()) do
+  @spec start_link(t()) :: Agent.on_start()
+  def start_link(default \\ __MODULE__.new()) do
     Agent.start_link(fn -> default end)
   end
 

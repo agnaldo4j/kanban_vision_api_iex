@@ -1,6 +1,7 @@
 defmodule KanbanVisionApi.Usecase.SimulationTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Domain.Organization
   alias KanbanVisionApi.Usecase.Simulation
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
@@ -13,7 +14,7 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
     end
 
     test "should add a new simulation via command", %{pid: pid} do
-      org = KanbanVisionApi.Domain.Organization.new("TestOrg")
+      org = Organization.new("TestOrg")
 
       {:ok, cmd} = CreateSimulationCommand.new("TestSim", org.id, "Description")
 
@@ -23,7 +24,7 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
     end
 
     test "should find simulation by org and name via query", %{pid: pid} do
-      org = KanbanVisionApi.Domain.Organization.new("TestOrg")
+      org = Organization.new("TestOrg")
 
       {:ok, cmd} = CreateSimulationCommand.new("TestSim", org.id, "Description")
       {:ok, sim} = Simulation.add(pid, cmd)

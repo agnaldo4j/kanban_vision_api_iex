@@ -1,16 +1,19 @@
 defmodule KanbanVisionApi.Domain.Workflow do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+  alias KanbanVisionApi.Domain.Step
+
   defstruct [:id, :audit, :steps]
 
-  @type t :: %KanbanVisionApi.Domain.Workflow{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
-          steps: [KanbanVisionApi.Domain.Step.t()]
+          audit: Audit.t(),
+          steps: [Step.t()]
         }
 
-  def new(steps \\ [], id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new()) do
-    %KanbanVisionApi.Domain.Workflow{
+  def new(steps \\ [], id \\ UUID.uuid4(), audit \\ Audit.new()) do
+    %__MODULE__{
       id: id,
       audit: audit,
       steps: steps

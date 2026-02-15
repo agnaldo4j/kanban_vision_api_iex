@@ -1,14 +1,17 @@
 defmodule KanbanVisionApi.Domain.Project do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+  alias KanbanVisionApi.Domain.Task
+
   defstruct [:id, :audit, :name, :order, :tasks]
 
-  @type t :: %KanbanVisionApi.Domain.Project{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
+          audit: Audit.t(),
           name: String.t(),
           order: non_neg_integer(),
-          tasks: [KanbanVisionApi.Domain.Task.t()]
+          tasks: [Task.t()]
         }
 
   def new(
@@ -16,9 +19,9 @@ defmodule KanbanVisionApi.Domain.Project do
         order \\ 0,
         tasks \\ [],
         id \\ UUID.uuid4(),
-        audit \\ KanbanVisionApi.Domain.Audit.new()
+        audit \\ Audit.new()
       ) do
-    %KanbanVisionApi.Domain.Project{
+    %__MODULE__{
       id: id,
       audit: audit,
       name: name,

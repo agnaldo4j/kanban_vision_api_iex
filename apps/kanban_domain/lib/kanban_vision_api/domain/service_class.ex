@@ -1,16 +1,18 @@
 defmodule KanbanVisionApi.Domain.ServiceClass do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+
   defstruct [:id, :audit, :name]
 
-  @type t :: %KanbanVisionApi.Domain.ServiceClass{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
+          audit: Audit.t(),
           name: String.t()
         }
 
-  def new(name, id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new()) do
-    %KanbanVisionApi.Domain.ServiceClass{
+  def new(name, id \\ UUID.uuid4(), audit \\ Audit.new()) do
+    %__MODULE__{
       id: id,
       audit: audit,
       name: name

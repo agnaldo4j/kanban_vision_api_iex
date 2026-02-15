@@ -2,6 +2,9 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
   use ExUnit.Case, async: true
   doctest KanbanVisionApi.Agent.Organizations
 
+  alias KanbanVisionApi.Agent.Organizations
+  alias KanbanVisionApi.Domain.Organization
+
   describe "When start the system with empty state" do
     setup [:prepare_empty_context]
 
@@ -12,7 +15,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations
          } = _context do
       template = %{}
-      assert KanbanVisionApi.Agent.Organizations.get_all(pid) == template
+      assert Organizations.get_all(pid) == template
     end
 
     @tag :domain_organizations
@@ -21,8 +24,8 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            actor_pid: pid,
            organizations: _organizations
          } = _context do
-      domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
-      assert KanbanVisionApi.Agent.Organizations.add(pid, domain) == {:ok, domain}
+      domain = Organization.new("ExampleOrg")
+      assert Organizations.add(pid, domain) == {:ok, domain}
     end
 
     @tag :domain_organizations
@@ -31,9 +34,9 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            actor_pid: pid,
            organizations: _organizations
          } = _context do
-      domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
-      assert KanbanVisionApi.Agent.Organizations.add(pid, domain) == {:ok, domain}
-      assert KanbanVisionApi.Agent.Organizations.delete(pid, domain.id) == {:ok, domain}
+      domain = Organization.new("ExampleOrg")
+      assert Organizations.add(pid, domain) == {:ok, domain}
+      assert Organizations.delete(pid, domain.id) == {:ok, domain}
     end
 
     @tag :domain_organizations
@@ -43,7 +46,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations
          } = _context do
       template = {:error, "Organization with id: nada not found"}
-      assert KanbanVisionApi.Agent.Organizations.delete(pid, :nada) == template
+      assert Organizations.delete(pid, :nada) == template
     end
   end
 
@@ -59,7 +62,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
          } = _context do
       template = %{my_domain.id => my_domain}
 
-      assert KanbanVisionApi.Agent.Organizations.get_all(pid) == template
+      assert Organizations.get_all(pid) == template
     end
 
     @tag :domain_organizations
@@ -69,7 +72,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations,
            domain: domain
          } = _context do
-      assert KanbanVisionApi.Agent.Organizations.get_by_id(pid, domain.id) == {:ok, domain}
+      assert Organizations.get_by_id(pid, domain.id) == {:ok, domain}
     end
 
     @tag :domain_organizations
@@ -79,7 +82,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations,
            domain: domain
          } = _context do
-      assert KanbanVisionApi.Agent.Organizations.get_by_name(pid, domain.name) == {:ok, [domain]}
+      assert Organizations.get_by_name(pid, domain.name) == {:ok, [domain]}
     end
 
     @tag :domain_organizations
@@ -90,7 +93,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            domain: _domain
          } = _context do
       template = {:error, "Organization with id: nada not found"}
-      assert KanbanVisionApi.Agent.Organizations.get_by_id(pid, :nada) == template
+      assert Organizations.get_by_id(pid, :nada) == template
     end
 
     @tag :domain_organizations
@@ -101,7 +104,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            domain: _domain
          } = _context do
       template = {:error, "Organization with name: Invalid Name not found"}
-      assert KanbanVisionApi.Agent.Organizations.get_by_name(pid, "Invalid Name") == template
+      assert Organizations.get_by_name(pid, "Invalid Name") == template
     end
 
     @tag :domain_organizations
@@ -112,13 +115,13 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            domain: domain
          } = _context do
       template = {:error, "Organization with name: ExampleOrg already exist"}
-      assert KanbanVisionApi.Agent.Organizations.add(pid, domain) == template
+      assert Organizations.add(pid, domain) == template
     end
   end
 
   defp prepare_empty_context(_context) do
-    organizations_domain = KanbanVisionApi.Agent.Organizations.new()
-    {:ok, pid} = KanbanVisionApi.Agent.Organizations.start_link(organizations_domain)
+    organizations_domain = Organizations.new()
+    {:ok, pid} = Organizations.start_link(organizations_domain)
 
     [
       actor_pid: pid,
@@ -127,12 +130,12 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
   end
 
   defp prepare_context_with_default_organization(_context) do
-    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
+    organization_domain = Organization.new("ExampleOrg")
 
     initial_state =
-      KanbanVisionApi.Agent.Organizations.new(%{organization_domain.id => organization_domain})
+      Organizations.new(%{organization_domain.id => organization_domain})
 
-    {:ok, pid} = KanbanVisionApi.Agent.Organizations.start_link(initial_state)
+    {:ok, pid} = Organizations.start_link(initial_state)
 
     [
       actor_pid: pid,

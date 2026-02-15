@@ -2,6 +2,10 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
   use ExUnit.Case, async: true
   doctest KanbanVisionApi.Agent.Boards
 
+  alias KanbanVisionApi.Agent.Boards
+  alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Workflow
+
   describe "When start the system with empty state" do
     setup [:prepare_empty_context]
 
@@ -12,7 +16,7 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            boards: _boards
          } = _context do
       template = %{}
-      assert KanbanVisionApi.Agent.Boards.get_all(pid) == template
+      assert Boards.get_all(pid) == template
     end
 
     @tag :domain_boards
@@ -22,7 +26,7 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            boards: _boards
          } = _context do
       template = {:error, "Boards by simulation_id: nada not found"}
-      assert KanbanVisionApi.Agent.Boards.get_all_by_simulation_id(pid, "nada") == template
+      assert Boards.get_all_by_simulation_id(pid, "nada") == template
     end
 
     @tag :domain_boards
@@ -30,9 +34,9 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
          %{
            actor_pid: pid
          } = _context do
-      board = KanbanVisionApi.Domain.Board.new("Dev Board", "sim-123")
-      assert {:ok, ^board} = KanbanVisionApi.Agent.Boards.add(pid, board)
-      assert %{} = KanbanVisionApi.Agent.Boards.get_all(pid)
+      board = Board.new("Dev Board", "sim-123")
+      assert {:ok, ^board} = Boards.add(pid, board)
+      assert %{} = Boards.get_all(pid)
     end
 
     @tag :domain_boards
@@ -40,11 +44,11 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
          %{
            actor_pid: pid
          } = _context do
-      board = KanbanVisionApi.Domain.Board.new("Dev Board", "sim-123")
-      assert {:ok, ^board} = KanbanVisionApi.Agent.Boards.add(pid, board)
+      board = Board.new("Dev Board", "sim-123")
+      assert {:ok, ^board} = Boards.add(pid, board)
 
-      duplicate = KanbanVisionApi.Domain.Board.new("Dev Board", "sim-123")
-      assert {:error, _msg} = KanbanVisionApi.Agent.Boards.add(pid, duplicate)
+      duplicate = Board.new("Dev Board", "sim-123")
+      assert {:error, _msg} = Boards.add(pid, duplicate)
     end
   end
 
@@ -58,7 +62,7 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            board: board
          } = _context do
       assert {:ok, boards} =
-               KanbanVisionApi.Agent.Boards.get_all_by_simulation_id(pid, board.simulation_id)
+               Boards.get_all_by_simulation_id(pid, board.simulation_id)
 
       assert length(boards) == 1
     end
@@ -69,9 +73,9 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            actor_pid: pid,
            board: board
          } = _context do
-      new_board = KanbanVisionApi.Domain.Board.new("QA Board", board.simulation_id)
-      assert {:ok, ^new_board} = KanbanVisionApi.Agent.Boards.add(pid, new_board)
-      assert 2 = map_size(KanbanVisionApi.Agent.Boards.get_all(pid))
+      new_board = Board.new("QA Board", board.simulation_id)
+      assert {:ok, ^new_board} = Boards.add(pid, new_board)
+      assert 2 = map_size(Boards.get_all(pid))
     end
 
     @tag :domain_boards
@@ -80,14 +84,14 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            actor_pid: pid
          } = _context do
       assert {:error, _msg} =
-               KanbanVisionApi.Agent.Boards.get_all_by_simulation_id(pid, "unknown")
+               Boards.get_all_by_simulation_id(pid, "unknown")
     end
   end
 
   defp prepare_empty_context(_context) do
-    boards_domain = KanbanVisionApi.Agent.Boards.new()
-    workflow_domain = KanbanVisionApi.Domain.Workflow.new()
-    {:ok, pid} = KanbanVisionApi.Agent.Boards.start_link(boards_domain)
+    boards_domain = Boards.new()
+    workflow_domain = Workflow.new()
+    {:ok, pid} = Boards.start_link(boards_domain)
 
     [
       actor_pid: pid,
@@ -97,9 +101,9 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
   end
 
   defp prepare_context_with_boards(_context) do
-    board = KanbanVisionApi.Domain.Board.new("Dev Board", "sim-123")
-    boards_domain = KanbanVisionApi.Agent.Boards.new(%{board.id => board})
-    {:ok, pid} = KanbanVisionApi.Agent.Boards.start_link(boards_domain)
+    board = Board.new("Dev Board", "sim-123")
+    boards_domain = Boards.new(%{board.id => board})
+    {:ok, pid} = Boards.start_link(boards_domain)
 
     [
       actor_pid: pid,

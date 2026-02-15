@@ -2,6 +2,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   use ExUnit.Case, async: true
   doctest KanbanVisionApi.Agent.Simulations
 
+  alias KanbanVisionApi.Agent.Simulations
+  alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Simulation
+
   describe "When start the system with empty state" do
     setup [:prepare_empty_context]
 
@@ -14,7 +18,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       template = %{}
 
-      assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
+      assert Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
@@ -25,13 +29,13 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            organization: organization
          } = _context do
       simulation_domain =
-        KanbanVisionApi.Domain.Simulation.new(
+        Simulation.new(
           "ExampleSimulation",
           "ExampleSimulationDescription",
           organization.id
         )
 
-      assert KanbanVisionApi.Agent.Simulations.add(pid, simulation_domain) ==
+      assert Simulations.add(pid, simulation_domain) ==
                {:ok, simulation_domain}
     end
   end
@@ -49,7 +53,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       template = %{organization.id => %{simulation.id => simulation}}
 
-      assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
+      assert Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
@@ -61,19 +65,19 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            organization: organization
          } = _context do
       new_simulation =
-        KanbanVisionApi.Domain.Simulation.new(
+        Simulation.new(
           "AnotherExampleOfSimulation",
           "AnotherExampleOfSimulationDescription",
           organization.id
         )
 
-      assert KanbanVisionApi.Agent.Simulations.add(pid, new_simulation) == {:ok, new_simulation}
+      assert Simulations.add(pid, new_simulation) == {:ok, new_simulation}
 
       template = %{
         organization.id => %{new_simulation.id => new_simulation, simulation.id => simulation}
       }
 
-      assert KanbanVisionApi.Agent.Simulations.get_all(pid) == template
+      assert Simulations.get_all(pid) == template
     end
 
     @tag :domain_smulations
@@ -84,7 +88,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            simulation: simulation,
            organization: _organization
          } = _context do
-      assert KanbanVisionApi.Agent.Simulations.add(pid, simulation) == {
+      assert Simulations.add(pid, simulation) == {
                :error,
                """
                Simulation with organization_id: #{simulation.organization_id}
@@ -102,7 +106,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       template = {:error, "Simulation with organization id: INVALID not found"}
 
-      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
+      assert Simulations.get_by_organization_id_and_simulation_name(
                pid,
                "INVALID",
                "Simulation Name"
@@ -117,7 +121,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       template = {:error, "Simulation with name: Missing Simulation not found"}
 
-      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
+      assert Simulations.get_by_organization_id_and_simulation_name(
                pid,
                organization.id,
                "Missing Simulation"
@@ -136,7 +140,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       template = {:error, "Simulation with organization id: #{organization.id} not found"}
 
-      assert KanbanVisionApi.Agent.Simulations.get_by_organization_id_and_simulation_name(
+      assert Simulations.get_by_organization_id_and_simulation_name(
                pid,
                organization.id,
                "Any Simulation"
@@ -145,9 +149,9 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   end
 
   defp prepare_empty_context(_context) do
-    simulations_domain = KanbanVisionApi.Agent.Simulations.new()
-    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
-    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+    simulations_domain = Simulations.new()
+    organization_domain = Organization.new("ExampleOrg")
+    {:ok, pid} = Simulations.start_link(simulations_domain)
 
     [
       actor_pid: pid,
@@ -157,10 +161,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   end
 
   defp prepare_context_with_data(_context) do
-    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
+    organization_domain = Organization.new("ExampleOrg")
 
     simulation_domain =
-      KanbanVisionApi.Domain.Simulation.new(
+      Simulation.new(
         "ExampleSimulation",
         "ExampleSimulationDescription",
         organization_domain.id
@@ -170,9 +174,9 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       organization_domain.id => %{simulation_domain.id => simulation_domain}
     }
 
-    simulations_domain = KanbanVisionApi.Agent.Simulations.new(simulations_by_organization)
+    simulations_domain = Simulations.new(simulations_by_organization)
 
-    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+    {:ok, pid} = Simulations.start_link(simulations_domain)
 
     [
       actor_pid: pid,
@@ -183,9 +187,9 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   end
 
   defp prepare_context_with_empty_org(_context) do
-    organization_domain = KanbanVisionApi.Domain.Organization.new("ExampleOrg")
-    simulations_domain = KanbanVisionApi.Agent.Simulations.new(%{organization_domain.id => %{}})
-    {:ok, pid} = KanbanVisionApi.Agent.Simulations.start_link(simulations_domain)
+    organization_domain = Organization.new("ExampleOrg")
+    simulations_domain = Simulations.new(%{organization_domain.id => %{}})
+    {:ok, pid} = Simulations.start_link(simulations_domain)
 
     [
       actor_pid: pid,
