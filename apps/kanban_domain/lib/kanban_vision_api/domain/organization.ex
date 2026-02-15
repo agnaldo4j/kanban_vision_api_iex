@@ -1,17 +1,20 @@
 defmodule KanbanVisionApi.Domain.Organization do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+  alias KanbanVisionApi.Domain.Tribe
+
   defstruct [:id, :audit, :name, :tribes]
 
-  @type t :: %KanbanVisionApi.Domain.Organization{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
+          audit: Audit.t(),
           name: String.t(),
-          tribes: List.t()
+          tribes: [Tribe.t()]
         }
 
-  def new(name, tribes \\ [], id \\ UUID.uuid4(), audit \\ KanbanVisionApi.Domain.Audit.new()) do
-    %KanbanVisionApi.Domain.Organization{
+  def new(name, tribes \\ [], id \\ UUID.uuid4(), audit \\ Audit.new()) do
+    %__MODULE__{
       id: id,
       audit: audit,
       name: name,

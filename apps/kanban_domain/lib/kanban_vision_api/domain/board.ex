@@ -1,26 +1,30 @@
 defmodule KanbanVisionApi.Domain.Board do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+  alias KanbanVisionApi.Domain.Worker
+  alias KanbanVisionApi.Domain.Workflow
+
   defstruct [:id, :audit, :name, :simulation_id, :workflow, :workers]
 
-  @type t :: %KanbanVisionApi.Domain.Board{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
+          audit: Audit.t(),
           name: String.t(),
           simulation_id: String.t(),
-          workflow: KanbanVisionApi.Domain.Workflow.t(),
-          workers: List.t()
+          workflow: Workflow.t(),
+          workers: %{optional(String.t()) => Worker.t()}
         }
 
   def new(
         name \\ "Default",
         simulation_id \\ "Default Simulation ID",
-        workflow \\ %KanbanVisionApi.Domain.Workflow{},
+        workflow \\ %Workflow{},
         workers \\ %{},
         id \\ UUID.uuid4(),
-        audit \\ KanbanVisionApi.Domain.Audit.new()
+        audit \\ Audit.new()
       ) do
-    initial_state = %KanbanVisionApi.Domain.Board{
+    %__MODULE__{
       id: id,
       audit: audit,
       name: name,
@@ -28,7 +32,5 @@ defmodule KanbanVisionApi.Domain.Board do
       workflow: workflow,
       workers: workers
     }
-
-    initial_state
   end
 end

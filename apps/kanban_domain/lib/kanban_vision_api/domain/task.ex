@@ -1,28 +1,29 @@
 defmodule KanbanVisionApi.Domain.Task do
   @moduledoc false
 
+  alias KanbanVisionApi.Domain.Audit
+  alias KanbanVisionApi.Domain.ServiceClass
+
   defstruct [:id, :audit, :order, :service_class]
 
-  @type t :: %KanbanVisionApi.Domain.Task{
+  @type t :: %__MODULE__{
           id: String.t(),
-          audit: KanbanVisionApi.Domain.Audit.t(),
-          order: Integer.t(),
-          service_class: KanbanVisionApi.Domain.ServiceClass.t()
+          audit: Audit.t(),
+          order: non_neg_integer(),
+          service_class: ServiceClass.t()
         }
 
   def new(
         order,
-        service_class \\ %KanbanVisionApi.Domain.ServiceClass{},
+        service_class \\ %ServiceClass{},
         id \\ UUID.uuid4(),
-        audit \\ KanbanVisionApi.Domain.Audit.new()
+        audit \\ Audit.new()
       ) do
-    initial_state = %KanbanVisionApi.Domain.Task{
+    %__MODULE__{
       id: id,
       audit: audit,
       order: order,
       service_class: service_class
     }
-
-    initial_state
   end
 end

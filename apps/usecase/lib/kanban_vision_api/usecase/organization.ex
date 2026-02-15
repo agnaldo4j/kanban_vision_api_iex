@@ -8,7 +8,6 @@ defmodule KanbanVisionApi.Usecase.Organization do
 
   use GenServer
 
-  alias KanbanVisionApi.Agent.Organizations
   alias KanbanVisionApi.Usecase.Organization.CreateOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
@@ -18,6 +17,8 @@ defmodule KanbanVisionApi.Usecase.Organization do
   alias KanbanVisionApi.Usecase.Organizations.GetAllOrganizations
   alias KanbanVisionApi.Usecase.Organizations.GetOrganizationById
   alias KanbanVisionApi.Usecase.Organizations.GetOrganizationByName
+
+  @default_repository KanbanVisionApi.Agent.Organizations
 
   # Client API
 
@@ -46,38 +47,43 @@ defmodule KanbanVisionApi.Usecase.Organization do
   # Server — delegates to Use Cases
 
   @impl true
-  def init(_opts) do
-    {:ok, agent_pid} = Organizations.start_link()
-    {:ok, %{repository_pid: agent_pid}}
+  def init(opts) do
+    repository = Keyword.get(opts, :repository, @default_repository)
+    {:ok, agent_pid} = repository.start_link()
+    {:ok, %{repository_pid: agent_pid, repository: repository}}
   end
 
   @impl true
   def handle_call({:get_all, opts}, _from, state) do
-    result = GetAllOrganizations.execute(state.repository_pid, opts)
+    result = GetAllOrganizations.execute(state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:get_by_id, query, opts}, _from, state) do
-    result = GetOrganizationById.execute(query, state.repository_pid, opts)
+    result = GetOrganizationById.execute(query, state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:get_by_name, query, opts}, _from, state) do
-    result = GetOrganizationByName.execute(query, state.repository_pid, opts)
+    result = GetOrganizationByName.execute(query, state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:add, cmd, opts}, _from, state) do
-    result = CreateOrganization.execute(cmd, state.repository_pid, opts)
+    result = CreateOrganization.execute(cmd, state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:delete, cmd, opts}, _from, state) do
-    result = DeleteOrganization.execute(cmd, state.repository_pid, opts)
+    result = DeleteOrganization.execute(cmd, state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
+  end
+
+  defp enrich_opts(opts, state) do
+    Keyword.put_new(opts, :repository, state.repository)
   end
 end

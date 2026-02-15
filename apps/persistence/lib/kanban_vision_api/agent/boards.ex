@@ -7,13 +7,13 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defstruct [:id, :boards]
 
-  @type t :: %KanbanVisionApi.Agent.Boards{
+  @type t :: %__MODULE__{
           id: String.t(),
-          boards: Map.t()
+          boards: map()
         }
 
   def new(boards \\ %{}, id \\ UUID.uuid4()) do
-    %KanbanVisionApi.Agent.Boards{
+    %__MODULE__{
       id: id,
       boards: boards
     }
@@ -21,8 +21,8 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   # Client
 
-  @spec start_link(KanbanVisionApi.Agent.Boards.t()) :: Agent.on_start()
-  def start_link(default \\ KanbanVisionApi.Agent.Boards.new()) do
+  @spec start_link(t()) :: Agent.on_start()
+  def start_link(default \\ __MODULE__.new()) do
     Agent.start_link(fn -> default end)
   end
 
