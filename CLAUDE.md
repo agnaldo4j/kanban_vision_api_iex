@@ -270,12 +270,12 @@ When creating a new service or microservice, include from the start:
 
 Before completing a task, read the relevant skill:
 
-| Task                                              | Skill                               |
-|---------------------------------------------------|-------------------------------------|
-| Finishing any feature, bug fix, or tech debt item | `docs/skills/definition-of-done.md` |
-| How to use Flow in a performatic way              | `docs/skills/FLOW.md`               |
-| How to use GenStage in a performatic way          | `docs/skills/GenStage.md`           |
-| How to use Elixir in a performatic way            | `docs/skills/Elixir.md`             |
+| Task                                              | Skill                          |
+|---------------------------------------------------|--------------------------------|
+| Finishing any feature, bug fix, or tech debt item | `SKILLS/definition-of-done.md` |
+| How to use Flow in a performatic way              | `SKILLS/FLOW.md`               |
+| How to use GenStage in a performatic way          | `SKILLS/GenStage.md`           |
+| How to use Elixir in a performatic way            | `SKILLS/Elixir.md`             |
 
 **The Definition of Done skill is mandatory before declaring any task complete.**
 

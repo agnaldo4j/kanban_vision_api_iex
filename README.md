@@ -350,7 +350,7 @@ Contributions are welcome! Please:
 3. Ensure all tests pass (`mix test`)
 4. Run the linter (`mix credo`)
 5. Check formatting (`mix format --check-formatted`)
-6. Read [CLAUDE.md](CLAUDE.md) for architectural patterns and [docs/skills/definition-of-done.md](docs/skills/definition-of-done.md) before completing features
+6. Read [CLAUDE.md](CLAUDE.md) for architectural patterns and [SKILLS/definition-of-done.md](SKILLS/definition-of-done.md) before completing features
 7. Submit a pull request
 
 ## License

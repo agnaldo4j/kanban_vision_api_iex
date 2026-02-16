@@ -1,3 +1,11 @@
+---
+name: flow
+description: >
+  Use when working with the Flow library for parallel data processing in Elixir.
+  Covers Flow fundamentals, partitioning, windows, joins, departition, and
+  performance tuning. Built on top of GenStage for concurrent pipelines.
+---
+
 # Flow - Skill Completa para Desenvolvedores Elixir
 
 Guia prático e completo para usar a biblioteca Flow em projetos Elixir.

@@ -1,3 +1,11 @@
+---
+name: gen-stage
+description: >
+  Use when working with GenStage for building concurrent data pipelines with
+  back-pressure in Elixir. Covers producers, consumers, dispatchers (Demand,
+  Broadcast, Partition), rate limiting, ConsumerSupervisor, and supervision patterns.
+---
+
 # Skill GenStage - Guia Completo para Desenvolvedores Elixir
 
 ## O que e GenStage?
