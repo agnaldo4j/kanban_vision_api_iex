@@ -27,6 +27,31 @@ defmodule KanbanVisionApi.Domain.StepTest do
       %Step{} = step = Step.new("Development", 1, [task], ability)
 
       assert step.required_ability == ability
+      assert step.tasks == [task]
+    end
+  end
+
+  describe "new/5" do
+    test "creates step with custom id" do
+      task = Task.new(1)
+      ability = Ability.new("Testing")
+
+      %Step{} = step = Step.new("QA", 2, [task], ability, "custom-id")
+
+      assert step.id == "custom-id"
+    end
+  end
+
+  describe "new/6" do
+    test "creates step with all explicit params" do
+      task = Task.new(1)
+      ability = Ability.new("Testing")
+      audit = Audit.new()
+
+      %Step{} = step = Step.new("QA", 2, [task], ability, "custom-id", audit)
+
+      assert step.id == "custom-id"
+      assert step.audit == audit
     end
   end
 end
