@@ -18,6 +18,8 @@ config :logger, :console,
     :organization_name,
     :simulation_id,
     :simulation_name,
+    :board_id,
+    :board_name,
     :tribes_count,
     :count,
     :reason

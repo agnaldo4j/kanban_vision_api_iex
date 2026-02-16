@@ -86,6 +86,43 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
       assert {:error, _msg} =
                Boards.get_all_by_simulation_id(pid, "unknown")
     end
+
+    @tag :domain_boards
+    test "should get a board by its id",
+         %{
+           actor_pid: pid,
+           board: board
+         } = _context do
+      assert {:ok, ^board} = Boards.get_by_id(pid, board.id)
+    end
+
+    @tag :domain_boards
+    test "should return error when getting board by unknown id",
+         %{
+           actor_pid: pid
+         } = _context do
+      assert {:error, "Board with id: unknown-id not found"} =
+               Boards.get_by_id(pid, "unknown-id")
+    end
+
+    @tag :domain_boards
+    test "should delete a board by its id",
+         %{
+           actor_pid: pid,
+           board: board
+         } = _context do
+      assert {:ok, ^board} = Boards.delete(pid, board.id)
+      assert %{} == Boards.get_all(pid)
+    end
+
+    @tag :domain_boards
+    test "should return error when deleting board with unknown id",
+         %{
+           actor_pid: pid
+         } = _context do
+      assert {:error, "Board with id: unknown-id not found"} =
+               Boards.delete(pid, "unknown-id")
+    end
   end
 
   defp prepare_empty_context(_context) do

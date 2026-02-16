@@ -7,6 +7,8 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetAllSimulations do
 
   require Logger
 
+  alias KanbanVisionApi.Usecase.EventEmitter
+
   @default_repository KanbanVisionApi.Agent.Simulations
 
   @type result :: {:ok, map()}
@@ -23,6 +25,13 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetAllSimulations do
     Logger.debug("All simulations retrieved",
       correlation_id: correlation_id,
       count: map_size(simulations)
+    )
+
+    EventEmitter.emit(
+      :simulation,
+      :all_simulations_retrieved,
+      %{count: map_size(simulations)},
+      correlation_id
     )
 
     {:ok, simulations}

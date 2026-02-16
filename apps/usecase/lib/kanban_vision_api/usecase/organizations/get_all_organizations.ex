@@ -7,6 +7,8 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetAllOrganizations do
 
   require Logger
 
+  alias KanbanVisionApi.Usecase.EventEmitter
+
   @default_repository KanbanVisionApi.Agent.Organizations
 
   @type result :: {:ok, map()}
@@ -23,6 +25,13 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetAllOrganizations do
     Logger.debug("All organizations retrieved",
       correlation_id: correlation_id,
       count: map_size(organizations)
+    )
+
+    EventEmitter.emit(
+      :organization,
+      :all_organizations_retrieved,
+      %{count: map_size(organizations)},
+      correlation_id
     )
 
     {:ok, organizations}

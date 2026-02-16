@@ -19,8 +19,8 @@ defmodule KanbanVisionApi.Domain.Step do
   def new(
         name,
         order,
-        required_ability \\ %Ability{},
         tasks,
+        required_ability \\ %Ability{},
         id \\ UUID.uuid4(),
         audit \\ Audit.new()
       ) do
