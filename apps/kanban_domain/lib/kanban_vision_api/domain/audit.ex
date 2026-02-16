@@ -9,9 +9,11 @@ defmodule KanbanVisionApi.Domain.Audit do
         }
 
   def new do
+    now = DateTime.utc_now()
+
     %__MODULE__{
-      created: DateTime.utc_now(),
-      updated: DateTime.utc_now()
+      created: now,
+      updated: now
     }
   end
 end

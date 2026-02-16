@@ -9,7 +9,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   describe "When start the system with empty state" do
     setup [:prepare_empty_context]
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "should not have any simulation for any organization",
          %{
            actor_pid: pid,
@@ -21,7 +21,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       assert Simulations.get_all(pid) == template
     end
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "should be able to add a new simulation to a specific organization",
          %{
            actor_pid: pid,
@@ -43,7 +43,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   describe "When the system is already started and already has data" do
     setup [:prepare_context_with_data]
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "should be able to get all simulations for a specific organization",
          %{
            actor_pid: pid,
@@ -56,7 +56,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       assert Simulations.get_all(pid) == template
     end
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "should be able to add a new simulation to a specific organization",
          %{
            actor_pid: pid,
@@ -80,7 +80,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
       assert Simulations.get_all(pid) == template
     end
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "Try to add a simulation that already exists",
          %{
            actor_pid: pid,
@@ -97,7 +97,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
              }
     end
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "try to find a simulation on a non existent organization",
          %{
            actor_pid: pid,
@@ -113,7 +113,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
              ) == template
     end
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "try to find a simulation by name that does not exist",
          %{
            actor_pid: pid,
@@ -132,7 +132,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   describe "When the system has an organization with no simulations" do
     setup [:prepare_context_with_empty_org]
 
-    @tag :domain_smulations
+    @tag :domain_simulations
     test "should return error for missing simulations on existing organization",
          %{
            actor_pid: pid,

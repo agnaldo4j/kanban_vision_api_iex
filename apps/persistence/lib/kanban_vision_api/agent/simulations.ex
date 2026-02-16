@@ -77,10 +77,50 @@ defmodule KanbanVisionApi.Agent.Simulations do
     end)
   end
 
+  def delete(pid, simulation_id) do
+    Agent.get_and_update(pid, fn state ->
+      case internal_find_by_id(state, simulation_id) do
+        {:ok, simulation} ->
+          new_state = internal_remove_simulation(state, simulation, simulation_id)
+          {{:ok, simulation}, new_state}
+
+        {:error, _} = error ->
+          {error, state}
+      end
+    end)
+  end
+
   def get_by_organization_id_and_simulation_name(pid, organization_id, simulation_name) do
     Agent.get(pid, fn state ->
       internal_find_by_org_and_name(state, organization_id, simulation_name)
     end)
+  end
+
+  defp internal_remove_simulation(state, simulation, simulation_id) do
+    org_sims = Map.get(state.simulations_by_organization, simulation.organization_id, %{})
+    updated_org_sims = Map.delete(org_sims, simulation_id)
+
+    updated_by_org =
+      if map_size(updated_org_sims) == 0 do
+        Map.delete(state.simulations_by_organization, simulation.organization_id)
+      else
+        Map.put(state.simulations_by_organization, simulation.organization_id, updated_org_sims)
+      end
+
+    put_in(state.simulations_by_organization, updated_by_org)
+  end
+
+  defp internal_find_by_id(state, simulation_id) do
+    result =
+      state.simulations_by_organization
+      |> Map.values()
+      |> Enum.flat_map(&Map.values/1)
+      |> Enum.find(fn sim -> sim.id == simulation_id end)
+
+    case result do
+      nil -> {:error, "Simulation with id: #{simulation_id} not found"}
+      simulation -> {:ok, simulation}
+    end
   end
 
   defp internal_find_by_org_and_name(state, organization_id, simulation_name) do

@@ -15,7 +15,7 @@ mix test
 mix test --app kanban_domain
 
 # Run a single test file
-mix test apps/kanban_domain/test/kanban_vision_api/agent/organizations_test.exs
+mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs
 
 # Run tests by tag
 mix test --only domain_boards
@@ -65,9 +65,9 @@ Simulation → Board → Workflow → Step → Task (with ServiceClass)
 ## Coverage Thresholds
 
 Per-app minimums enforced in each `coveralls.json`:
-- kanban_domain: 61%
+- kanban_domain: 70%
 - persistence: 100%
-- usecase: 12%
+- usecase: 50%
 
 ## CI
 

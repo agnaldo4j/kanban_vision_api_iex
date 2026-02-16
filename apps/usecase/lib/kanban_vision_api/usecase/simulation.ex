@@ -9,8 +9,10 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   use GenServer
 
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
+  alias KanbanVisionApi.Usecase.Simulation.DeleteSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
   alias KanbanVisionApi.Usecase.Simulations.CreateSimulation
+  alias KanbanVisionApi.Usecase.Simulations.DeleteSimulation
   alias KanbanVisionApi.Usecase.Simulations.GetAllSimulations
   alias KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName
 
@@ -26,6 +28,10 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   def add(pid, %CreateSimulationCommand{} = cmd, opts \\ []) do
     GenServer.call(pid, {:add, cmd, opts})
+  end
+
+  def delete(pid, %DeleteSimulationCommand{} = cmd, opts \\ []) do
+    GenServer.call(pid, {:delete, cmd, opts})
   end
 
   def get_by_org_and_name(pid, %GetSimulationByOrgAndNameQuery{} = query, opts \\ []) do
@@ -50,6 +56,12 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   @impl true
   def handle_call({:add, cmd, opts}, _from, state) do
     result = CreateSimulation.execute(cmd, state.repository_pid, enrich_opts(opts, state))
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:delete, cmd, opts}, _from, state) do
+    result = DeleteSimulation.execute(cmd, state.repository_pid, enrich_opts(opts, state))
     {:reply, result, state}
   end
 

@@ -48,8 +48,30 @@ defmodule KanbanVisionApi.Agent.Boards do
     end)
   end
 
+  def get_by_id(pid, board_id) do
+    Agent.get(pid, fn state ->
+      case Map.get(state.boards, board_id) do
+        nil -> {:error, "Board with id: #{board_id} not found"}
+        board -> {:ok, board}
+      end
+    end)
+  end
+
   def get_all(pid) do
     Agent.get(pid, fn state -> state.boards end)
+  end
+
+  def delete(pid, board_id) do
+    Agent.get_and_update(pid, fn state ->
+      case Map.get(state.boards, board_id) do
+        nil ->
+          {{:error, "Board with id: #{board_id} not found"}, state}
+
+        board ->
+          new_state = put_in(state.boards, Map.delete(state.boards, board_id))
+          {{:ok, board}, new_state}
+      end
+    end)
   end
 
   def get_all_by_simulation_id(pid, simulation_id) do
