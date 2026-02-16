@@ -127,6 +127,43 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
                "Missing Simulation"
              ) == template
     end
+
+    @tag :domain_simulations
+    test "should delete a simulation by its id",
+         %{
+           actor_pid: pid,
+           simulation: simulation
+         } = _context do
+      assert {:ok, ^simulation} = Simulations.delete(pid, simulation.id)
+      assert %{} == Simulations.get_all(pid)
+    end
+
+    @tag :domain_simulations
+    test "should return error when deleting simulation with unknown id",
+         %{
+           actor_pid: pid
+         } = _context do
+      assert {:error, "Simulation with id: unknown-id not found"} =
+               Simulations.delete(pid, "unknown-id")
+    end
+
+    @tag :domain_simulations
+    test "should delete one simulation and keep others in same organization",
+         %{
+           actor_pid: pid,
+           simulation: simulation,
+           organization: organization
+         } = _context do
+      other_simulation =
+        Simulation.new("OtherSim", "OtherDesc", organization.id)
+
+      assert {:ok, ^other_simulation} = Simulations.add(pid, other_simulation)
+      assert {:ok, ^simulation} = Simulations.delete(pid, simulation.id)
+
+      remaining = Simulations.get_all(pid)
+      assert map_size(remaining[organization.id]) == 1
+      assert Map.has_key?(remaining[organization.id], other_simulation.id)
+    end
   end
 
   describe "When the system has an organization with no simulations" do
