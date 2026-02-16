@@ -2,13 +2,13 @@
 name: elixir
 description: >
   Use when working with Elixir code — writing modules, functions, tests, mix tasks,
-  templates, logging, or any Elixir/OTP project. Covers Elixir v1.19.5 (stable),
+  templates, logging, or any Elixir/OTP project. Covers Elixir v1.18.4 / OTP 28,
   including standard library (Kernel), EEx, ExUnit, IEx, Logger, and Mix.
 ---
 
 # Elixir Development Skill
 
-Reference for Elixir v1.19.5 | OTP 26/27/28
+Reference for Elixir v1.18.4 | OTP 28
 
 ---
 
@@ -47,7 +47,7 @@ defmodule MyApp.MixProject do
     [
       app: :my_app,
       version: "0.1.0",
-      elixir: "~> 1.19",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -1150,13 +1150,13 @@ end
 
 ## 13. Referências Rápidas
 
-### Links oficiais (v1.19.5)
-- Kernel: https://hexdocs.pm/elixir/1.19.5/Kernel.html
-- EEx: https://hexdocs.pm/eex/1.19.5/EEx.html
-- ExUnit: https://hexdocs.pm/ex_unit/1.19.5/ExUnit.html
-- IEx: https://hexdocs.pm/iex/1.19.5/IEx.html
-- Logger: https://hexdocs.pm/logger/1.19.5/Logger.html
-- Mix: https://hexdocs.pm/mix/1.19.5/Mix.html
+### Links oficiais (v1.18.4)
+- Kernel: https://hexdocs.pm/elixir/1.18.4/Kernel.html
+- EEx: https://hexdocs.pm/eex/1.18.4/EEx.html
+- ExUnit: https://hexdocs.pm/ex_unit/1.18.4/ExUnit.html
+- IEx: https://hexdocs.pm/iex/1.18.4/IEx.html
+- Logger: https://hexdocs.pm/logger/1.18.4/Logger.html
+- Mix: https://hexdocs.pm/mix/1.18.4/Mix.html
 - Guia: https://hexdocs.pm/elixir/introduction.html
 
 ### Módulos stdlib mais usados
