@@ -1,5 +1,5 @@
 # Workshop: Arquitetura de Software com Elixir
-## Duração total: 4 horas e 40 minutos
+## Duração total: ~4 horas e 40 minutos
 
 > Workshop prático usando o projeto **kanban_vision_api_iex** como estudo de caso real.
 > Um simulador de Kanban board implementado com Elixir/OTP, que aplica
@@ -11,15 +11,15 @@
 
 | Horário | Módulo | Tópicos |
 |---------|--------|---------|
-| 00:00–00:50 | [Módulo 1](./modulo_01_fundamentos_elixir.md) | Fundamentos de Elixir |
-| 00:50–01:00 | ☕ Break | |
-| 01:00–01:45 | [Módulo 2](./modulo_02_arquitetura.md) | Screaming + Hexagonal + DDD |
-| 01:45–02:25 | [Módulo 3b](./modulo_03b_use_cases.md) | **Use Cases — isolamento e importância** |
-| 02:25–03:05 | [Módulo 3](./modulo_03_solid.md) | Princípios SOLID |
-| 03:05–03:15 | ☕ Break | |
-| 03:15–03:50 | [Módulo 4](./modulo_04_side_effects_imutabilidade_cqs.md) | Side Effects, Imutabilidade e CQS |
-| 03:50–04:15 | [Módulo 5](./modulo_05_observabilidade.md) | Observabilidade |
-| 04:15–04:45 | [Módulo 6](./modulo_06_exercicios.md) | Exercícios Práticos |
+| 00:00–00:45 | [Módulo 1](./modulo_01_fundamentos_elixir.md) | Mix: criação de projetos umbrella + Elixir (referência rápida) |
+| 00:45–00:55 | ☕ Break | |
+| 00:55–01:40 | [Módulo 2](./modulo_02_arquitetura.md) | Screaming + Hexagonal + DDD |
+| 01:40–02:20 | [Módulo 3b](./modulo_03b_use_cases.md) | **Use Cases — isolamento e importância** |
+| 02:20–03:00 | [Módulo 3](./modulo_03_solid.md) | Princípios SOLID |
+| 03:00–03:10 | ☕ Break | |
+| 03:10–03:45 | [Módulo 4](./modulo_04_side_effects_imutabilidade_cqs.md) | Side Effects, Imutabilidade e CQS |
+| 03:45–04:10 | [Módulo 5](./modulo_05_observabilidade.md) | Observabilidade |
+| 04:10–04:40 | [Módulo 6](./modulo_06_exercicios.md) | Exercícios Práticos |
 
 ---
 
