@@ -1,5 +1,5 @@
 # Workshop: Arquitetura de Software com Elixir
-## Duração total: 4 horas
+## Duração total: 4 horas e 40 minutos
 
 > Workshop prático usando o projeto **kanban_vision_api_iex** como estudo de caso real.
 > Um simulador de Kanban board implementado com Elixir/OTP, que aplica
@@ -14,11 +14,12 @@
 | 00:00–00:50 | [Módulo 1](./modulo_01_fundamentos_elixir.md) | Fundamentos de Elixir |
 | 00:50–01:00 | ☕ Break | |
 | 01:00–01:45 | [Módulo 2](./modulo_02_arquitetura.md) | Screaming + Hexagonal + DDD |
-| 01:45–02:25 | [Módulo 3](./modulo_03_solid.md) | Princípios SOLID |
-| 02:25–02:35 | ☕ Break | |
-| 02:35–03:10 | [Módulo 4](./modulo_04_side_effects_imutabilidade_cqs.md) | Side Effects, Imutabilidade e CQS |
-| 03:10–03:35 | [Módulo 5](./modulo_05_observabilidade.md) | Observabilidade |
-| 03:35–04:05 | [Módulo 6](./modulo_06_exercicios.md) | Exercícios Práticos |
+| 01:45–02:25 | [Módulo 3b](./modulo_03b_use_cases.md) | **Use Cases — isolamento e importância** |
+| 02:25–03:05 | [Módulo 3](./modulo_03_solid.md) | Princípios SOLID |
+| 03:05–03:15 | ☕ Break | |
+| 03:15–03:50 | [Módulo 4](./modulo_04_side_effects_imutabilidade_cqs.md) | Side Effects, Imutabilidade e CQS |
+| 03:50–04:15 | [Módulo 5](./modulo_05_observabilidade.md) | Observabilidade |
+| 04:15–04:45 | [Módulo 6](./modulo_06_exercicios.md) | Exercícios Práticos |
 
 ---
 
@@ -42,6 +43,14 @@
                │  Entities • Value Objects • Aggregates    │
                │  Repositories • Domain Events             │
                └────────────────────┬──────────────────────┘
+                                    │
+          ┌─────────────────────────▼──────────────────────────┐
+          │                   USE CASES                        │
+          │  Uma operação = um módulo = uma razão para mudar   │
+          │  Isolados de HTTP, Ecto, Framework, GenServer      │
+          │  Command (escrita) | Query (leitura)               │
+          │  Testáveis com mock • Documentação viva do sistema │
+          └─────────────────────────┬──────────────────────────┘
                                     │
      ┌──────────────────────────────▼────────────────────────────┐
      │                        SOLID                              │
