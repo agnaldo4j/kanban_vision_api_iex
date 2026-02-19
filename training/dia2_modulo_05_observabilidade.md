@@ -1,4 +1,4 @@
-# Módulo 5: Observabilidade
+# Dia 2 — Módulo 5: Observabilidade
 ## Duração: 25 minutos
 
 > *"Uma feature não está pronta sem comportamento observável em produção."*

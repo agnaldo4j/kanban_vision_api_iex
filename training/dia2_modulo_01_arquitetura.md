@@ -1,4 +1,4 @@
-# Módulo 2: Screaming Architecture, Hexagonal Architecture e DDD
+# Dia 2 — Módulo 1: Screaming Architecture, Hexagonal Architecture e DDD
 ## Duração: 45 minutos
 
 > Neste módulo vamos entender **por que** o projeto está organizado da forma que está,

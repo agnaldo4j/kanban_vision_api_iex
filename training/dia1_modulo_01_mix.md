@@ -1,5 +1,5 @@
-# Módulo 1: Mix e Fundamentos de Elixir
-## Duração: 45 minutos
+# Dia 1 — Módulo 1: Mix e Estrutura de Projetos
+## Duração: 40 minutos
 
 > **Projeto de referência:** `kanban_vision_api_iex` — um simulador de Kanban board
 > usando OTP e o padrão Object Prevalence (estado em memória via Agents).
@@ -372,142 +372,6 @@ mix test --exclude slow         # exclui testes lentos
 
 ---
 
-## 1.3 Referência Rápida de Elixir (15 min)
-
-> Esta seção é consulta rápida. Os conceitos são aprofundados nos próximos
-> módulos com exemplos reais do projeto.
-
-### Tipos essenciais
-
-```elixir
-# Atoms — identificadores imutáveis
-:ok  :error  :not_found  nil  true  false
-
-# Tuplas — retornos com status (convenção Elixir)
-{:ok, value}       # sucesso
-{:error, reason}   # falha
-
-# Keyword lists — opções de função
-[timeout: 5000, repository: MockRepo, correlation_id: "abc"]
-
-# Maps
-%{chave: valor, outra: 42}
-```
-
-### Structs + @type + @spec
-
-```elixir
-defmodule KanbanVisionApi.Domain.Organization do
-  defstruct [:id, :audit, :name, :tribes]      # campos fixos e nomeados
-
-  @type t :: %__MODULE__{                      # tipo documentado para Dialyzer
-    id:     String.t(),
-    audit:  Audit.t(),
-    name:   String.t(),
-    tribes: [Tribe.t()]
-  }
-
-  @spec new(String.t(), [Tribe.t()]) :: t()    # contrato da função
-  def new(name, tribes \\ []) do
-    %__MODULE__{id: UUID.uuid4(), audit: Audit.new(), name: name, tribes: tribes}
-  end
-end
-
-# Imutável — update cria novo struct, o original não muda
-org2 = %{org | name: "Novo Nome"}
-org.name   #=> "Acme"       ← original intacto
-org2.name  #=> "Novo Nome"  ← nova referência
-```
-
-### Pattern Matching e Guards
-
-```elixir
-# Cláusulas de função — do projeto real (commands.ex)
-def new(name, tribes)
-    when is_binary(name) and byte_size(name) > 0 and is_list(tribes) do
-  {:ok, %__MODULE__{name: name, tribes: tribes}}
-end
-
-def new(name, _) when not is_binary(name) or byte_size(name) == 0 do
-  {:error, :invalid_name}
-end
-
-# case — match explícito
-case repository.add(pid, org) do
-  {:ok, org}       -> {:ok, org}
-  {:error, reason} -> {:error, reason}
-end
-
-# with — encadeamento de happy path (sem else = propaga o erro)
-with {:ok, cmd} <- CreateOrganizationCommand.new(name),
-     {:ok, org} <- repository.add(pid, Organization.new(cmd.name)) do
-  {:ok, org}
-end
-```
-
-### Agents e GenServer (resumo visual)
-
-```elixir
-# Agent — encapsula estado, acesso serial via mailbox
-{:ok, pid} = Agent.start_link(fn -> %{} end)
-Agent.get(pid, fn s -> s end)                              # leitura pura
-Agent.get_and_update(pid, fn s -> {retorno, novo_s} end)   # lê + escreve atômico
-
-# GenServer — processo com lógica de orquestração
-defmodule MeuServidor do
-  use GenServer
-  def start_link(opts), do: GenServer.start_link(__MODULE__, opts, opts)
-  def chamar(pid, arg), do: GenServer.call(pid, {:chamar, arg})  # síncrono
-
-  @impl true
-  def init(opts), do: {:ok, estado_inicial}
-
-  @impl true
-  def handle_call({:chamar, arg}, _from, state) do
-    {:reply, resultado, state}  # {resposta, novo_estado}
-  end
-end
-
-# Supervisor — reinicia filhos que morrem
-children = [{MeuServidor, name: MeuServidor}]
-Supervisor.start_link(children, strategy: :one_for_one)
-```
-
----
-
-## 1.4 Exercício — Criar e navegar no umbrella (7 min)
-
-```bash
-# 1. Observe a estrutura real do projeto
-ls apps/                          # kanban_domain, persistence, usecase
-cat mix.exs                       # raiz: apps_path + deps compartilhadas
-cat apps/kanban_domain/mix.exs    # dep: só elixir_uuid
-cat apps/persistence/mix.exs      # dep: kanban_domain in_umbrella
-cat apps/usecase/mix.exs          # dep: kanban_domain + persistence + telemetry
-
-# 2. Visualize as dependências
-mix deps.get
-mix deps.tree                     # grafo completo de dependências
-
-# 3. Compile e teste por app
-mix compile
-mix test --app kanban_domain      # só o domínio (mais rápido)
-mix test --app persistence        # só os repositórios
-mix test --app usecase            # só os use cases
-
-# 4. Explore no IEx
-iex -S mix
-Application.loaded_applications() |> Enum.map(&elem(&1, 0))
-# :kanban_domain, :persistence, :usecase devem aparecer
-```
-
-**Perguntas para reflexão:**
-- Por que `kanban_domain` não tem `mod:` no `application/0`?
-- O que aconteceria se `persistence` dependesse de `usecase`? (dependência circular)
-- Por que os paths `build_path`, `deps_path` e `lockfile` dos apps filhos apontam para `../../`?
-
----
-
 ## Resumo do Módulo 1
 
 | Conceito | Comando / Arquivo |
@@ -522,4 +386,4 @@ Application.loaded_applications() |> Enum.map(&elem(&1, 0))
 | Análise estática | `mix credo` + `mix format --check-formatted` |
 | Cobertura | `MIX_ENV=test mix coveralls --umbrella` |
 
-> **Próximo módulo:** Como o umbrella é organizado para revelar o domínio de negócio — Screaming Architecture, Hexagonal Architecture e DDD.
+> **Próximo módulo:** Fundamentos da linguagem Elixir — tipos, funções, pattern matching e imutabilidade.

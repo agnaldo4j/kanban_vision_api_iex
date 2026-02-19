@@ -1,76 +1,83 @@
 # Workshop: Arquitetura de Software com Elixir
-## Duração total: ~4 horas e 40 minutos
+## Duração total: ~8 horas (2 dias de ~4 horas)
 
 > Workshop prático usando o projeto **kanban_vision_api_iex** como estudo de caso real.
 > Um simulador de Kanban board implementado com Elixir/OTP, que aplica
 > Hexagonal Architecture, DDD, SOLID e boas práticas de engenharia.
+>
+> Público-alvo: iniciantes em Elixir **e** em arquitetura de software.
 
 ---
 
-## Agenda
+## Dia 1 — Fundamentos da Linguagem (~3h15min)
 
 | Horário | Módulo | Tópicos |
 |---------|--------|---------|
-| 00:00–00:45 | [Módulo 1](./modulo_01_fundamentos_elixir.md) | Mix: criação de projetos umbrella + Elixir (referência rápida) |
-| 00:45–00:55 | ☕ Break | |
-| 00:55–01:40 | [Módulo 2](./modulo_02_arquitetura.md) | Screaming + Hexagonal + DDD |
-| 01:40–02:20 | [Módulo 3b](./modulo_03b_use_cases.md) | **Use Cases — isolamento e importância** |
-| 02:20–03:00 | [Módulo 3](./modulo_03_solid.md) | Princípios SOLID |
-| 03:00–03:10 | ☕ Break | |
-| 03:10–03:45 | [Módulo 4](./modulo_04_side_effects_imutabilidade_cqs.md) | Side Effects, Imutabilidade e CQS |
-| 03:45–04:10 | [Módulo 5](./modulo_05_observabilidade.md) | Observabilidade |
-| 04:10–04:40 | [Módulo 6](./modulo_06_exercicios.md) | Exercícios Práticos |
+| 00:00–00:40 | [Módulo 1 — Mix](./dia1_modulo_01_mix.md) | Criação de projetos umbrella, mix.exs, dependências, comandos |
+| 00:40–01:35 | [Módulo 2 — Elixir](./dia1_modulo_02_elixir.md) | Tipos, pattern matching, guards, with, structs, @type, imutabilidade |
+| 01:35–01:45 | ☕ Break | |
+| 01:45–02:35 | [Módulo 3 — OTP](./dia1_modulo_03_otp.md) | Processos, Agent, GenServer, Supervisor |
+| 02:35–03:05 | [Módulo 4 — Testes](./dia1_modulo_04_testes.md) | ExUnit, describe/test/setup, tags, três níveis de teste |
+| 03:05–03:25 | [Módulo 5 — Exercícios Dia 1](./dia1_modulo_05_exercicios.md) | IEx, criar entidades, Agent, GenServer, escrever testes |
+
+---
+
+## Dia 2 — Arquitetura de Software (~4h)
+
+| Horário | Módulo | Tópicos |
+|---------|--------|---------|
+| 00:00–00:45 | [Módulo 1 — Arquitetura](./dia2_modulo_01_arquitetura.md) | Screaming Architecture, Hexagonal (Ports & Adapters), DDD |
+| 00:45–01:25 | [Módulo 2 — SOLID](./dia2_modulo_02_solid.md) | SRP, OCP, LSP, ISP, DIP aplicados em Elixir |
+| 01:25–01:35 | ☕ Break | |
+| 01:35–02:15 | [Módulo 3 — Use Cases](./dia2_modulo_03_use_cases.md) | Isolamento, estrutura, testes, anti-padrões |
+| 02:15–02:50 | [Módulo 4 — Side Effects e CQS](./dia2_modulo_04_side_effects_cqs.md) | Funções puras, imutabilidade em fluxos, Commands vs Queries |
+| 02:50–03:15 | [Módulo 5 — Observabilidade](./dia2_modulo_05_observabilidade.md) | Logger estruturado, :telemetry, Correlation ID |
+| 03:15–03:40 | [Módulo 6 — Exercícios Dia 2](./dia2_modulo_06_exercicios.md) | Exercícios de arquitetura no projeto real |
 
 ---
 
 ## Mapa de Conceitos
 
 ```
-                    ┌───────────────────────────────────┐
-                    │       SCREAMING ARCHITECTURE       │
-                    │  "A estrutura revela o negócio"   │
-                    └───────────────┬───────────────────┘
-                                    │
-                    ┌───────────────▼───────────────────┐
-                    │      HEXAGONAL ARCHITECTURE        │
-                    │  Ports & Adapters                  │
-                    │  Domínio isolado de infra          │
-                    └───────────────┬───────────────────┘
-                                    │
-               ┌────────────────────▼──────────────────────┐
-               │               DDD                         │
-               │  Ubiquitous Language • Bounded Contexts   │
-               │  Entities • Value Objects • Aggregates    │
-               │  Repositories • Domain Events             │
-               └────────────────────┬──────────────────────┘
-                                    │
-          ┌─────────────────────────▼──────────────────────────┐
-          │                   USE CASES                        │
-          │  Uma operação = um módulo = uma razão para mudar   │
-          │  Isolados de HTTP, Ecto, Framework, GenServer      │
-          │  Command (escrita) | Query (leitura)               │
-          │  Testáveis com mock • Documentação viva do sistema │
-          └─────────────────────────┬──────────────────────────┘
-                                    │
-     ┌──────────────────────────────▼────────────────────────────┐
-     │                        SOLID                              │
-     │  S: Uma razão para mudar   D: Depender de abstrações     │
-     │  O: Aberto para extensão   I: Interfaces focadas          │
-     │  L: Substituível           → Behaviours como contratos    │
-     └──────────────────────────────┬────────────────────────────┘
-                                    │
-        ┌───────────────────────────▼───────────────────────────┐
-        │          SIDE EFFECTS + IMUTABILIDADE + CQS           │
-        │  Funções puras no núcleo • Side effects nas bordas    │
-        │  Commands (escrita) vs Queries (leitura)              │
-        └───────────────────────────┬───────────────────────────┘
-                                    │
-                   ┌────────────────▼────────────────┐
-                   │         OBSERVABILIDADE          │
-                   │  Logger estruturado              │
-                   │  Telemetria (:telemetry)         │
-                   │  Correlation ID propagado        │
-                   └─────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                         DIA 1                                   │
+│                                                                 │
+│  Mix ──→ Elixir ──→ OTP (Agent / GenServer / Supervisor)       │
+│                         │                                       │
+│                         ▼                                       │
+│                     ExUnit (testes)                             │
+└─────────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         DIA 2                                   │
+│                                                                 │
+│  SCREAMING ARCHITECTURE                                         │
+│  "A estrutura revela o negócio"                                 │
+│            │                                                    │
+│            ▼                                                    │
+│  HEXAGONAL ARCHITECTURE (Ports & Adapters)                      │
+│  Domínio isolado de infra                                       │
+│            │                                                    │
+│            ▼                                                    │
+│  DDD — Ubiquitous Language · Bounded Contexts                   │
+│  Entities · Value Objects · Repositories · Domain Events       │
+│            │                                                    │
+│            ▼                                                    │
+│  SOLID — Behaviours como contratos · Injeção de dependência    │
+│            │                                                    │
+│            ▼                                                    │
+│  USE CASES — Uma operação = um módulo = uma razão para mudar   │
+│  Isolados de HTTP, Ecto, Framework · Command | Query            │
+│            │                                                    │
+│            ▼                                                    │
+│  SIDE EFFECTS + IMUTABILIDADE + CQS                            │
+│  Funções puras no núcleo · Side effects nas bordas             │
+│            │                                                    │
+│            ▼                                                    │
+│  OBSERVABILIDADE                                                │
+│  Logger estruturado · :telemetry · Correlation ID              │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -121,12 +128,17 @@ kanban_vision_api_iex/            ← umbrella project
 │               └── get_all_organizations.ex
 └── training/                     ← este workshop
     ├── README.md                 ← este arquivo
-    ├── modulo_01_fundamentos_elixir.md
-    ├── modulo_02_arquitetura.md
-    ├── modulo_03_solid.md
-    ├── modulo_04_side_effects_imutabilidade_cqs.md
-    ├── modulo_05_observabilidade.md
-    └── modulo_06_exercicios.md
+    ├── dia1_modulo_01_mix.md
+    ├── dia1_modulo_02_elixir.md
+    ├── dia1_modulo_03_otp.md
+    ├── dia1_modulo_04_testes.md
+    ├── dia1_modulo_05_exercicios.md
+    ├── dia2_modulo_01_arquitetura.md
+    ├── dia2_modulo_02_solid.md
+    ├── dia2_modulo_03_use_cases.md
+    ├── dia2_modulo_04_side_effects_cqs.md
+    ├── dia2_modulo_05_observabilidade.md
+    └── dia2_modulo_06_exercicios.md
 ```
 
 ---

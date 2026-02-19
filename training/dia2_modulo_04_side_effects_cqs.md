@@ -1,4 +1,4 @@
-# Módulo 4: Side Effects, Imutabilidade e Command/Query Separation
+# Dia 2 — Módulo 4: Side Effects, Imutabilidade e Command/Query Separation
 ## Duração: 35 minutos
 
 > Três conceitos que trabalham juntos para tornar código previsível,

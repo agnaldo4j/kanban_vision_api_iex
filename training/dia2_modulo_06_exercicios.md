@@ -1,4 +1,4 @@
-# Módulo 6: Exercícios Práticos
+# Dia 2 — Módulo 6: Exercícios Práticos
 ## Duração: 30 minutos
 
 > Hora de colocar em prática! Os exercícios são progressivos:

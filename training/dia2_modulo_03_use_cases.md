@@ -1,4 +1,4 @@
-# Módulo 3b: Use Cases — O Coração da Arquitetura Hexagonal
+# Dia 2 — Módulo 3: Use Cases — O Coração da Arquitetura Hexagonal
 ## Duração: 40 minutos
 
 > Use Cases são a razão de existir de toda a arquitetura hexagonal.
@@ -7,7 +7,7 @@
 
 ---
 
-## 3b.1 O que é um Use Case? (7 min)
+## 3.1 O que é um Use Case? (7 min)
 
 Um Use Case representa **uma única intenção do usuário (ou sistema) que produz um resultado de negócio observável**.
 
@@ -53,7 +53,7 @@ Controller → DB                 Controller → Use Case → Port → Adapter
 
 ---
 
-## 3b.2 Anatomia de um Use Case no projeto (10 min)
+## 3.2 Anatomia de um Use Case no projeto (10 min)
 
 Todo Use Case do projeto segue a mesma estrutura. Vamos dissecar o `CreateOrganization`:
 
@@ -145,7 +145,7 @@ end
 
 ---
 
-## 3b.3 Isolamento — o núcleo da questão (12 min)
+## 3.3 Isolamento — o núcleo da questão (12 min)
 
 ### O que "isolado" significa na prática
 
@@ -297,7 +297,7 @@ end
 
 ---
 
-## 3b.4 Uma operação = um Use Case (6 min)
+## 3.4 Uma operação = um Use Case (6 min)
 
 ### A regra
 
@@ -372,7 +372,7 @@ Resultado:
 
 ---
 
-## 3b.5 Use Cases e Testabilidade (5 min)
+## 3.5 Use Cases e Testabilidade (5 min)
 
 ### Os três níveis de teste para Use Cases
 
@@ -453,7 +453,7 @@ Contrato (Adapter vs PORT):
 
 ---
 
-## 3b.6 Use Cases como documentação viva (bônus — 3 min)
+## 3.6 Use Cases como documentação viva (bônus — 3 min)
 
 Uma consequência poderosa do isolamento: **a pasta `use_cases/` documenta tudo que o sistema faz**.
 
@@ -476,7 +476,7 @@ Um novo desenvolvedor lê essa estrutura e entende **o que o sistema faz** sem l
 
 ---
 
-## 3b.7 Anti-patterns — o que evitar nos Use Cases (3 min)
+## 3.7 Anti-patterns — o que evitar nos Use Cases (3 min)
 
 ### 1. Use Case chamando outro Use Case diretamente
 
@@ -607,4 +607,4 @@ Domain Entity       ← struct imutável, sem infra
 | Implementação | `Agent.Organizations` | Estado em memória |
 | Entidade | `Organization` | Struct imutável do domínio |
 
-> **Próximo módulo:** Os princípios SOLID — como cada peça dessa estrutura é projetada internamente.
+> **Próximo módulo:** Side Effects, Imutabilidade e CQS — como manter o código previsível e sem efeitos colaterais ocultos.

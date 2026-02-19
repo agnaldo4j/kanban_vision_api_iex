@@ -1,4 +1,4 @@
-# Módulo 3: Princípios SOLID em Elixir
+# Dia 2 — Módulo 2: Princípios SOLID em Elixir
 ## Duração: 40 minutos
 
 > SOLID não é um conjunto de regras rígidas — é um guia para tornar código
@@ -488,4 +488,4 @@ I — Interfaces focadas        → 3 behaviours ao invés de 1 mega-behaviour
 D — Depender de abstrações    → Use Cases recebem repositório por injeção
 ```
 
-> **Próximo módulo:** Como controlar side effects, manter imutabilidade em fluxos complexos e separar comandos de queries (CQS).
+> **Próximo módulo:** Use Cases — o coração da arquitetura hexagonal: como isolar o que o sistema faz de qualquer detalhe técnico.
