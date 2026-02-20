@@ -1,5 +1,4 @@
 # Workshop: Arquitetura de Software com Elixir
-## Duração total: ~8 horas (2 dias de ~4 horas)
 
 > Workshop prático usando o projeto **kanban_vision_api_iex** como estudo de caso real.
 > Um simulador de Kanban board implementado com Elixir/OTP, que aplica
@@ -9,30 +8,24 @@
 
 ---
 
-## Dia 1 — Fundamentos da Linguagem (~3h15min)
+## Dia 1 — Fundamentos da Linguagem
 
-| Horário | Módulo | Tópicos |
-|---------|--------|---------|
-| 00:00–00:40 | [Módulo 1 — Mix](./dia1_modulo_01_mix.md) | Criação de projetos umbrella, mix.exs, dependências, comandos |
-| 00:40–01:35 | [Módulo 2 — Elixir](./dia1_modulo_02_elixir.md) | Tipos, pattern matching, guards, with, structs, @type, imutabilidade |
-| 01:35–01:45 | ☕ Break | |
-| 01:45–02:35 | [Módulo 3 — OTP](./dia1_modulo_03_otp.md) | Processos, Agent, GenServer, Supervisor |
-| 02:35–03:05 | [Módulo 4 — Testes](./dia1_modulo_04_testes.md) | ExUnit, describe/test/setup, tags, três níveis de teste |
-| 03:05–03:25 | [Módulo 5 — Exercícios Dia 1](./dia1_modulo_05_exercicios.md) | IEx, criar entidades, Agent, GenServer, escrever testes |
+1. [Módulo 1 — Mix](./dia1_modulo_01_mix.md) — Criação de projetos umbrella, mix.exs, dependências, comandos
+2. [Módulo 2 — Elixir](./dia1_modulo_02_elixir.md) — Tipos, pattern matching, guards, with, structs, @type, imutabilidade
+3. [Módulo 3 — OTP](./dia1_modulo_03_otp.md) — Processos, Agent, GenServer, Supervisor
+4. [Módulo 4 — Testes](./dia1_modulo_04_testes.md) — ExUnit, describe/test/setup, tags, três níveis de teste
+5. [Módulo 5 — Exercícios Dia 1](./dia1_modulo_05_exercicios.md) — IEx, criar entidades, Agent, GenServer, escrever testes
 
 ---
 
-## Dia 2 — Arquitetura de Software (~4h)
+## Dia 2 — Arquitetura de Software
 
-| Horário | Módulo | Tópicos |
-|---------|--------|---------|
-| 00:00–00:45 | [Módulo 1 — Arquitetura](./dia2_modulo_01_arquitetura.md) | Screaming Architecture, Hexagonal (Ports & Adapters), DDD |
-| 00:45–01:25 | [Módulo 2 — SOLID](./dia2_modulo_02_solid.md) | SRP, OCP, LSP, ISP, DIP aplicados em Elixir |
-| 01:25–01:35 | ☕ Break | |
-| 01:35–02:15 | [Módulo 3 — Use Cases](./dia2_modulo_03_use_cases.md) | Isolamento, estrutura, testes, anti-padrões |
-| 02:15–02:50 | [Módulo 4 — Side Effects e CQS](./dia2_modulo_04_side_effects_cqs.md) | Funções puras, imutabilidade em fluxos, Commands vs Queries |
-| 02:50–03:15 | [Módulo 5 — Observabilidade](./dia2_modulo_05_observabilidade.md) | Logger estruturado, :telemetry, Correlation ID |
-| 03:15–03:40 | [Módulo 6 — Exercícios Dia 2](./dia2_modulo_06_exercicios.md) | Exercícios de arquitetura no projeto real |
+1. [Módulo 1 — Arquitetura](./dia2_modulo_01_arquitetura.md) — Screaming Architecture, Hexagonal (Ports & Adapters), DDD
+2. [Módulo 2 — SOLID](./dia2_modulo_02_solid.md) — SRP, OCP, LSP, ISP, DIP aplicados em Elixir
+3. [Módulo 3 — Use Cases](./dia2_modulo_03_use_cases.md) — Isolamento, estrutura, testes, anti-padrões
+4. [Módulo 4 — Side Effects e CQS](./dia2_modulo_04_side_effects_cqs.md) — Funções puras, imutabilidade em fluxos, Commands vs Queries
+5. [Módulo 5 — Observabilidade](./dia2_modulo_05_observabilidade.md) — Logger estruturado, :telemetry, Correlation ID
+6. [Módulo 6 — Exercícios Dia 2](./dia2_modulo_06_exercicios.md) — Exercícios de arquitetura no projeto real
 
 ---
 
@@ -42,7 +35,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                         DIA 1                                   │
 │                                                                 │
-│  Mix ──→ Elixir ──→ OTP (Agent / GenServer / Supervisor)       │
+│  Mix ──→ Elixir ──→ OTP (Agent / GenServer / Supervisor)        │
 │                         │                                       │
 │                         ▼                                       │
 │                     ExUnit (testes)                             │
@@ -61,22 +54,22 @@
 │            │                                                    │
 │            ▼                                                    │
 │  DDD — Ubiquitous Language · Bounded Contexts                   │
-│  Entities · Value Objects · Repositories · Domain Events       │
+│  Entities · Value Objects · Repositories · Domain Events        │
 │            │                                                    │
 │            ▼                                                    │
-│  SOLID — Behaviours como contratos · Injeção de dependência    │
+│  SOLID — Behaviours como contratos · Injeção de dependência     │
 │            │                                                    │
 │            ▼                                                    │
-│  USE CASES — Uma operação = um módulo = uma razão para mudar   │
+│  USE CASES — Uma operação = um módulo = uma razão para mudar    │
 │  Isolados de HTTP, Ecto, Framework · Command | Query            │
 │            │                                                    │
 │            ▼                                                    │
-│  SIDE EFFECTS + IMUTABILIDADE + CQS                            │
-│  Funções puras no núcleo · Side effects nas bordas             │
+│  SIDE EFFECTS + IMUTABILIDADE + CQS                             │
+│  Funções puras no núcleo · Side effects nas bordas              │
 │            │                                                    │
 │            ▼                                                    │
 │  OBSERVABILIDADE                                                │
-│  Logger estruturado · :telemetry · Correlation ID              │
+│  Logger estruturado · :telemetry · Correlation ID               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
