@@ -241,7 +241,7 @@ end
 3. O que está errado com a separação de Command/Query?
 4. Quais side effects são problemáticos e por quê?
 
-**Solução comentada:** disponível em `training/gabarito_exercicio_4.md`
+**Solução comentada:** veja o gabarito abaixo
 
 ---
 
@@ -303,16 +303,35 @@ Implemente o **Use Case `AddTagToOrganization`** completo, seguindo **todos** os
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Módulo 1: Fundamentos Elixir                                │
-│  Types • Structs • @type • Pattern Matching                  │
-│  Imutabilidade • Agents • GenServer • Supervisores           │
+│  DIA 1 — Fundamentos da Linguagem                            │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 2: Arquitetura                                       │
+│  Módulo 1: Mix e Estrutura de Projetos                       │
+│  Umbrella • mix.exs • Dependências • Comandos                │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 2: Fundamentos Elixir                                │
+│  Types • Structs • @type • Pattern Matching • Imutabilidade  │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 3: OTP                                               │
+│  Processos • Agents • GenServer • Supervisores               │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 4: Testes com ExUnit                                 │
+│  describe/test/setup • Tags • Três níveis de teste           │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 5: Exercícios Dia 1                                  │
+│  IEx exploration • Entidades • Agent • GenServer • Testes    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  DIA 2 — Arquitetura de Software                             │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 1: Arquitetura                                       │
 │  Screaming Architecture • Hexagonal Architecture • DDD       │
 │  Ports & Adapters • Bounded Contexts • Ubiquitous Language   │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 3: SOLID em Elixir                                   │
+│  Módulo 2: SOLID em Elixir                                   │
 │  SRP • OCP • LSP (contract tests) • ISP • DIP               │
+├─────────────────────────────────────────────────────────────┤
+│  Módulo 3: Use Cases                                         │
+│  Isolamento • Estrutura • Testes • Anti-padrões              │
 ├─────────────────────────────────────────────────────────────┤
 │  Módulo 4: Side Effects, Imutabilidade e CQS                 │
 │  Funções puras • Push para a borda • Commands • Queries      │
@@ -320,7 +339,7 @@ Implemente o **Use Case `AddTagToOrganization`** completo, seguindo **todos** os
 │  Módulo 5: Observabilidade                                   │
 │  Logger estruturado • Telemetria • Correlation ID            │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 6: Exercícios Práticos                               │
+│  Módulo 6: Exercícios Dia 2                                  │
 │  IEx exploration • Novo Use Case • Nova Entidade             │
 │  Análise de code smells                                      │
 └─────────────────────────────────────────────────────────────┘

@@ -247,7 +247,7 @@ simulation = %Simulation{
 }
 
 # Adicionando uma task em um step específico (sem mutar!)
-nova_task = Task.new(:high)
+nova_task = Task.new(1)
 
 novo_simulation =
   update_in(simulation, [:board, :workflow, :steps], fn steps ->
@@ -417,22 +417,31 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   # ===== COMMANDS — Agent.get_and_update (lê e escreve atomicamente) =====
 
-  def add(pid, %Organization{} = org) do
+  def add(pid, %Organization{} = new_organization) do
     Agent.get_and_update(pid, fn state ->
-      # Lê estado, decide se adiciona, retorna novo estado
-      new_orgs = Map.put(state.organizations, org.id, org)
-      {{:ok, org}, %{state | organizations: new_orgs}}
+      case internal_get_by_name(state.organizations, new_organization.name) do
+        {:error, _} ->
+          new_orgs = Map.put(state.organizations, new_organization.id, new_organization)
+          new_state = put_in(state.organizations, new_orgs)
+          {{:ok, new_organization}, new_state}
+
+        {:ok, _} ->
+          {{:error, "Organization with name: #{new_organization.name} already exist"}, state}
+      end
     end)
-    # Muda estado — operação atômica
+    # Muda estado — operação atômica (lê + verifica duplicata + escreve)
   end
 
-  def delete(pid, id) do
+  def delete(pid, domain_id) do
     Agent.get_and_update(pid, fn state ->
-      case Map.get(state.organizations, id) do
-        nil -> {{:error, "not found"}, state}
-        org ->
-          new_orgs = Map.delete(state.organizations, org.id)
-          {{:ok, org}, %{state | organizations: new_orgs}}
+      case Map.get(state.organizations, domain_id) do
+        nil ->
+          {{:error, "Organization with id: #{domain_id} not found"}, state}
+
+        domain ->
+          new_orgs = Map.delete(state.organizations, domain.id)
+          new_state = put_in(state.organizations, new_orgs)
+          {{:ok, domain}, new_state}
       end
     end)
     # Muda estado — operação atômica

@@ -335,10 +335,10 @@ defmodule KanbanVisionApi.Domain.Audit do
   end
 end
 
-# ServiceClass também é um Value Object no contexto do Step
+# ServiceClass é uma entidade no domínio (tem :id e :audit)
 defmodule KanbanVisionApi.Domain.ServiceClass do
   defstruct [:id, :audit, :name]
-  # Define a classe de serviço de uma tarefa — o valor importa, não a instância
+  # Define a classe de serviço de uma tarefa (ex: Standard, Expedite)
 end
 ```
 
@@ -420,7 +420,7 @@ EventEmitter.emit(
 
 ---
 
-## Resumo do Módulo 2
+## Resumo do Módulo 1
 
 ### As três arquiteturas trabalham juntas
 

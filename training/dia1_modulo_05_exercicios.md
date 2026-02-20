@@ -45,7 +45,7 @@ i org
 
 **O que observar:**
 - O campo `id` é gerado automaticamente?
-- O campo `audit` tem `inserted_at` e `updated_at`?
+- O campo `audit` tem `created` e `updated`?
 - Quais campos `tribes` começa com o quê?
 
 ---

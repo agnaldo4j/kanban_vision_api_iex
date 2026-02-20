@@ -110,7 +110,15 @@ end)
 defmodule KanbanVisionApi.Agent.Organizations do
   use Agent
 
-  def start_link(default \\ %Organizations{}) do
+  @behaviour KanbanVisionApi.Domain.Ports.OrganizationRepository
+
+  defstruct [:id, :organizations]
+
+  def new(organizations \\ %{}, id \\ UUID.uuid4()) do
+    %__MODULE__{id: id, organizations: organizations}
+  end
+
+  def start_link(default \\ __MODULE__.new()) do
     Agent.start_link(fn -> default end)
   end
 
@@ -120,17 +128,27 @@ defmodule KanbanVisionApi.Agent.Organizations do
   end
 
   # Escrita atômica — Agent.get_and_update
-  def add(pid, %Organization{} = new_org) do
+  def add(pid, %Organization{} = new_organization) do
     Agent.get_and_update(pid, fn state ->
-      case Map.get(state.organizations, new_org.name) do
-        nil ->
-          new_orgs = Map.put(state.organizations, new_org.id, new_org)
-          {{:ok, new_org}, %{state | organizations: new_orgs}}
+      case internal_get_by_name(state.organizations, new_organization.name) do
+        {:error, _} ->
+          new_orgs = Map.put(state.organizations, new_organization.id, new_organization)
+          new_state = put_in(state.organizations, new_orgs)
+          {{:ok, new_organization}, new_state}
 
-        _ ->
-          {{:error, "já existe"}, state}
+        {:ok, _} ->
+          {{:error, "Organization with name: #{new_organization.name} already exist"}, state}
       end
     end)
+  end
+
+  defp internal_get_by_name(organizations, domain_name) do
+    Map.values(organizations)
+    |> Enum.filter(fn domain -> domain.name == domain_name end)
+    |> case do
+      [] -> {:error, "Organization with name: #{domain_name} not found"}
+      values -> {:ok, values}
+    end
   end
 end
 ```
@@ -387,14 +405,14 @@ KanbanVisionApi.Usecase.Supervisor (Supervisor, :one_for_one)
         │   (inicia via init/1)
         │         |
         │   KanbanVisionApi.Agent.Organizations (Agent)
-        │         └── estado: %{organizations: %{id => %Organization{}}}
+        │         └── estado: %Organizations{id: uuid, organizations: %{id => %Organization{}}}
         │
         └── KanbanVisionApi.Usecase.Simulation (GenServer)
                   |
             (inicia via init/1)
                   |
             KanbanVisionApi.Agent.Simulations (Agent)
-                  └── estado: %{org_id => %{sim_id => %Simulation{}}}
+                  └── estado: %Simulations{id: uuid, simulations_by_organization: %{org_id => %{sim_id => %Simulation{}}}}
 ```
 
 **Nota importante:** Os Agents **não são filhos diretos do Supervisor**. Eles são iniciados dentro do `init/1` dos GenServers e dependem deles para existir. Se o GenServer morrer e for reiniciado, um novo Agent é criado do zero.

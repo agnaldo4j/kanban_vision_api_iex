@@ -50,8 +50,8 @@ end
 defmodule KanbanVisionApi.Domain.Organization do
   defstruct [:id, :audit, :name, :tribes]
 
-  def new(name, tribes \\ []) do
-    %__MODULE__{id: UUID.uuid4(), audit: Audit.new(), name: name, tribes: tribes}
+  def new(name, tribes \\ [], id \\ UUID.uuid4(), audit \\ Audit.new()) do
+    %__MODULE__{id: id, audit: audit, name: name, tribes: tribes}
   end
   # Razão para mudar: mudança no conceito de Organization (apenas 1)
 end
@@ -124,6 +124,7 @@ Em Elixir: **adicione novos comportamentos implementando interfaces (behaviours)
 defmodule KanbanVisionApi.Domain.Ports.OrganizationRepository do
   @callback get_all(pid()) :: map()
   @callback get_by_id(pid(), String.t()) :: {:ok, Organization.t()} | {:error, String.t()}
+  @callback get_by_name(pid(), String.t()) :: {:ok, [Organization.t()]} | {:error, String.t()}
   @callback add(pid(), Organization.t()) :: {:ok, Organization.t()} | {:error, String.t()}
   @callback delete(pid(), String.t()) :: {:ok, Organization.t()} | {:error, String.t()}
 end
@@ -204,15 +205,16 @@ end
 ```elixir
 # Agent — respeita o contrato (sempre {:ok} ou {:error, string})
 @impl true
-def add(pid, %Organization{} = org) do
+def add(pid, %Organization{} = new_organization) do
   Agent.get_and_update(pid, fn state ->
-    case internal_get_by_name(state.organizations, org.name) do
+    case internal_get_by_name(state.organizations, new_organization.name) do
       {:error, _} ->
-        new_orgs = Map.put(state.organizations, org.id, org)
-        {{:ok, org}, %{state | organizations: new_orgs}}        # ✓ {:ok, org}
+        new_orgs = Map.put(state.organizations, new_organization.id, new_organization)
+        new_state = put_in(state.organizations, new_orgs)
+        {{:ok, new_organization}, new_state}        # ✓ {:ok, org}
 
       {:ok, _} ->
-        {{:error, "Organization with name: #{org.name} already exist"}, state}  # ✓ {:error, string}
+        {{:error, "Organization with name: #{new_organization.name} already exist"}, state}  # ✓ {:error, string}
     end
   end)
 end
@@ -220,11 +222,10 @@ end
 
 ### Contract tests — garantindo LSP
 
-O projeto usa **testes de contrato** para verificar que todas as implementações respeitam o behaviour:
+Para garantir LSP, podemos criar **testes de contrato** que verificam que todas as implementações respeitam o behaviour. Exemplo de como seria:
 
 ```elixir
-# apps/persistence/test/kanban_vision_api/agent/organization_repository_contract_test.exs
-# Este teste roda para TODAS as implementações do OrganizationRepository
+# Exemplo hipotético — contract test para validar implementações do OrganizationRepository
 
 defmodule KanbanVisionApi.OrganizationRepositoryContractTest do
   use ExUnit.Case
@@ -429,7 +430,7 @@ deps: [{:kanban_domain, in_umbrella: true},
        {:persistence, in_umbrella: true}]
 
 # kanban_domain/mix.exs
-deps: []  # zero dependências — núcleo puro
+deps: [{:elixir_uuid, "~> 1.2.1"}]  # apenas gerador de UUID — sem framework
 ```
 
 ---
@@ -477,7 +478,7 @@ end
 
 ---
 
-## Resumo do Módulo 3
+## Resumo do Módulo 2
 
 ```
 S — Uma razão para mudar      → Use Cases separados por operação

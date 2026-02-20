@@ -146,6 +146,7 @@ defmodule KanbanVisionApiIex.MixProject do
   defp deps do
     [
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},   # linter
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},  # análise de tipos (Dialyzer)
       {:excoveralls, "~> 0.18", only: :test, runtime: false},    # cobertura
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}  # watch mode
     ]
