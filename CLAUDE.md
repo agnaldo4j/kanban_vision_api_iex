@@ -30,6 +30,9 @@ MIX_ENV=test mix coveralls.github --umbrella
 # Linting
 mix credo
 
+# Static type analysis (Dialyzer)
+mix dialyzer
+
 # Format
 mix format
 ```
@@ -71,7 +74,7 @@ Per-app minimums enforced in each `coveralls.json`:
 
 ## CI
 
-GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28. Runs `mix credo` → `mix coveralls` → `mix test --cover`.
+GitHub Actions (`.github/workflows/elixir.yml`): Elixir 1.18.4, OTP 28. Runs `mix credo` → `mix dialyzer` → `mix coveralls` → `mix test --cover`.
 
 # Platform Engineering Standards
 
