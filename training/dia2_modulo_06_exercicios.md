@@ -17,7 +17,7 @@ iex -S mix            # abrir o shell interativo
 
 ---
 
-## Exercício 1 — Exploração no IEx (5 min)
+## Exercício 1 — Exploração no IEx
 
 **Objetivo:** Entender o fluxo completo de uma operação
 
@@ -71,7 +71,7 @@ IO.inspect(removida.name, label: "Removida")
 
 ---
 
-## Exercício 2 — Adicionar um novo Use Case (10 min)
+## Exercício 2 — Adicionar um novo Use Case
 
 **Objetivo:** Implementar `GetOrganizationByName` seguindo os padrões do projeto
 
@@ -135,7 +135,7 @@ end
 
 ---
 
-## Exercício 3 — Criar uma nova Entidade de Domínio (10 min)
+## Exercício 3 — Criar uma nova Entidade de Domínio
 
 **Objetivo:** Adicionar a entidade `Tag` ao domínio, seguindo todos os padrões
 
@@ -198,7 +198,7 @@ mix format --check-formatted
 
 ---
 
-## Exercício 4 — Análise de Arquitetura (5 min)
+## Exercício 4 — Análise de Arquitetura
 
 **Objetivo:** Identificar violações arquiteturais no código hipotético abaixo
 
@@ -302,33 +302,27 @@ Implemente o **Use Case `AddTagToOrganization`** completo, seguindo **todos** os
 ## Resumo do Workshop
 
 ```
-4 horas de imersão:
-
 ┌─────────────────────────────────────────────────────────────┐
-│  Módulo 1 (50 min): Fundamentos Elixir                      │
-│  Types • Structs • @type • Pattern Matching                 │
-│  Imutabilidade • Agents • GenServer • Supervisores          │
+│  Módulo 1: Fundamentos Elixir                                │
+│  Types • Structs • @type • Pattern Matching                  │
+│  Imutabilidade • Agents • GenServer • Supervisores           │
 ├─────────────────────────────────────────────────────────────┤
-│  BREAK (10 min)                                             │
+│  Módulo 2: Arquitetura                                       │
+│  Screaming Architecture • Hexagonal Architecture • DDD       │
+│  Ports & Adapters • Bounded Contexts • Ubiquitous Language   │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 2 (45 min): Arquitetura                             │
-│  Screaming Architecture • Hexagonal Architecture • DDD      │
-│  Ports & Adapters • Bounded Contexts • Ubiquitous Language  │
-├─────────────────────────────────────────────────────────────┤
-│  Módulo 3 (40 min): SOLID em Elixir                         │
+│  Módulo 3: SOLID em Elixir                                   │
 │  SRP • OCP • LSP (contract tests) • ISP • DIP               │
 ├─────────────────────────────────────────────────────────────┤
-│  BREAK (10 min)                                             │
+│  Módulo 4: Side Effects, Imutabilidade e CQS                 │
+│  Funções puras • Push para a borda • Commands • Queries      │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 4 (35 min): Side Effects, Imutabilidade e CQS       │
-│  Funções puras • Push para a borda • Commands • Queries     │
+│  Módulo 5: Observabilidade                                   │
+│  Logger estruturado • Telemetria • Correlation ID            │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 5 (25 min): Observabilidade                         │
-│  Logger estruturado • Telemetria • Correlation ID           │
-├─────────────────────────────────────────────────────────────┤
-│  Módulo 6 (30 min): Exercícios Práticos                     │
-│  IEx exploration • Novo Use Case • Nova Entidade            │
-│  Análise de code smells                                     │
+│  Módulo 6: Exercícios Práticos                               │
+│  IEx exploration • Novo Use Case • Nova Entidade             │
+│  Análise de code smells                                      │
 └─────────────────────────────────────────────────────────────┘
 ```
 

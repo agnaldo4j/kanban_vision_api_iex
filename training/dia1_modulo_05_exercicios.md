@@ -6,7 +6,7 @@
 
 ---
 
-## Exercício 1 — Explorando o projeto com Mix e IEx (5 min)
+## Exercício 1 — Explorando o projeto com Mix e IEx
 
 ### 1a. Navegue pela estrutura
 
@@ -50,7 +50,7 @@ i org
 
 ---
 
-## Exercício 2 — Fundamentos Elixir na prática (5 min)
+## Exercício 2 — Fundamentos Elixir na prática
 
 Ainda no IEx, execute os exemplos abaixo **um por um** e observe os resultados:
 
@@ -105,7 +105,7 @@ resultado
 
 ---
 
-## Exercício 3 — OTP: Agent e GenServer (5 min)
+## Exercício 3 — OTP: Agent e GenServer
 
 ### 3a. Agent direto
 
@@ -165,7 +165,7 @@ Organization.get_all(gs_pid)
 
 ---
 
-## Exercício 4 — Escrevendo e rodando um teste (5 min)
+## Exercício 4 — Escrevendo e rodando um teste
 
 ### 4a. Rode os testes existentes
 

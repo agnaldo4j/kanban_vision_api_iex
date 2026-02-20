@@ -5,7 +5,7 @@
 
 ---
 
-## 2.1 Tipos Primitivos (8 min)
+## 2.1 Tipos Primitivos
 
 ### Atoms — identificadores imutáveis
 
@@ -119,7 +119,7 @@ CreateOrganization.execute(cmd, pid, [
 
 ---
 
-## 2.2 Funções e Módulos (8 min)
+## 2.2 Funções e Módulos
 
 ### Definindo módulos e funções
 
@@ -175,7 +175,7 @@ orgs
 
 ---
 
-## 2.3 Pattern Matching — o coração do Elixir (12 min)
+## 2.3 Pattern Matching — o coração do Elixir
 
 O operador `=` em Elixir não é atribuição — é **correspondência de padrão**:
 
@@ -306,7 +306,7 @@ end
 
 ---
 
-## 2.4 Structs, @type e @spec (12 min)
+## 2.4 Structs, @type e @spec
 
 ### Structs — maps tipados e nomeados
 
@@ -394,7 +394,7 @@ end
 
 ---
 
-## 2.5 Imutabilidade (8 min)
+## 2.5 Imutabilidade
 
 **Toda estrutura de dados em Elixir é imutável.** Isso não é uma limitação — é uma garantia de segurança, especialmente em sistemas concorrentes.
 
@@ -474,7 +474,7 @@ end)
 
 ---
 
-## 2.6 Enum — processando coleções (7 min)
+## 2.6 Enum — processando coleções
 
 ```elixir
 # map — transforma cada elemento

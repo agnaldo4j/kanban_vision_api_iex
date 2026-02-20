@@ -6,7 +6,7 @@
 
 ---
 
-## 3.1 O que é um Use Case? (7 min)
+## 3.1 O que é um Use Case?
 
 Um Use Case representa **uma única intenção do usuário (ou sistema) que produz um resultado de negócio observável**.
 
@@ -52,7 +52,7 @@ Controller → DB                 Controller → Use Case → Port → Adapter
 
 ---
 
-## 3.2 Anatomia de um Use Case no projeto (10 min)
+## 3.2 Anatomia de um Use Case no projeto
 
 Todo Use Case do projeto segue a mesma estrutura. Vamos dissecar o `CreateOrganization`:
 
@@ -144,7 +144,7 @@ end
 
 ---
 
-## 3.3 Isolamento — o núcleo da questão (12 min)
+## 3.3 Isolamento — o núcleo da questão
 
 ### O que "isolado" significa na prática
 
@@ -296,7 +296,7 @@ end
 
 ---
 
-## 3.4 Uma operação = um Use Case (6 min)
+## 3.4 Uma operação = um Use Case
 
 ### A regra
 
@@ -371,7 +371,7 @@ Resultado:
 
 ---
 
-## 3.5 Use Cases e Testabilidade (5 min)
+## 3.5 Use Cases e Testabilidade
 
 ### Os três níveis de teste para Use Cases
 
@@ -452,7 +452,7 @@ Contrato (Adapter vs PORT):
 
 ---
 
-## 3.6 Use Cases como documentação viva (bônus — 3 min)
+## 3.6 Use Cases como documentação viva
 
 Uma consequência poderosa do isolamento: **a pasta `use_cases/` documenta tudo que o sistema faz**.
 
@@ -475,7 +475,7 @@ Um novo desenvolvedor lê essa estrutura e entende **o que o sistema faz** sem l
 
 ---
 
-## 3.7 Anti-patterns — o que evitar nos Use Cases (3 min)
+## 3.7 Anti-patterns — o que evitar nos Use Cases
 
 ### 1. Use Case chamando outro Use Case diretamente
 

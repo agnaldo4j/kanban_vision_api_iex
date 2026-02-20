@@ -6,7 +6,7 @@
 
 ---
 
-## 4.1 Estrutura básica do ExUnit (5 min)
+## 4.1 Estrutura básica do ExUnit
 
 ```elixir
 # test/meu_modulo_test.exs
@@ -63,7 +63,7 @@ assert_raise ArgumentError, ~r/invalid/, fn -> bad_call() end
 
 ---
 
-## 4.2 Setup e fixtures (7 min)
+## 4.2 Setup e fixtures
 
 ### setup — executado antes de cada test
 
@@ -126,7 +126,7 @@ end
 
 ---
 
-## 4.3 Tags — filtrando e organizando testes (5 min)
+## 4.3 Tags — filtrando e organizando testes
 
 ```elixir
 # Tag no módulo inteiro
@@ -162,7 +162,7 @@ mix test --exclude slow                  # exclui testes lentos
 
 ---
 
-## 4.4 Os três níveis de teste no projeto (13 min)
+## 4.4 Os três níveis de teste no projeto
 
 ### Nível 1 — Testes de domínio (mais rápidos, mais simples)
 

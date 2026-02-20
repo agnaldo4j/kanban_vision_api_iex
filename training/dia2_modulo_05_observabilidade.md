@@ -8,7 +8,7 @@ a partir de suas saídas externas: **logs, métricas e traces**.
 
 ---
 
-## 5.1 Os Três Pilares (5 min)
+## 5.1 Os Três Pilares
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -43,7 +43,7 @@ a partir de suas saídas externas: **logs, métricas e traces**.
 
 ---
 
-## 5.2 Structured Logging com Logger (8 min)
+## 5.2 Structured Logging com Logger
 
 ### Configuração do Logger no projeto
 
@@ -168,7 +168,7 @@ Logger.info("Creating organization",
 
 ---
 
-## 5.3 Telemetria com :telemetry (7 min)
+## 5.3 Telemetria com :telemetry
 
 Telemetria é para **métricas e instrumentação**, não logs. É a base para dashboards, alertas e SLOs.
 
@@ -268,7 +268,7 @@ end
 
 ---
 
-## 5.4 O que Observar — Business Events (5 min)
+## 5.4 O que Observar — Business Events
 
 Além de logs técnicos, meça o que importa para o **negócio**:
 

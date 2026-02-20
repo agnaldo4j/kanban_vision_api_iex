@@ -6,7 +6,7 @@
 
 ---
 
-## S — Single Responsibility Principle (SRP) (8 min)
+## S — Single Responsibility Principle (SRP)
 
 > *"Uma classe deve ter apenas uma razão para mudar."*
 > — Robert C. Martin
@@ -110,7 +110,7 @@ end
 
 ---
 
-## O — Open/Closed Principle (OCP) (7 min)
+## O — Open/Closed Principle (OCP)
 
 > *"Software deve ser aberto para extensão, mas fechado para modificação."*
 
@@ -182,7 +182,7 @@ end
 
 ---
 
-## L — Liskov Substitution Principle (LSP) (7 min)
+## L — Liskov Substitution Principle (LSP)
 
 > *"Objetos de uma subclasse devem ser substituíveis por objetos da superclasse sem alterar o comportamento correto do programa."*
 
@@ -263,7 +263,7 @@ end
 
 ---
 
-## I — Interface Segregation Principle (ISP) (6 min)
+## I — Interface Segregation Principle (ISP)
 
 > *"Clientes não devem ser forçados a depender de interfaces que não usam."*
 
@@ -330,7 +330,7 @@ end
 
 ---
 
-## D — Dependency Inversion Principle (DIP) (7 min)
+## D — Dependency Inversion Principle (DIP)
 
 > *"Módulos de alto nível não devem depender de módulos de baixo nível. Ambos devem depender de abstrações."*
 > *"Abstrações não devem depender de detalhes. Detalhes devem depender de abstrações."*
@@ -434,7 +434,7 @@ deps: []  # zero dependências — núcleo puro
 
 ---
 
-## SOLID — Verificação Rápida (5 min)
+## SOLID — Verificação Rápida
 
 | Princípio | Pergunta | No projeto |
 |-----------|----------|------------|

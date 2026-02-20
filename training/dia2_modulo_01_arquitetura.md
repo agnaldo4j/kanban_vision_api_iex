@@ -5,7 +5,7 @@
 
 ---
 
-## 2.1 O Problema: Arquitetura Técnica vs Arquitetura de Negócio (5 min)
+## 2.1 O Problema: Arquitetura Técnica vs Arquitetura de Negócio
 
 ### A armadilha clássica — organização por camada técnica
 
@@ -57,7 +57,7 @@ apps/
 
 ---
 
-## 2.2 Screaming Architecture em Detalhes (10 min)
+## 2.2 Screaming Architecture em Detalhes
 
 ### Princípio central
 
@@ -121,7 +121,7 @@ end
 
 ---
 
-## 2.3 Hexagonal Architecture (Ports & Adapters) (15 min)
+## 2.3 Hexagonal Architecture (Ports & Adapters)
 
 Proposta por Alistair Cockburn em 2005. O objetivo: **isolar o núcleo da aplicação (domínio e casos de uso) de qualquer tecnologia externa**.
 
@@ -249,7 +249,7 @@ CreateOrganization.execute(cmd, pid, repository: PostgresOrganizationRepository)
 
 ---
 
-## 2.4 Domain Driven Design (DDD) (15 min)
+## 2.4 Domain Driven Design (DDD)
 
 DDD é uma abordagem para modelar software que alinha o código com o **idioma e conceitos do negócio**.
 

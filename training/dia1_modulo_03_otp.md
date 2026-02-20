@@ -6,7 +6,7 @@
 
 ---
 
-## 3.1 Processos — a unidade de concorrência da BEAM (8 min)
+## 3.1 Processos — a unidade de concorrência da BEAM
 
 Em Elixir, **tudo roda em processos**. Não threads do sistema operacional — processos leves da BEAM, que podem existir aos milhões.
 
@@ -46,7 +46,7 @@ IO.inspect(self())   #=> #PID<0.123.0>
 
 ---
 
-## 3.2 Agent — estado simples (12 min)
+## 3.2 Agent — estado simples
 
 Um **Agent** é a abstração mais simples para guardar estado. Ele é um processo que:
 - Mantém um valor de estado
@@ -137,7 +137,7 @@ end
 
 ---
 
-## 3.3 GenServer — processos com lógica (18 min)
+## 3.3 GenServer — processos com lógica
 
 **GenServer** (Generic Server) é a abstração OTP mais poderosa. Enquanto Agent apenas guarda e transforma estado, GenServer pode:
 
@@ -288,7 +288,7 @@ end
 
 ---
 
-## 3.4 Supervisor — tolerância a falhas (8 min)
+## 3.4 Supervisor — tolerância a falhas
 
 Um **Supervisor** monitora processos filhos e os reinicia quando morrem. Este é o núcleo da filosofia "let it crash" do Erlang/Elixir.
 
@@ -375,7 +375,7 @@ Organization.get_all(Organization)   # pode usar o módulo como nome
 
 ---
 
-## 3.5 Árvore de supervisão do projeto (4 min)
+## 3.5 Árvore de supervisão do projeto
 
 ```
 KanbanVisionApi.Usecase.Application (OTP Application)

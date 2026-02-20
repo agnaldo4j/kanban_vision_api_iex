@@ -5,7 +5,7 @@
 
 ---
 
-## 4.1 O que são Side Effects? (8 min)
+## 4.1 O que são Side Effects?
 
 Um **side effect** é qualquer mudança observável no mundo exterior causada pela execução de uma função:
 
@@ -58,7 +58,7 @@ end
 
 ---
 
-## 4.2 Controle de Side Effects — Push para a Borda (12 min)
+## 4.2 Controle de Side Effects — Push para a Borda
 
 O padrão fundamental: **manter o domínio puro, confinar side effects nas bordas do sistema**.
 
@@ -191,7 +191,7 @@ end
 
 ---
 
-## 4.3 Imutabilidade em Fluxos Complexos (7 min)
+## 4.3 Imutabilidade em Fluxos Complexos
 
 Elixir garante imutabilidade, mas é preciso saber usá-la bem em transformações encadeadas.
 
@@ -286,7 +286,7 @@ novo_simulation.board.workflow.steps |> hd() |> Map.get(:tasks)  #=> [nova_task]
 
 ---
 
-## 4.4 Command and Query Separation (CQS) (8 min)
+## 4.4 Command and Query Separation (CQS)
 
 > *"Um método deve ser um comando que realiza uma ação, OU uma query que retorna dados — nunca os dois ao mesmo tempo."*
 > — Bertrand Meyer
@@ -452,7 +452,7 @@ end
 
 ---
 
-## 4.5 CQRS — Command Query Responsibility Segregation (2 min)
+## 4.5 CQRS — Command Query Responsibility Segregation
 
 CQS em nível de **sistema inteiro** (não apenas função):
 
