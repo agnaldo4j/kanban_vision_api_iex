@@ -1,5 +1,4 @@
 # Dia 2 — Módulo 6: Exercícios Práticos
-## Duração: 30 minutos
 
 > Hora de colocar em prática! Os exercícios são progressivos:
 > cada um aplica os conceitos do workshop no projeto real.
@@ -313,21 +312,21 @@ Implemente o **Use Case `AddTagToOrganization`** completo, seguindo **todos** os
 │  BREAK (10 min)                                             │
 ├─────────────────────────────────────────────────────────────┤
 │  Módulo 2 (45 min): Arquitetura                             │
-│  Screaming Architecture • Hexagonal Architecture • DDD     │
+│  Screaming Architecture • Hexagonal Architecture • DDD      │
 │  Ports & Adapters • Bounded Contexts • Ubiquitous Language  │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 3 (40 min): SOLID em Elixir                        │
-│  SRP • OCP • LSP (contract tests) • ISP • DIP              │
+│  Módulo 3 (40 min): SOLID em Elixir                         │
+│  SRP • OCP • LSP (contract tests) • ISP • DIP               │
 ├─────────────────────────────────────────────────────────────┤
 │  BREAK (10 min)                                             │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 4 (35 min): Side Effects, Imutabilidade e CQS      │
+│  Módulo 4 (35 min): Side Effects, Imutabilidade e CQS       │
 │  Funções puras • Push para a borda • Commands • Queries     │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 5 (25 min): Observabilidade                        │
+│  Módulo 5 (25 min): Observabilidade                         │
 │  Logger estruturado • Telemetria • Correlation ID           │
 ├─────────────────────────────────────────────────────────────┤
-│  Módulo 6 (30 min): Exercícios Práticos                    │
+│  Módulo 6 (30 min): Exercícios Práticos                     │
 │  IEx exploration • Novo Use Case • Nova Entidade            │
 │  Análise de code smells                                     │
 └─────────────────────────────────────────────────────────────┘

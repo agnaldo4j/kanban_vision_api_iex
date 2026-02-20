@@ -1,5 +1,4 @@
 # Dia 2 — Módulo 2: Princípios SOLID em Elixir
-## Duração: 40 minutos
 
 > SOLID não é um conjunto de regras rígidas — é um guia para tornar código
 > **tolerante a mudanças** e **fácil de entender**. Vamos ver cada princípio
@@ -342,7 +341,7 @@ Em Elixir: **o domínio e os use cases dependem de behaviours (interfaces), não
 
 ```
                   ┌──────────────────────────┐
-                  │      kanban_domain        │
+                  │      kanban_domain       │
                   │  (alto nível — domínio)  │
                   │                          │
                   │  define: Organization    │
@@ -351,7 +350,7 @@ Em Elixir: **o domínio e os use cases dependem de behaviours (interfaces), não
                                │ depende de (abstração)
                                ▼
                   ┌──────────────────────────┐
-                  │         usecase           │
+                  │         usecase          │
                   │  (alto nível — negócio)  │
                   │                          │
                   │  usa: PORT (behaviour)   │
@@ -360,7 +359,7 @@ Em Elixir: **o domínio e os use cases dependem de behaviours (interfaces), não
                                │ injeção em runtime
                                ▼
                   ┌──────────────────────────┐
-                  │       persistence         │
+                  │       persistence        │
                   │  (baixo nível — detalhe) │
                   │                          │
                   │  implementa: PORT        │

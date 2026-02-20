@@ -1,5 +1,4 @@
 # Dia 2 — Módulo 3: Use Cases — O Coração da Arquitetura Hexagonal
-## Duração: 40 minutos
 
 > Use Cases são a razão de existir de toda a arquitetura hexagonal.
 > São eles que expressam **o que o sistema faz** — e garantem que esse conhecimento
@@ -159,19 +158,19 @@ Um Use Case é **isolado** quando você consegue:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    ZONA PROIBIDA                            │
-│         (nunca entra num Use Case)                         │
+│         (nunca entra num Use Case)                          │
 │                                                             │
-│  Plug.Conn  •  Phoenix.Controller  •  Ecto.Repo            │
+│  Plug.Conn  •  Phoenix.Controller  •  Ecto.Repo             │
 │  HTTPoison  •  Jason.encode!       •  Absinthe.Schema       │
 │  File.read  •  System.cmd          •  GenServer.start_link  │
 └─────────────────────────────────────────────────────────────┘
          ↓ proibidos         ↓ permitidos
 ┌─────────────────────────────────────────────────────────────┐
-│                     USE CASE                               │
+│                     USE CASE                                │
 │                                                             │
-│  Domain structs  •  PORT behaviours  •  Logger             │
-│  Commands/Queries  •  EventEmitter  •  UUID.uuid4()        │
-│  Pattern matching  •  with/case  •  Enum.map/filter        │
+│  Domain structs  •  PORT behaviours  •  Logger              │
+│  Commands/Queries  •  EventEmitter  •  UUID.uuid4()         │
+│  Pattern matching  •  with/case  •  Enum.map/filter         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -574,15 +573,15 @@ end
 ┌─────────────────────────────────────────────────────────────────┐
 │                       USE CASE                                  │
 │                                                                 │
-│  Recebe:   Command (escrita) ou Query (leitura)                │
-│  Conhece:  Domain structs + PORT behaviours + Logger           │
-│  Ignora:   HTTP, Ecto, Phoenix, Agent, GenServer lifecycle     │
-│  Retorna:  {:ok, resultado} | {:error, reason}  (sempre)       │
+│  Recebe:   Command (escrita) ou Query (leitura)                 │
+│  Conhece:  Domain structs + PORT behaviours + Logger            │
+│  Ignora:   HTTP, Ecto, Phoenix, Agent, GenServer lifecycle      │
+│  Retorna:  {:ok, resultado} | {:error, reason}  (sempre)        │
 │                                                                 │
-│  Responsabilidade:  UMA operação de negócio                    │
-│  Testável:          Sim — com mock do repositório              │
-│  Substituível:      Sim — troca adapter sem tocar no Use Case  │
-│  Documentação:      A pasta é a documentação do sistema        │
+│  Responsabilidade:  UMA operação de negócio                     │
+│  Testável:          Sim — com mock do repositório               │
+│  Substituível:      Sim — troca adapter sem tocar no Use Case   │
+│  Documentação:      A pasta é a documentação do sistema         │
 └─────────────────────────────────────────────────────────────────┘
 
 Fluxo completo (com todas as camadas):

@@ -1,5 +1,4 @@
 # Dia 1 — Módulo 3: OTP — Agents, GenServer e Supervisor
-## Duração: 50 minutos
 
 > OTP (Open Telecom Platform) é o conjunto de bibliotecas e padrões
 > do Erlang/Elixir para construir sistemas concorrentes e tolerantes a falhas.
@@ -16,7 +15,7 @@ Em Elixir, **tudo roda em processos**. Não threads do sistema operacional — p
 │                  BEAM VM                            │
 │                                                     │
 │  Processo 1  Processo 2  Processo 3  ... Processo N │
-│  (leve ~2KB) (leve ~2KB) (leve ~2KB)               │
+│  (leve ~2KB) (leve ~2KB) (leve ~2KB)                │
 │                                                     │
 │  Cada processo tem:                                 │
 │  - Memória própria (sem compartilhamento)           │
@@ -57,8 +56,8 @@ Um **Agent** é a abstração mais simples para guardar estado. Ele é um proces
 ```
 ┌──────────────┐   Agent.get(pid, fn)    ┌─────────────────────────┐
 │  Processo A  │ ──────────────────────► │                         │
-└──────────────┘                         │     Agent Process        │
-                                         │   estado: %{...}         │
+└──────────────┘                         │     Agent Process       │
+                                         │   estado: %{...}        │
 ┌──────────────┐   Agent.update(pid, fn) │   mailbox: [msg1, msg2] │
 │  Processo B  │ ──────────────────────► │                         │
 └──────────────┘                         └─────────────────────────┘
@@ -151,11 +150,11 @@ end
 ┌────────────────────────────────────────────────────────────┐
 │                   GenServer Process                        │
 │                                                            │
-│  init/1          ← chamado ao iniciar; retorna estado     │
-│  handle_call/3   ← mensagem SÍNCRONA; cliente espera      │
-│  handle_cast/2   ← mensagem ASSÍNCRONA; fire-and-forget   │
-│  handle_info/2   ← outras mensagens (timers, monitores)   │
-│  terminate/2     ← chamado ao encerrar (cleanup)          │
+│  init/1          ← chamado ao iniciar; retorna estado      │
+│  handle_call/3   ← mensagem SÍNCRONA; cliente espera       │
+│  handle_cast/2   ← mensagem ASSÍNCRONA; fire-and-forget    │
+│  handle_info/2   ← outras mensagens (timers, monitores)    │
+│  terminate/2     ← chamado ao encerrar (cleanup)           │
 └────────────────────────────────────────────────────────────┘
 ```
 

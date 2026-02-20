@@ -1,5 +1,4 @@
 # Dia 1 — Módulo 2: Fundamentos de Elixir
-## Duração: 55 minutos
 
 > Vamos aprender a linguagem usando o próprio projeto como referência.
 > A cada conceito novo, você vai reconhecer onde ele aparece no código.

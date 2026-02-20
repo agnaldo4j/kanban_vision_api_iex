@@ -1,12 +1,11 @@
 # Dia 1 — Módulo 1: Mix e Estrutura de Projetos
-## Duração: 40 minutos
 
 > **Projeto de referência:** `kanban_vision_api_iex` — um simulador de Kanban board
 > usando OTP e o padrão Object Prevalence (estado em memória via Agents).
 
 ---
 
-## 1.1 Por que Elixir? (3 min)
+## 1.1 Por que Elixir?
 
 Elixir roda sobre a **BEAM** (máquina virtual do Erlang), projetada para sistemas distribuídos e tolerantes a falhas:
 
@@ -29,7 +28,7 @@ Elixir roda sobre a **BEAM** (máquina virtual do Erlang), projetada para sistem
 
 ---
 
-## 1.2 Mix — A ferramenta de build do Elixir (20 min)
+## 1.2 Mix — A ferramenta de build do Elixir
 
 **Mix** é o equivalente ao npm/Maven/Gradle do Elixir. Ele gerencia projetos, dependências, compilação, testes e tarefas customizadas.
 

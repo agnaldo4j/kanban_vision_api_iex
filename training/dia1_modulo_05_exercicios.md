@@ -1,5 +1,4 @@
 # Dia 1 — Módulo 5: Exercícios Práticos
-## Duração: 20 minutos
 
 > Coloque em prática o que foi visto nos módulos 1 a 4.
 > Todos os exercícios usam o projeto `kanban_vision_api_iex` como base.
@@ -229,7 +228,7 @@ mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs
 │                    O que você aprendeu hoje                  │
 │                                                              │
 │  Mix (Módulo 1)                                              │
-│  ├── mix new --umbrella, apps filhos, mix.exs               │
+│  ├── mix new --umbrella, apps filhos, mix.exs                │
 │  ├── Dependências internas: in_umbrella: true                │
 │  └── Comandos: mix test, mix credo, mix format               │
 │                                                              │

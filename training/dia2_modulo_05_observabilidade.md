@@ -1,5 +1,4 @@
 # Dia 2 — Módulo 5: Observabilidade
-## Duração: 25 minutos
 
 > *"Uma feature não está pronta sem comportamento observável em produção."*
 > — CLAUDE.md deste projeto
@@ -15,16 +14,16 @@ a partir de suas saídas externas: **logs, métricas e traces**.
 ┌──────────────────────────────────────────────────────────────────┐
 │                    Observabilidade                               │
 │                                                                  │
-│  ┌────────────────┐  ┌────────────────┐  ┌───────────────────┐  │
-│  │     LOGS       │  │    MÉTRICAS    │  │     TRACES        │  │
-│  │                │  │                │  │                   │  │
-│  │ "O que aconteceu │  │ "Quão bem está │  │ "Qual o caminho  │  │
-│  │ e quando?"     │  │ funcionando?"  │  │ da requisição?"  │  │
-│  │                │  │                │  │                   │  │
-│  │ Eventos        │  │ Contadores     │  │ Span por serviço  │  │
-│  │ Erros          │  │ Latências      │  │ Correlação entre  │  │
-│  │ Warnings       │  │ Throughput     │  │ sistemas          │  │
-│  └────────────────┘  └────────────────┘  └───────────────────┘  │
+│  ┌─────────────────┐  ┌────────────────┐  ┌───────────────────┐  │
+│  │     LOGS        │  │    MÉTRICAS    │  │     TRACES        │  │
+│  │                 │  │                │  │                   │  │
+│  │ "O que aconteceu│  │ "Quão bem está │  │ "Qual o caminho   │  │
+│  │ e quando?"      │  │ funcionando?"  │  │ da requisição?"   │  │
+│  │                 │  │                │  │                   │  │
+│  │ Eventos         │  │ Contadores     │  │ Span por serviço  │  │
+│  │ Erros           │  │ Latências      │  │ Correlação entre  │  │
+│  │ Warnings        │  │ Throughput     │  │ sistemas          │  │
+│  └─────────────────┘  └────────────────┘  └───────────────────┘  │
 │        Logger              Telemetry          Correlation ID     │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -352,19 +351,19 @@ EventEmitter.emit(:organization, :created, %{...}, "req-abc123-def456")
 ┌──────────────────────────────────────────────────────────────┐
 │             Observabilidade no Projeto                       │
 │                                                              │
-│  Logger ────────────► config/config.exs                     │
-│    ├── metadata: correlation_id, organization_id, ...       │
-│    ├── info: início e fim de operações                      │
-│    └── error: falhas com reason                             │
+│  Logger ────────────► config/config.exs                      │
+│    ├── metadata: correlation_id, organization_id, ...        │
+│    ├── info: início e fim de operações                       │
+│    └── error: falhas com reason                              │
 │                                                              │
-│  EventEmitter ──────► :telemetry.execute/3                  │
-│    ├── event: [:kanban_vision_api, context, event_type]     │
-│    ├── measurement: %{count: 1}                             │
-│    └── metadata: {resource_ids, correlation_id}             │
+│  EventEmitter ──────► :telemetry.execute/3                   │
+│    ├── event: [:kanban_vision_api, context, event_type]      │
+│    ├── measurement: %{count: 1}                              │
+│    └── metadata: {resource_ids, correlation_id}              │
 │                                                              │
-│  Correlation ID ────► propagado por toda a cadeia           │
-│    ├── gerado na borda (HTTP adapter, CLI)                  │
-│    └── passado via opts a cada chamada                      │
+│  Correlation ID ────► propagado por toda a cadeia            │
+│    ├── gerado na borda (HTTP adapter, CLI)                   │
+│    └── passado via opts a cada chamada                       │
 └──────────────────────────────────────────────────────────────┘
 ```
 

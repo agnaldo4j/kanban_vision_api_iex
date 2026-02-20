@@ -1,5 +1,4 @@
 # Dia 1 — Módulo 4: Testes com ExUnit
-## Duração: 30 minutos
 
 > Testes em Elixir não são opcionais — são parte do design.
 > O próprio projeto define thresholds mínimos de cobertura por app.
@@ -326,19 +325,19 @@ end
 │                   Estratégia de testes                      │
 │                                                             │
 │  Domínio (kanban_domain/test/)                              │
-│  ├── async: true                                           │
-│  ├── Sem infraestrutura                                    │
-│  └── Testa entidades, value objects, factories             │
+│  ├── async: true                                            │
+│  ├── Sem infraestrutura                                     │
+│  └── Testa entidades, value objects, factories              │
 │                                                             │
-│  Repositório (persistence/test/)                           │
-│  ├── async: true                                           │
-│  ├── Agent real em memória                                 │
-│  └── Testa CRUD, validações, estado                        │
+│  Repositório (persistence/test/)                            │
+│  ├── async: true                                            │
+│  ├── Agent real em memória                                  │
+│  └── Testa CRUD, validações, estado                         │
 │                                                             │
-│  Use Cases (usecase/test/)                                 │
-│  ├── async: true                                           │
-│  ├── GenServer + Agent real                                │
-│  └── Testa fluxo de ponta a ponta                          │
+│  Use Cases (usecase/test/)                                  │
+│  ├── async: true                                            │
+│  ├── GenServer + Agent real                                 │
+│  └── Testa fluxo de ponta a ponta                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
