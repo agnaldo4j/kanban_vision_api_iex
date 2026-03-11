@@ -184,5 +184,48 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
 
       assert conn.status == 404
     end
+
+    test "returns 422 when id is empty" do
+      conn =
+        :delete
+        |> conn("/api/v1/simulations/")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => ""})
+        |> SimulationController.call(:delete)
+
+      assert conn.status == 422
+    end
+  end
+
+  describe "error mapping" do
+    test "returns 500 for a generic binary server error" do
+      expect(SimulationUsecaseMock, :delete, fn _cmd, _opts ->
+        {:error, "unexpected server failure"}
+      end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/simulations/some-id")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => "some-id"})
+        |> SimulationController.call(:delete)
+
+      assert conn.status == 500
+    end
+
+    test "returns 500 for an unknown error type" do
+      expect(SimulationUsecaseMock, :delete, fn _cmd, _opts ->
+        {:error, :unexpected_error}
+      end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/simulations/some-id")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => "some-id"})
+        |> SimulationController.call(:delete)
+
+      assert conn.status == 500
+    end
   end
 end

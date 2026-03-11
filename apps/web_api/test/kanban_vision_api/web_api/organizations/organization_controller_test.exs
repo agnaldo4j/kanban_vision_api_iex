@@ -221,4 +221,47 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
       assert conn.status == 404
     end
   end
+
+  describe "error mapping" do
+    test "returns 422 for :invalid_tribes" do
+      conn =
+        :post
+        |> conn("/api/v1/organizations")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:body_params, %{"name" => "Acme", "tribes" => "not-a-list"})
+        |> OrganizationController.call(:create)
+
+      assert conn.status == 422
+    end
+
+    test "returns 500 for a generic binary server error" do
+      expect(OrganizationUsecaseMock, :delete, fn _cmd, _opts ->
+        {:error, "unexpected server failure"}
+      end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/organizations/some-id")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => "some-id"})
+        |> OrganizationController.call(:delete)
+
+      assert conn.status == 500
+    end
+
+    test "returns 500 for an unknown error type" do
+      expect(OrganizationUsecaseMock, :delete, fn _cmd, _opts ->
+        {:error, :unexpected_error}
+      end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/organizations/some-id")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => "some-id"})
+        |> OrganizationController.call(:delete)
+
+      assert conn.status == 500
+    end
+  end
 end
