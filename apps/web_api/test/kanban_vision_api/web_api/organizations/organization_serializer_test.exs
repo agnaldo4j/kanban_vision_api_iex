@@ -1,7 +1,11 @@
 defmodule KanbanVisionApi.WebApi.Organizations.OrganizationSerializerTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Domain.Ability
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Squad
+  alias KanbanVisionApi.Domain.Tribe
+  alias KanbanVisionApi.Domain.Worker
   alias KanbanVisionApi.WebApi.Organizations.OrganizationSerializer
 
   setup do
@@ -25,6 +29,34 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationSerializerTest do
 
       assert String.contains?(result.created_at, "T")
       assert String.contains?(result.updated_at, "T")
+    end
+
+    test "serializes tribes as JSON-safe maps (not raw structs)" do
+      ability = Ability.new("Elixir")
+      worker = Worker.new("Alice", [ability])
+      squad = Squad.new("Squad Alpha", [worker])
+      tribe = Tribe.new("Engineering", [squad])
+      org = Organization.new("Acme Corp", [tribe])
+
+      result = OrganizationSerializer.serialize(org)
+
+      assert Jason.encode!(result) =~ "Engineering"
+
+      [tribe_map] = result.tribes
+      assert tribe_map.name == "Engineering"
+
+      [squad_map] = tribe_map.squads
+      assert squad_map.name == "Squad Alpha"
+
+      [worker_map] = squad_map.workers
+      assert worker_map.name == "Alice"
+
+      [ability_map] = worker_map.abilities
+      assert ability_map.name == "Elixir"
+    end
+
+    test "produces JSON-encodable output even with empty tribes", %{org: org} do
+      assert Jason.encode!(OrganizationSerializer.serialize(org)) =~ "Acme Corp"
     end
   end
 
