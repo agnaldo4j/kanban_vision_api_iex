@@ -22,5 +22,15 @@ config :logger, :console,
     :board_name,
     :tribes_count,
     :count,
-    :reason
+    :reason,
+    :method,
+    :path,
+    :status,
+    :duration_ms
   ]
+
+config :web_api, port: 4000
+
+if config_env() == :test do
+  import_config "test.exs"
+end
