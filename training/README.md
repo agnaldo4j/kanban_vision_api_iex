@@ -29,6 +29,12 @@
 
 ---
 
+## Dia 3 — Camada Web
+
+1. [Módulo 1 — Web API](./dia3_modulo_01_web_api.md) — Bandit, Plug, Router, Plugs customizados, Controllers, Serializers, OpenAPI
+
+---
+
 ## Mapa de Conceitos
 
 ```
@@ -70,6 +76,30 @@
 │            ▼                                                    │
 │  OBSERVABILIDADE                                                │
 │  Logger estruturado · :telemetry · Correlation ID               │
+└─────────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         DIA 3                                   │
+│                                                                 │
+│  CAMADA WEB (Plug + Bandit)                                     │
+│  HTTP sem Phoenix — composição explícita de plugs              │
+│            │                                                    │
+│            ▼                                                    │
+│  PLUG PIPELINE                                                  │
+│  CorrelationId · RequestLogger · Parsers · Router               │
+│            │                                                    │
+│            ▼                                                    │
+│  CONTROLLERS como ADAPTERS HTTP                                 │
+│  HTTP → Command/Query → Port → JSON                             │
+│            │                                                    │
+│            ▼                                                    │
+│  PORTS + ADAPTERS na camada web                                 │
+│  Mox para testes de controller isolados do GenServer            │
+│            │                                                    │
+│            ▼                                                    │
+│  OPENAPI — documentação como código                             │
+│  open_api_spex · /api/openapi · /api/swagger                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
