@@ -11,6 +11,7 @@ This file serves as the primary instructional context for Gemini CLI when workin
     - `apps/kanban_domain`: Pure business logic, entities (structs), and Port behaviours.
     - `apps/persistence`: Infrastructure adapters (Agents) implementing Domain Ports.
     - `apps/usecase`: Application layer containing explicit Use Case modules and GenServer orchestrators.
+    - `apps/web_api`: REST HTTP adapter (Plug + Bandit) exposing use cases as a versioned JSON API with OpenAPI 3.0 docs.
 - **Observability:** Built-in structured logging with correlation IDs and Telemetry events for every business operation.
 
 ## Core Mandates & Standards
@@ -53,4 +54,23 @@ Follow the **Platform Engineering Standards** detailed in `CLAUDE.md`. Key highl
 - `apps/kanban_domain/lib/kanban_vision_api/domain/`: Entities (`organization.ex`, `board.ex`, etc.) and `ports/`.
 - `apps/persistence/lib/kanban_vision_api/agent/`: Agent-based repository adapters.
 - `apps/usecase/lib/kanban_vision_api/usecase/`: GenServers and business operation subdirectories (e.g., `organizations/`, `simulations/`).
+- `apps/web_api/lib/kanban_vision_api/web_api/`: HTTP adapters — `router.ex`, `plugs/`, `organizations/`, `simulations/`, `open_api/`.
 - `training/`: Documentation and exercises for the Elixir/OTP and Architecture modules.
+
+## HTTP API (web_api)
+
+- **Server:** Bandit `~> 1.0` (pure Elixir, no native deps)
+- **Base path:** `/api/v1`
+- **Docs:** Swagger UI at `/api/swagger`, OpenAPI JSON at `/api/openapi`
+- **Key routes:**
+  - `GET /api/v1/organizations` — list all
+  - `POST /api/v1/organizations` — create (body: `{"name": "..."}`)
+  - `GET /api/v1/organizations/:id` — get by ID
+  - `GET /api/v1/organizations/search?name=X` — search by name
+  - `DELETE /api/v1/organizations/:id` — delete
+  - `GET /api/v1/simulations` — list all
+  - `POST /api/v1/simulations` — create (body: `{"name": "...", "description": "...", "organization_id": "..."}`)
+  - `GET /api/v1/simulations/search?org_id=X&name=Y` — search
+  - `DELETE /api/v1/simulations/:id` — delete
+- **Test isolation:** Controllers inject the usecase module via `Application.get_env/3`; Mox mocks swap it in tests. Set `config :web_api, start_server: false` in `config/test.exs` to skip Bandit in tests.
+- **Coverage threshold:** 80% (enforced in `apps/web_api/coveralls.json`).
