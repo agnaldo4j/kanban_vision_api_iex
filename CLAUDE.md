@@ -43,14 +43,25 @@ Elixir **umbrella project** implementing a Kanban board simulator using OTP and 
 
 ### Apps
 
-- **kanban_domain** — Core domain structs and Agent-based state stores. The Agents (Organizations, Simulations, Boards) hold the entire object graph in memory using `Agent.get_and_update` for atomic operations. Domain structs all have UUID `id` fields and `Audit` timestamps.
-- **usecase** — GenServer-based application layer that orchestrates domain operations. Contains the OTP Application supervisor (`KanbanVisionApi.Usecase.Application`).
-- **persistence** — Placeholder for event sourcing / CQRS persistence (event logs + snapshots).
+- **kanban_domain** — Core domain structs, value objects, and Port behaviour contracts. Pure business logic with no infrastructure dependencies. All entities created via `Module.new(...)` with UUID `id` fields and `Audit` timestamps.
+- **persistence** — Agent-based state stores implementing domain Ports via `@behaviour`. Holds the entire object graph in memory using `Agent.get_and_update` for atomic operations.
+- **usecase** — Use Case modules (one per operation) orchestrated by GenServers. Each Use Case handles logging, telemetry, validation, and delegates to repository Agents. Contains the OTP Application supervisor (`KanbanVisionApi.Usecase.Application`).
+- **web_api** — REST HTTP adapter built with Plug + Bandit. Controllers translate HTTP requests into Commands/Queries and call use case ports. Includes OpenAPI 3.0 spec and Swagger UI (`/api/swagger`).
 
 ### Data Flow
 
 ```
-Client → GenServer (Usecase) → Agent (kanban_domain) → In-Memory Map
+HTTP Client
+    ↓
+web_api (Plug Router + Controllers)
+    ↓
+GenServer (Usecase orchestrator)
+    ↓
+Use Case Modules ← Logger + Telemetry
+    ↓
+Agent (persistence) @behaviour Port
+    ↓
+Domain Entities (kanban_domain — pure)
 ```
 
 ### Domain Model Hierarchy
@@ -71,6 +82,7 @@ Per-app minimums enforced in each `coveralls.json`:
 - kanban_domain: 70%
 - persistence: 100%
 - usecase: 50%
+- web_api: 80%
 
 ## CI
 
