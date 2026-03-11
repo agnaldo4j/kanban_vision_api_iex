@@ -12,7 +12,7 @@ mix deps.get
 mix test
 
 # Run tests for a single app
-mix test --app kanban_domain
+mix test apps/kanban_domain/test
 
 # Run a single test file
 mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs

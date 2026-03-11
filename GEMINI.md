@@ -34,7 +34,7 @@ Follow the **Platform Engineering Standards** detailed in `CLAUDE.md`. Key highl
 | **Build** | `mix compile` |
 | **Run** | `mix run --no-halt` |
 | **All Tests** | `mix test` |
-| **App Tests** | `mix test --app <app_name>` |
+| **App Tests** | `mix test apps/<app_name>/test` |
 | **Watch Tests** | `mix test.watch` |
 | **Contract Tests** | `mix test --only integration` |
 | **Coverage** | `MIX_ENV=test mix coveralls --umbrella` |
