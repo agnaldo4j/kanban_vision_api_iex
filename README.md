@@ -23,7 +23,9 @@ A Kanban board simulator built with **Elixir/OTP** that uses the [Object Prevale
 ### Data Flow
 
 ```
-Adapter (HTTP/CLI)
+HTTP Client
+    ↓
+web_api (Plug Router + Controllers)
     ↓
 GenServer (Orchestrator)
     ↓
@@ -47,6 +49,7 @@ Domain Entities (Pure)
 | **kanban_domain** | Domain | Core entities, value objects, and Port behaviours (`domain/ports/`). Pure business logic with no infrastructure dependencies. All entities created via factory functions with UUID generation. |
 | **persistence** | Adapter | Agent-based state stores implementing domain Ports via `@behaviour`. Holds the entire object graph in memory using `Agent.get_and_update` for atomic operations. |
 | **usecase** | Application | Use Case modules (one per operation) orchestrated by GenServers. Each Use Case handles logging, telemetry, validation, and delegates to repository Agents. Contains the OTP Application supervisor. |
+| **web_api** | HTTP Adapter | REST API built with Plug + Bandit. Controllers translate HTTP requests into Commands/Queries and call use case ports. Includes OpenAPI 3.0 spec and Swagger UI. |
 
 ### Domain Model
 
@@ -136,44 +139,68 @@ apps/
   kanban_domain/
     lib/kanban_vision_api/domain/
       ports/                        # Behaviour contracts (interfaces)
-        organization_repository.ex  # @callback definitions
+        organization_repository.ex
         simulation_repository.ex
         board_repository.ex
       organization.ex               # Domain entities (pure)
       simulation.ex
       board.ex
       audit.ex                      # Value objects
-      ...
   persistence/
     lib/kanban_vision_api/agent/
       organizations.ex              # @behaviour OrganizationRepository
       simulations.ex                # @behaviour SimulationRepository
       boards.ex                     # @behaviour BoardRepository
-    test/
-      agent/
-        organization_repository_contract_test.exs  # ✅ Contract tests
-        simulation_repository_contract_test.exs
+    test/agent/
+      organization_repository_contract_test.exs  # ✅ @moduletag :integration
+      simulation_repository_contract_test.exs
   usecase/
     lib/kanban_vision_api/usecase/
       organization.ex               # GenServer (orchestrator only)
       organization/
         commands.ex                 # DTOs with validation
         queries.ex
-      organizations/                # ⭐ Use Case modules
-        create_organization.ex      # One Use Case = One file
+      organizations/                # ⭐ Use Case modules (one per operation)
+        create_organization.ex
         delete_organization.ex
         get_organization_by_id.ex
         get_organization_by_name.ex
         get_all_organizations.ex
-      simulation.ex                 # GenServer (orchestrator only)
+      simulation.ex
       simulation/
         commands.ex
         queries.ex
-      simulations/                  # ⭐ Use Case modules
+      simulations/
         create_simulation.ex
         get_all_simulations.ex
         get_simulation_by_org_and_name.ex
       application.ex                # OTP Supervisor
+  web_api/
+    lib/kanban_vision_api/web_api/
+      application.ex                # Starts Bandit (disabled in test env)
+      router.ex                     # Plug.Router — all routes
+      plugs/
+        correlation_id.ex           # X-Correlation-ID header
+        request_logger.ex           # Structured request/response logging
+      ports/
+        organization_usecase.ex     # @behaviour — HTTP port for org use cases
+        simulation_usecase.ex       # @behaviour — HTTP port for sim use cases
+      adapters/
+        organization_adapter.ex     # Delegates to Usecase.Organization GenServer
+        simulation_adapter.ex       # Delegates to Usecase.Simulation GenServer
+      organizations/
+        organization_controller.ex  # HTTP adapter → org use cases
+        organization_serializer.ex  # Domain.Organization → JSON map (recursive)
+      simulations/
+        simulation_controller.ex    # HTTP adapter → sim use cases
+        simulation_serializer.ex    # Domain.Simulation → JSON map
+      open_api/
+        spec.ex                     # OpenAPI 3.0 spec
+        schemas/                    # OrganizationSchema, SimulationSchema, ErrorSchema
+    test/
+      integration/                  # ✅ @moduletag :integration
+        organizations_integration_test.exs
+        simulations_integration_test.exs
 ```
 
 ## Key Design Decisions
@@ -224,9 +251,31 @@ mix deps.get
 # Compile
 mix compile
 
-# Start the application
+# Start the application (HTTP server on port 4000)
 mix run --no-halt
 ```
+
+The API will be available at `http://localhost:4000`. OpenAPI docs at `http://localhost:4000/api/openapi` and Swagger UI at `http://localhost:4000/api/swagger`.
+
+## HTTP API
+
+Base path: `/api/v1`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/v1/organizations` | List all organizations |
+| POST | `/api/v1/organizations` | Create organization (`{"name": "..."}`) |
+| GET | `/api/v1/organizations/:id` | Get by ID |
+| GET | `/api/v1/organizations/search?name=X` | Search by name |
+| DELETE | `/api/v1/organizations/:id` | Delete organization |
+| GET | `/api/v1/simulations` | List all simulations |
+| POST | `/api/v1/simulations` | Create simulation (`{"name": "...", "description": "...", "organization_id": "..."}`) |
+| GET | `/api/v1/simulations/search?org_id=X&name=Y` | Search by org and name |
+| DELETE | `/api/v1/simulations/:id` | Delete simulation |
+| GET | `/api/openapi` | OpenAPI 3.0 JSON spec |
+| GET | `/api/swagger` | Swagger UI |
+
+All responses include an `X-Correlation-ID` header for distributed tracing.
 
 ## Testing
 
@@ -235,8 +284,10 @@ mix run --no-halt
 mix test
 
 # Run tests for a specific app
-mix test --app persistence
-mix test --app usecase
+mix test apps/kanban_domain/test
+mix test apps/persistence/test
+mix test apps/usecase/test
+mix test apps/web_api/test
 
 # Run a single test file
 mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs
@@ -244,12 +295,12 @@ mix test apps/persistence/test/kanban_vision_api/agent/organizations_test.exs
 # Run tests by tag
 mix test --only domain_boards
 mix test --only domain_organizations
-mix test --only integration
+mix test --only integration          # contract + HTTP integration tests
 
 # Watch mode (re-runs on file changes)
 mix test.watch
 
-# Coverage report
+# Coverage report (run from umbrella root)
 MIX_ENV=test mix coveralls --umbrella
 ```
 
@@ -259,23 +310,32 @@ MIX_ENV=test mix coveralls --umbrella
 |-----|-------|
 | `:domain_organizations` | Organization agent tests |
 | `:domain_boards` | Board agent tests |
-| `:domain_smulations` | Simulation agent tests |
-| `:integration` | Contract tests (Port compliance verification) |
+| `:domain_simulations` | Simulation agent tests |
+| `:integration` | Contract tests (persistence) + HTTP integration tests (web_api) |
 
 ### Test Structure
 
 ```
-persistence/test/
-  agent/
-    organizations_test.exs                        # Unit tests
-    organization_repository_contract_test.exs     # ✅ Contract tests (@integration)
-    simulations_test.exs
-    simulation_repository_contract_test.exs       # ✅ Contract tests (@integration)
+persistence/test/agent/
+  organizations_test.exs                        # Unit tests
+  organization_repository_contract_test.exs     # ✅ Contract tests (@moduletag :integration)
+  simulations_test.exs
+  simulation_repository_contract_test.exs       # ✅ Contract tests (@moduletag :integration)
 
-usecase/test/
-  usecase/
-    organization_test.exs                         # Integration tests (GenServer + Agent)
-    simulation_test.exs
+usecase/test/usecase/
+  organization_test.exs                         # GenServer + Agent integration
+  simulation_test.exs
+
+web_api/test/
+  organizations/
+    organization_controller_test.exs            # Unit tests (Mox)
+    organization_serializer_test.exs
+  simulations/
+    simulation_controller_test.exs              # Unit tests (Mox)
+    simulation_serializer_test.exs
+  integration/
+    organizations_integration_test.exs          # ✅ HTTP integration (@moduletag :integration)
+    simulations_integration_test.exs
 ```
 
 ## Code Quality
@@ -298,9 +358,10 @@ mix compile --warnings-as-errors
 
 | App | Minimum |
 |-----|---------|
-| kanban_domain | 61% |
+| kanban_domain | 70% |
 | persistence | 100% |
-| usecase | 12% |
+| usecase | 50% |
+| web_api | 80% |
 
 ## CI
 
@@ -308,7 +369,7 @@ GitHub Actions runs on every push and PR to `main`:
 
 **Elixir 1.18.4** | **OTP 28** | **Ubuntu**
 
-Pipeline: `mix deps.get` -> `mix credo` -> `mix coveralls` -> `mix test --cover`
+Pipeline: `mix deps.get` → `mix credo` → `mix dialyzer` → `mix coveralls` → `mix test --cover`
 
 ## Architecture Evolution
 
@@ -321,6 +382,7 @@ This project recently underwent a major architectural refactoring to align with 
 3. **Validation at Entry Points** — Commands/Queries use factory functions that validate before construction
 4. **Contract Tests** — Added integration tests verifying Agents correctly implement Port behaviours
 5. **Single Responsibility** — GenServers now only orchestrate; business logic moved to Use Cases
+6. **REST HTTP Layer** — `web_api` app exposes use cases as a versioned JSON API (Plug + Bandit) with OpenAPI 3.0 docs and Swagger UI
 
 ### 📊 Impact
 
@@ -329,8 +391,9 @@ This project recently underwent a major architectural refactoring to align with 
 | Use Case modules | 0 (logic in GenServers) | 8 dedicated modules |
 | Observability | None | Logger + Telemetry in all operations |
 | Input validation | Runtime errors | Compile-time + factory validation |
-| Contract tests | 0 | 2 (OrganizationRepository, SimulationRepository) |
+| Contract tests | 0 | 5 (3 repository + 2 HTTP integration) |
 | SRP compliance | ❌ God Objects | ✅ Single responsibility per module |
+| HTTP API | None | REST API with OpenAPI 3.0 + Swagger UI |
 
 ### 🎯 Benefits
 
@@ -350,7 +413,7 @@ Contributions are welcome! Please:
 3. Ensure all tests pass (`mix test`)
 4. Run the linter (`mix credo`)
 5. Check formatting (`mix format --check-formatted`)
-6. Read [CLAUDE.md](CLAUDE.md) for architectural patterns and the Definition of Done skill (`.claude/skills/definition-of-done/SKILL.md`) before completing features
+6. Read [CLAUDE.md](CLAUDE.md) and [GEMINI.md](GEMINI.md) for architectural patterns and the Definition of Done skill (`.claude/skills/definition-of-done/SKILL.md`) before completing features
 7. Submit a pull request
 
 ## License
