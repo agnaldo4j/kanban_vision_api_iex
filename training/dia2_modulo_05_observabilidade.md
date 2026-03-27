@@ -1,7 +1,7 @@
 # Dia 2 — Módulo 5: Observabilidade
 
 > *"Uma feature não está pronta sem comportamento observável em produção."*
-> — CLAUDE.md deste projeto
+> — AGENTS.md deste projeto
 
 Observabilidade é a capacidade de entender o estado interno de um sistema
 a partir de suas saídas externas: **logs, métricas e traces**.
