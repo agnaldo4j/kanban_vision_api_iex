@@ -3,9 +3,10 @@ defmodule KanbanVisionApi.Domain.Ports.SimulationRepository do
   Port defining the contract for simulation persistence.
   """
 
+  alias KanbanVisionApi.Domain.Ports.RepositoryRuntime
   alias KanbanVisionApi.Domain.Simulation
 
-  @type repository_runtime :: term()
+  @type repository_runtime :: RepositoryRuntime.t()
 
   @callback get_all(runtime :: repository_runtime()) :: map()
   @callback add(runtime :: repository_runtime(), simulation :: Simulation.t()) ::

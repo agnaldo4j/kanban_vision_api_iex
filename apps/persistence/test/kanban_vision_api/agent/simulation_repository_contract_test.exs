@@ -13,7 +13,8 @@ defmodule KanbanVisionApi.Agent.SimulationRepositoryContractTest do
 
   describe "SimulationRepository contract" do
     setup do
-      {:ok, repository_runtime} = Simulations.start_link()
+      {:ok, repository_pid} = Simulations.start_link()
+      repository_runtime = Simulations.runtime(repository_pid)
       [repository_runtime: repository_runtime]
     end
 

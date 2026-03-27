@@ -13,7 +13,8 @@ defmodule KanbanVisionApi.Agent.OrganizationRepositoryContractTest do
 
   describe "OrganizationRepository contract" do
     setup do
-      {:ok, repository_runtime} = Organizations.start_link()
+      {:ok, repository_pid} = Organizations.start_link()
+      repository_runtime = Organizations.runtime(repository_pid)
       [repository_runtime: repository_runtime]
     end
 

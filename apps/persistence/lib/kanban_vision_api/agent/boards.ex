@@ -30,11 +30,13 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   # Client
 
-  @spec start_link(t()) :: {:ok, runtime()}
+  @spec start_link(t()) :: Agent.on_start()
   def start_link(default \\ __MODULE__.new()) do
-    {:ok, pid} = Agent.start_link(fn -> default end)
-    {:ok, %Runtime{pid: pid}}
+    Agent.start_link(fn -> default end)
   end
+
+  @spec runtime(pid()) :: runtime()
+  def runtime(pid), do: %Runtime{pid: pid}
 
   def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Board{} = new_board) do
     Agent.get_and_update(pid, fn state ->

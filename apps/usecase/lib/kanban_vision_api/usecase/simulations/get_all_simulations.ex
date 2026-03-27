@@ -7,12 +7,13 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetAllSimulations do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.SimulationRepository
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, map()}
 
-  @spec execute(term(), keyword()) :: result()
+  @spec execute(SimulationRepository.repository_runtime(), keyword()) :: result()
   def execute(repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)

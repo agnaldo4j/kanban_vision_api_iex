@@ -188,7 +188,8 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   defp prepare_empty_context(_context) do
     simulations_domain = Simulations.new()
     organization_domain = Organization.new("ExampleOrg")
-    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
+    {:ok, repository_pid} = Simulations.start_link(simulations_domain)
+    repository_runtime = Simulations.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,
@@ -213,7 +214,8 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
     simulations_domain = Simulations.new(simulations_by_organization)
 
-    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
+    {:ok, repository_pid} = Simulations.start_link(simulations_domain)
+    repository_runtime = Simulations.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,
@@ -226,7 +228,8 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   defp prepare_context_with_empty_org(_context) do
     organization_domain = Organization.new("ExampleOrg")
     simulations_domain = Simulations.new(%{organization_domain.id => %{}})
-    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
+    {:ok, repository_pid} = Simulations.start_link(simulations_domain)
+    repository_runtime = Simulations.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,

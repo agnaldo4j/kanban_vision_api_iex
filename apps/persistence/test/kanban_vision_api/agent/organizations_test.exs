@@ -121,7 +121,8 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
 
   defp prepare_empty_context(_context) do
     organizations_domain = Organizations.new()
-    {:ok, repository_runtime} = Organizations.start_link(organizations_domain)
+    {:ok, repository_pid} = Organizations.start_link(organizations_domain)
+    repository_runtime = Organizations.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,
@@ -135,7 +136,8 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     initial_state =
       Organizations.new(%{organization_domain.id => organization_domain})
 
-    {:ok, repository_runtime} = Organizations.start_link(initial_state)
+    {:ok, repository_pid} = Organizations.start_link(initial_state)
+    repository_runtime = Organizations.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,

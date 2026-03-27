@@ -7,12 +7,17 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationByName do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.OrganizationRepository
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, list()} | {:error, String.t()}
 
-  @spec execute(GetOrganizationByNameQuery.t(), term(), keyword()) :: result()
+  @spec execute(
+          GetOrganizationByNameQuery.t(),
+          OrganizationRepository.repository_runtime(),
+          keyword()
+        ) :: result()
   def execute(%GetOrganizationByNameQuery{} = query, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)

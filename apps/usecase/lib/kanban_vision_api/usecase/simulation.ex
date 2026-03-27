@@ -43,7 +43,8 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   @impl true
   def init(opts) do
     repository = Keyword.fetch!(opts, :repository)
-    {:ok, repository_runtime} = repository.start_link()
+    {:ok, repository_pid} = repository.start_link()
+    repository_runtime = repository.runtime(repository_pid)
     {:ok, %{repository_runtime: repository_runtime, repository: repository}}
   end
 

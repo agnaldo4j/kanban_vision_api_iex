@@ -13,7 +13,8 @@ defmodule KanbanVisionApi.Agent.BoardRepositoryContractTest do
 
   describe "BoardRepository contract" do
     setup do
-      {:ok, repository_runtime} = Boards.start_link()
+      {:ok, repository_pid} = Boards.start_link()
+      repository_runtime = Boards.runtime(repository_pid)
       [repository_runtime: repository_runtime]
     end
 

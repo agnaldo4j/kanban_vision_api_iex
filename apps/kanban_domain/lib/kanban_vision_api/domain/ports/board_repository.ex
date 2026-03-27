@@ -4,8 +4,9 @@ defmodule KanbanVisionApi.Domain.Ports.BoardRepository do
   """
 
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Ports.RepositoryRuntime
 
-  @type repository_runtime :: term()
+  @type repository_runtime :: RepositoryRuntime.t()
 
   @callback get_all(runtime :: repository_runtime()) :: map()
   @callback get_by_id(runtime :: repository_runtime(), id :: String.t()) ::

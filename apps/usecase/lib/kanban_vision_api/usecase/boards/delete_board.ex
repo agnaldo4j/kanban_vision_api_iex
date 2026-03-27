@@ -9,13 +9,15 @@ defmodule KanbanVisionApi.Usecase.Boards.DeleteBoard do
   require Logger
 
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Ports.BoardRepository
   alias KanbanVisionApi.Usecase.Board.DeleteBoardCommand
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, Board.t()} | {:error, String.t()}
 
-  @spec execute(DeleteBoardCommand.t(), term(), keyword()) :: result()
+  @spec execute(DeleteBoardCommand.t(), BoardRepository.repository_runtime(), keyword()) ::
+          result()
   def execute(%DeleteBoardCommand{} = cmd, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)

@@ -128,7 +128,8 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
   defp prepare_empty_context(_context) do
     boards_domain = Boards.new()
     workflow_domain = Workflow.new()
-    {:ok, repository_runtime} = Boards.start_link(boards_domain)
+    {:ok, repository_pid} = Boards.start_link(boards_domain)
+    repository_runtime = Boards.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,
@@ -140,7 +141,8 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
   defp prepare_context_with_boards(_context) do
     board = Board.new("Dev Board", "sim-123")
     boards_domain = Boards.new(%{board.id => board})
-    {:ok, repository_runtime} = Boards.start_link(boards_domain)
+    {:ok, repository_pid} = Boards.start_link(boards_domain)
+    repository_runtime = Boards.runtime(repository_pid)
 
     [
       repository_runtime: repository_runtime,

@@ -30,11 +30,13 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   # Client
 
-  @spec start_link(t()) :: {:ok, runtime()}
+  @spec start_link(t()) :: Agent.on_start()
   def start_link(default \\ __MODULE__.new()) do
-    {:ok, pid} = Agent.start_link(fn -> default end)
-    {:ok, %Runtime{pid: pid}}
+    Agent.start_link(fn -> default end)
   end
+
+  @spec runtime(pid()) :: runtime()
+  def runtime(pid), do: %Runtime{pid: pid}
 
   def get_all(%Runtime{pid: pid}) do
     Agent.get(pid, fn state -> state.simulations_by_organization end)
