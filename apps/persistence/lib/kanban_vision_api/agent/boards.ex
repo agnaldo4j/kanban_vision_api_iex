@@ -5,12 +5,21 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   @behaviour KanbanVisionApi.Domain.Ports.BoardRepository
 
+  defmodule Runtime do
+    @moduledoc false
+
+    @enforce_keys [:pid]
+    defstruct [:pid]
+  end
+
   defstruct [:id, :boards]
 
   @type t :: %__MODULE__{
           id: String.t(),
           boards: map()
         }
+
+  @opaque runtime :: %Runtime{pid: pid()}
 
   def new(boards \\ %{}, id \\ UUID.uuid4()) do
     %__MODULE__{
@@ -21,12 +30,15 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   # Client
 
-  @spec start_link(t()) :: Agent.on_start()
+  @spec start_link(t()) :: {:ok, runtime()} | {:error, term()}
   def start_link(default \\ __MODULE__.new()) do
-    Agent.start_link(fn -> default end)
+    case Agent.start_link(fn -> default end) do
+      {:ok, pid} -> {:ok, %Runtime{pid: pid}}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
-  def add(pid, %KanbanVisionApi.Domain.Board{} = new_board) do
+  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Board{} = new_board) do
     Agent.get_and_update(pid, fn state ->
       case get_by_board(state.boards, new_board) do
         {:error, _} ->
@@ -48,7 +60,7 @@ defmodule KanbanVisionApi.Agent.Boards do
     end)
   end
 
-  def get_by_id(pid, board_id) do
+  def get_by_id(%Runtime{pid: pid}, board_id) do
     Agent.get(pid, fn state ->
       case Map.get(state.boards, board_id) do
         nil -> {:error, "Board with id: #{board_id} not found"}
@@ -57,11 +69,11 @@ defmodule KanbanVisionApi.Agent.Boards do
     end)
   end
 
-  def get_all(pid) do
+  def get_all(%Runtime{pid: pid}) do
     Agent.get(pid, fn state -> state.boards end)
   end
 
-  def delete(pid, board_id) do
+  def delete(%Runtime{pid: pid}, board_id) do
     Agent.get_and_update(pid, fn state ->
       case Map.get(state.boards, board_id) do
         nil ->
@@ -74,7 +86,7 @@ defmodule KanbanVisionApi.Agent.Boards do
     end)
   end
 
-  def get_all_by_simulation_id(pid, simulation_id) do
+  def get_all_by_simulation_id(%Runtime{pid: pid}, simulation_id) do
     Agent.get(pid, fn state ->
       get_by_simulation_id(state.boards, simulation_id)
     end)

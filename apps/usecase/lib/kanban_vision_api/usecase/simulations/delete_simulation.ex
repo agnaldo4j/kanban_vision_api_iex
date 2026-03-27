@@ -15,8 +15,8 @@ defmodule KanbanVisionApi.Usecase.Simulations.DeleteSimulation do
 
   @type result :: {:ok, Simulation.t()} | {:error, String.t()}
 
-  @spec execute(DeleteSimulationCommand.t(), pid(), keyword()) :: result()
-  def execute(%DeleteSimulationCommand{} = cmd, repository_pid, opts \\ []) do
+  @spec execute(DeleteSimulationCommand.t(), term(), keyword()) :: result()
+  def execute(%DeleteSimulationCommand{} = cmd, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
@@ -25,7 +25,7 @@ defmodule KanbanVisionApi.Usecase.Simulations.DeleteSimulation do
       simulation_id: cmd.id
     )
 
-    case repository.delete(repository_pid, cmd.id) do
+    case repository.delete(repository_runtime, cmd.id) do
       {:ok, sim} ->
         Logger.info("Simulation deleted successfully",
           correlation_id: correlation_id,

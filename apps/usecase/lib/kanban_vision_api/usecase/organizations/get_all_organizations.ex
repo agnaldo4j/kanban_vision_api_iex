@@ -12,14 +12,14 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetAllOrganizations do
 
   @type result :: {:ok, map()}
 
-  @spec execute(pid(), keyword()) :: result()
-  def execute(repository_pid, opts \\ []) do
+  @spec execute(term(), keyword()) :: result()
+  def execute(repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
     Logger.debug("Retrieving all organizations", correlation_id: correlation_id)
 
-    organizations = repository.get_all(repository_pid)
+    organizations = repository.get_all(repository_runtime)
 
     Logger.debug("All organizations retrieved",
       correlation_id: correlation_id,

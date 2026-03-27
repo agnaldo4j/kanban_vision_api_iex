@@ -49,37 +49,41 @@ defmodule KanbanVisionApi.Usecase.Organization do
   @impl true
   def init(opts) do
     repository = Keyword.fetch!(opts, :repository)
-    {:ok, agent_pid} = repository.start_link()
-    {:ok, %{repository_pid: agent_pid, repository: repository}}
+    {:ok, repository_runtime} = repository.start_link()
+    {:ok, %{repository_runtime: repository_runtime, repository: repository}}
   end
 
   @impl true
   def handle_call({:get_all, opts}, _from, state) do
-    result = GetAllOrganizations.execute(state.repository_pid, enrich_opts(opts, state))
+    result = GetAllOrganizations.execute(state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:get_by_id, query, opts}, _from, state) do
-    result = GetOrganizationById.execute(query, state.repository_pid, enrich_opts(opts, state))
+    result =
+      GetOrganizationById.execute(query, state.repository_runtime, enrich_opts(opts, state))
+
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:get_by_name, query, opts}, _from, state) do
-    result = GetOrganizationByName.execute(query, state.repository_pid, enrich_opts(opts, state))
+    result =
+      GetOrganizationByName.execute(query, state.repository_runtime, enrich_opts(opts, state))
+
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:add, cmd, opts}, _from, state) do
-    result = CreateOrganization.execute(cmd, state.repository_pid, enrich_opts(opts, state))
+    result = CreateOrganization.execute(cmd, state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:delete, cmd, opts}, _from, state) do
-    result = DeleteOrganization.execute(cmd, state.repository_pid, enrich_opts(opts, state))
+    result = DeleteOrganization.execute(cmd, state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 

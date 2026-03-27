@@ -12,19 +12,19 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "should not have any simulation for any organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            organization: _organization
          } = _context do
       template = %{}
 
-      assert Simulations.get_all(pid) == template
+      assert Simulations.get_all(repository_runtime) == template
     end
 
     @tag :domain_simulations
     test "should be able to add a new simulation to a specific organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            organization: organization
          } = _context do
@@ -35,7 +35,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
           organization.id
         )
 
-      assert Simulations.add(pid, simulation_domain) ==
+      assert Simulations.add(repository_runtime, simulation_domain) ==
                {:ok, simulation_domain}
     end
   end
@@ -46,20 +46,20 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "should be able to get all simulations for a specific organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            simulation: simulation,
            organization: organization
          } = _context do
       template = %{organization.id => %{simulation.id => simulation}}
 
-      assert Simulations.get_all(pid) == template
+      assert Simulations.get_all(repository_runtime) == template
     end
 
     @tag :domain_simulations
     test "should be able to add a new simulation to a specific organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            simulation: simulation,
            organization: organization
@@ -71,24 +71,24 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
           organization.id
         )
 
-      assert Simulations.add(pid, new_simulation) == {:ok, new_simulation}
+      assert Simulations.add(repository_runtime, new_simulation) == {:ok, new_simulation}
 
       template = %{
         organization.id => %{new_simulation.id => new_simulation, simulation.id => simulation}
       }
 
-      assert Simulations.get_all(pid) == template
+      assert Simulations.get_all(repository_runtime) == template
     end
 
     @tag :domain_simulations
     test "Try to add a simulation that already exists",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            simulation: simulation,
            organization: _organization
          } = _context do
-      assert Simulations.add(pid, simulation) == {
+      assert Simulations.add(repository_runtime, simulation) == {
                :error,
                """
                Simulation with organization_id: #{simulation.organization_id}
@@ -100,14 +100,14 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "try to find a simulation on a non existent organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulations: _simulations,
            organization: _organization
          } = _context do
       template = {:error, "Simulation with organization id: INVALID not found"}
 
       assert Simulations.get_by_organization_id_and_simulation_name(
-               pid,
+               repository_runtime,
                "INVALID",
                "Simulation Name"
              ) == template
@@ -116,13 +116,13 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "try to find a simulation by name that does not exist",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organization: organization
          } = _context do
       template = {:error, "Simulation with name: Missing Simulation not found"}
 
       assert Simulations.get_by_organization_id_and_simulation_name(
-               pid,
+               repository_runtime,
                organization.id,
                "Missing Simulation"
              ) == template
@@ -131,36 +131,36 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "should delete a simulation by its id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulation: simulation
          } = _context do
-      assert {:ok, ^simulation} = Simulations.delete(pid, simulation.id)
-      assert %{} == Simulations.get_all(pid)
+      assert {:ok, ^simulation} = Simulations.delete(repository_runtime, simulation.id)
+      assert %{} == Simulations.get_all(repository_runtime)
     end
 
     @tag :domain_simulations
     test "should return error when deleting simulation with unknown id",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       assert {:error, "Simulation with id: unknown-id not found"} =
-               Simulations.delete(pid, "unknown-id")
+               Simulations.delete(repository_runtime, "unknown-id")
     end
 
     @tag :domain_simulations
     test "should delete one simulation and keep others in same organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            simulation: simulation,
            organization: organization
          } = _context do
       other_simulation =
         Simulation.new("OtherSim", "OtherDesc", organization.id)
 
-      assert {:ok, ^other_simulation} = Simulations.add(pid, other_simulation)
-      assert {:ok, ^simulation} = Simulations.delete(pid, simulation.id)
+      assert {:ok, ^other_simulation} = Simulations.add(repository_runtime, other_simulation)
+      assert {:ok, ^simulation} = Simulations.delete(repository_runtime, simulation.id)
 
-      remaining = Simulations.get_all(pid)
+      remaining = Simulations.get_all(repository_runtime)
       assert map_size(remaining[organization.id]) == 1
       assert Map.has_key?(remaining[organization.id], other_simulation.id)
     end
@@ -172,13 +172,13 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
     @tag :domain_simulations
     test "should return error for missing simulations on existing organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organization: organization
          } = _context do
       template = {:error, "Simulation with organization id: #{organization.id} not found"}
 
       assert Simulations.get_by_organization_id_and_simulation_name(
-               pid,
+               repository_runtime,
                organization.id,
                "Any Simulation"
              ) == template
@@ -188,10 +188,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   defp prepare_empty_context(_context) do
     simulations_domain = Simulations.new()
     organization_domain = Organization.new("ExampleOrg")
-    {:ok, pid} = Simulations.start_link(simulations_domain)
+    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       simulations: simulations_domain,
       organization: organization_domain
     ]
@@ -213,10 +213,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
     simulations_domain = Simulations.new(simulations_by_organization)
 
-    {:ok, pid} = Simulations.start_link(simulations_domain)
+    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       simulations: simulations_domain,
       simulation: simulation_domain,
       organization: organization_domain
@@ -226,10 +226,10 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
   defp prepare_context_with_empty_org(_context) do
     organization_domain = Organization.new("ExampleOrg")
     simulations_domain = Simulations.new(%{organization_domain.id => %{}})
-    {:ok, pid} = Simulations.start_link(simulations_domain)
+    {:ok, repository_runtime} = Simulations.start_link(simulations_domain)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       simulations: simulations_domain,
       organization: organization_domain
     ]

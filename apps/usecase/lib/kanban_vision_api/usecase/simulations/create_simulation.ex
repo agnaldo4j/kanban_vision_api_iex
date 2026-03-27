@@ -15,8 +15,8 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
 
   @type result :: {:ok, Simulation.t()} | {:error, String.t()}
 
-  @spec execute(CreateSimulationCommand.t(), pid(), keyword()) :: result()
-  def execute(%CreateSimulationCommand{} = cmd, repository_pid, opts \\ []) do
+  @spec execute(CreateSimulationCommand.t(), term(), keyword()) :: result()
+  def execute(%CreateSimulationCommand{} = cmd, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
@@ -28,7 +28,7 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
 
     simulation = Simulation.new(cmd.name, cmd.description, cmd.organization_id)
 
-    case repository.add(repository_pid, simulation) do
+    case repository.add(repository_runtime, simulation) do
       {:ok, sim} ->
         Logger.info("Simulation created successfully",
           correlation_id: correlation_id,

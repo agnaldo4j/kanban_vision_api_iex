@@ -5,8 +5,8 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
   import Plug.Test
 
   alias KanbanVisionApi.Domain.Simulation
-  alias KanbanVisionApi.WebApi.SimulationUsecaseMock
   alias KanbanVisionApi.WebApi.Simulations.SimulationController
+  alias KanbanVisionApi.WebApi.SimulationUsecaseMock
 
   setup :verify_on_exit!
 

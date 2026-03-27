@@ -12,43 +12,43 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     @tag :domain_boards
     test "should not have any boards by any simulation",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            boards: _boards
          } = _context do
       template = %{}
-      assert Boards.get_all(pid) == template
+      assert Boards.get_all(repository_runtime) == template
     end
 
     @tag :domain_boards
     test "should not have any board by simulation_id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            boards: _boards
          } = _context do
       template = {:error, "Boards by simulation_id: nada not found"}
-      assert Boards.get_all_by_simulation_id(pid, "nada") == template
+      assert Boards.get_all_by_simulation_id(repository_runtime, "nada") == template
     end
 
     @tag :domain_boards
     test "should be able to add a new board",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       board = Board.new("Dev Board", "sim-123")
-      assert {:ok, ^board} = Boards.add(pid, board)
-      assert %{} = Boards.get_all(pid)
+      assert {:ok, ^board} = Boards.add(repository_runtime, board)
+      assert %{} = Boards.get_all(repository_runtime)
     end
 
     @tag :domain_boards
     test "should not add a board with same name and simulation_id",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       board = Board.new("Dev Board", "sim-123")
-      assert {:ok, ^board} = Boards.add(pid, board)
+      assert {:ok, ^board} = Boards.add(repository_runtime, board)
 
       duplicate = Board.new("Dev Board", "sim-123")
-      assert {:error, _msg} = Boards.add(pid, duplicate)
+      assert {:error, _msg} = Boards.add(repository_runtime, duplicate)
     end
   end
 
@@ -58,11 +58,11 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     @tag :domain_boards
     test "should get boards by simulation_id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            board: board
          } = _context do
       assert {:ok, boards} =
-               Boards.get_all_by_simulation_id(pid, board.simulation_id)
+               Boards.get_all_by_simulation_id(repository_runtime, board.simulation_id)
 
       assert length(boards) == 1
     end
@@ -70,68 +70,68 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     @tag :domain_boards
     test "should allow adding board with a different name for the same simulation_id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            board: board
          } = _context do
       new_board = Board.new("QA Board", board.simulation_id)
-      assert {:ok, ^new_board} = Boards.add(pid, new_board)
-      assert 2 = map_size(Boards.get_all(pid))
+      assert {:ok, ^new_board} = Boards.add(repository_runtime, new_board)
+      assert 2 = map_size(Boards.get_all(repository_runtime))
     end
 
     @tag :domain_boards
     test "should return error for unknown simulation_id",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       assert {:error, _msg} =
-               Boards.get_all_by_simulation_id(pid, "unknown")
+               Boards.get_all_by_simulation_id(repository_runtime, "unknown")
     end
 
     @tag :domain_boards
     test "should get a board by its id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            board: board
          } = _context do
-      assert {:ok, ^board} = Boards.get_by_id(pid, board.id)
+      assert {:ok, ^board} = Boards.get_by_id(repository_runtime, board.id)
     end
 
     @tag :domain_boards
     test "should return error when getting board by unknown id",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       assert {:error, "Board with id: unknown-id not found"} =
-               Boards.get_by_id(pid, "unknown-id")
+               Boards.get_by_id(repository_runtime, "unknown-id")
     end
 
     @tag :domain_boards
     test "should delete a board by its id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            board: board
          } = _context do
-      assert {:ok, ^board} = Boards.delete(pid, board.id)
-      assert %{} == Boards.get_all(pid)
+      assert {:ok, ^board} = Boards.delete(repository_runtime, board.id)
+      assert %{} == Boards.get_all(repository_runtime)
     end
 
     @tag :domain_boards
     test "should return error when deleting board with unknown id",
          %{
-           actor_pid: pid
+           repository_runtime: repository_runtime
          } = _context do
       assert {:error, "Board with id: unknown-id not found"} =
-               Boards.delete(pid, "unknown-id")
+               Boards.delete(repository_runtime, "unknown-id")
     end
   end
 
   defp prepare_empty_context(_context) do
     boards_domain = Boards.new()
     workflow_domain = Workflow.new()
-    {:ok, pid} = Boards.start_link(boards_domain)
+    {:ok, repository_runtime} = Boards.start_link(boards_domain)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       boards: boards_domain,
       workflow: workflow_domain
     ]
@@ -140,10 +140,10 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
   defp prepare_context_with_boards(_context) do
     board = Board.new("Dev Board", "sim-123")
     boards_domain = Boards.new(%{board.id => board})
-    {:ok, pid} = Boards.start_link(boards_domain)
+    {:ok, repository_runtime} = Boards.start_link(boards_domain)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       boards: boards_domain,
       board: board
     ]

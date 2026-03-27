@@ -5,12 +5,21 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   @behaviour KanbanVisionApi.Domain.Ports.SimulationRepository
 
+  defmodule Runtime do
+    @moduledoc false
+
+    @enforce_keys [:pid]
+    defstruct [:pid]
+  end
+
   defstruct [:id, :simulations_by_organization]
 
   @type t :: %__MODULE__{
           id: String.t(),
           simulations_by_organization: map()
         }
+
+  @opaque runtime :: %Runtime{pid: pid()}
 
   def new(simulations_by_organization \\ %{}, id \\ UUID.uuid4()) do
     %__MODULE__{
@@ -21,16 +30,19 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   # Client
 
-  @spec start_link(t()) :: Agent.on_start()
+  @spec start_link(t()) :: {:ok, runtime()} | {:error, term()}
   def start_link(default \\ __MODULE__.new()) do
-    Agent.start_link(fn -> default end)
+    case Agent.start_link(fn -> default end) do
+      {:ok, pid} -> {:ok, %Runtime{pid: pid}}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
-  def get_all(pid) do
+  def get_all(%Runtime{pid: pid}) do
     Agent.get(pid, fn state -> state.simulations_by_organization end)
   end
 
-  def add(pid, %KanbanVisionApi.Domain.Simulation{} = new_simulation) do
+  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Simulation{} = new_simulation) do
     Agent.get_and_update(pid, fn state ->
       result =
         internal_find_by_org_and_name(
@@ -77,7 +89,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
     end)
   end
 
-  def delete(pid, simulation_id) do
+  def delete(%Runtime{pid: pid}, simulation_id) do
     Agent.get_and_update(pid, fn state ->
       case internal_find_by_id(state, simulation_id) do
         {:ok, simulation} ->
@@ -90,7 +102,11 @@ defmodule KanbanVisionApi.Agent.Simulations do
     end)
   end
 
-  def get_by_organization_id_and_simulation_name(pid, organization_id, simulation_name) do
+  def get_by_organization_id_and_simulation_name(
+        %Runtime{pid: pid},
+        organization_id,
+        simulation_name
+      ) do
     Agent.get(pid, fn state ->
       internal_find_by_org_and_name(state, organization_id, simulation_name)
     end)
