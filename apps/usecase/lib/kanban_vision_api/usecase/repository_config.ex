@@ -26,7 +26,7 @@ defmodule KanbanVisionApi.Usecase.RepositoryConfig do
       :error ->
         raise ArgumentError,
               "missing required :repository option when calling " <>
-                "#{inspect(caller)}.execute/3. Ensure repository wiring is configured."
+                "#{inspect(caller)}. Ensure repository wiring is configured."
     end
   end
 end
