@@ -5,11 +5,16 @@ defmodule KanbanVisionApi.Usecase.Application do
 
   use Application
 
+  alias KanbanVisionApi.Usecase.RepositoryConfig
+
   @impl true
   def start(_type, _args) do
     children = [
-      {KanbanVisionApi.Usecase.Organization, name: KanbanVisionApi.Usecase.Organization},
-      {KanbanVisionApi.Usecase.Simulation, name: KanbanVisionApi.Usecase.Simulation}
+      {KanbanVisionApi.Usecase.Organization,
+       name: KanbanVisionApi.Usecase.Organization,
+       repository: RepositoryConfig.fetch!(:organization)},
+      {KanbanVisionApi.Usecase.Simulation,
+       name: KanbanVisionApi.Usecase.Simulation, repository: RepositoryConfig.fetch!(:simulation)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

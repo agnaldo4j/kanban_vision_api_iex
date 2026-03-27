@@ -2,25 +2,25 @@
 
 ## Overview
 
-The `persistence` application is a crucial component of the Kanban Vision API. It's responsible for managing the persistence layer of the application, ensuring that the state of the system is maintained across sessions. The application is built with Elixir and leverages the power of event sourcing and CQRS (Command Query Responsibility Segregation) to provide a robust and scalable solution for data persistence.
+The `persistence` application is responsible for the persistence boundary of the Kanban Vision API. Today it keeps application state in memory for the lifetime of the process to simplify the project runtime. The design should stay ready for future evolution toward persisted commands plus snapshots in a prevalence-style model without changing the core use cases.
 
-This application is inspired by the concepts of event logs and snapshots from the Akka actor model, and the prevalence system from the [Prevayler](http://prevayler.org/) project.
+This application is influenced by the prevalence system from the [Prevayler](http://prevayler.org/) project and by event log and snapshot ideas, but those mechanisms are not implemented yet in the current in-memory adapter.
 
 ## Structure
 
-The `persistence` application is structured around the concepts of event logs and snapshots.
+The `persistence` application is currently structured as in-memory adapters behind repository ports.
 
-### Event Logs
+### Current State
 
-Event logs are a record of all the events that have occurred in the system. Each event represents a change in the state of the system. By replaying these events, we can reconstruct the current state of the system. This approach is known as event sourcing.
+State lives only during process execution. Agent-backed adapters provide a simple persistence mechanism for development, tests, and architectural exploration.
 
-### Snapshots
+### Future Direction
 
-While event sourcing provides a robust way to maintain and reconstruct system state, replaying a long list of events can be time-consuming. To mitigate this, the `persistence` application uses snapshots. A snapshot is a saved state of a particular entity at a specific point in time. By saving snapshots periodically, we can reduce the number of events that need to be replayed to reconstruct the current state.
+The intended evolution is a prevalence-style persistence model with command persistence and snapshots. The application layer should continue to depend on ports so this change remains isolated to adapters.
 
-### CQRS
+### CQS
 
-CQRS stands for Command Query Responsibility Segregation. It's a pattern that separates reading data from writing data. In the context of the `persistence` application, we use CQRS to ensure that our event sourcing and snapshotting mechanisms can operate efficiently and independently of the query operations.
+At the application boundary, the project follows CQS: use cases accept either a Command or a Query DTO. This is distinct from CQRS and does not imply separate read and write models.
 
 ## Contributing
 
@@ -34,4 +34,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [Prevayler](http://prevayler.org/)
 - [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/persistence.html)
-- [CQRS](https://martinfowler.com/bliki/CQRS.html)
+- [CQS](https://martinfowler.com/bliki/CommandQuerySeparation.html)

@@ -1,8 +1,8 @@
 defmodule KanbanVisionApi.WebApi.Adapters.OrganizationAdapter do
   @moduledoc """
-  Adapter: bridges the OrganizationUsecase port to the Organization GenServer.
+  Adapter: bridges the OrganizationUsecase port to the organization application boundary.
 
-  Calls the registered GenServer using the module name as the server reference.
+  Calls the configured runtime entrypoint without leaking transport details into HTTP code.
   """
 
   @behaviour KanbanVisionApi.WebApi.Ports.OrganizationUsecase

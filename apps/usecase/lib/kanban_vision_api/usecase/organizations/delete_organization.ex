@@ -11,15 +11,14 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
   alias KanbanVisionApi.Domain.Organization
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
-
-  @default_repository KanbanVisionApi.Agent.Organizations
+  alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, Organization.t()} | {:error, String.t()}
 
   @spec execute(DeleteOrganizationCommand.t(), pid(), keyword()) :: result()
   def execute(%DeleteOrganizationCommand{} = cmd, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
     Logger.info("Deleting organization",
       correlation_id: correlation_id,

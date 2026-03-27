@@ -8,15 +8,14 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetAllOrganizations do
   require Logger
 
   alias KanbanVisionApi.Usecase.EventEmitter
-
-  @default_repository KanbanVisionApi.Agent.Organizations
+  alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, map()}
 
   @spec execute(pid(), keyword()) :: result()
   def execute(repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
     Logger.debug("Retrieving all organizations", correlation_id: correlation_id)
 

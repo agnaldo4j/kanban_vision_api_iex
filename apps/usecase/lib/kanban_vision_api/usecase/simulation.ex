@@ -15,12 +15,12 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   alias KanbanVisionApi.Usecase.Simulations.DeleteSimulation
   alias KanbanVisionApi.Usecase.Simulations.GetAllSimulations
   alias KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName
-
-  @default_repository KanbanVisionApi.Agent.Simulations
+  alias KanbanVisionApi.Usecase.RepositoryConfig
 
   # Client API
 
   def start_link(opts \\ []) do
+    opts = Keyword.put_new(opts, :repository, RepositoryConfig.fetch!(:simulation))
     GenServer.start_link(__MODULE__, opts, Keyword.take(opts, [:name]))
   end
 
@@ -42,7 +42,7 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   @impl true
   def init(opts) do
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = Keyword.fetch!(opts, :repository)
     {:ok, agent_pid} = repository.start_link()
     {:ok, %{repository_pid: agent_pid, repository: repository}}
   end

@@ -2,17 +2,11 @@
 
 ## Overview
 
-The `kanban_domain` is a core part of the Kanban Vision API. It's responsible for defining the domain logic and the state of the application. It's built with Elixir and leverages the power of functional programming and the actor model to provide a robust and scalable solution for simulating a Kanban system.
+The `kanban_domain` is the business core of the Kanban Vision API. It defines domain entities, value objects, and domain rules independently of HTTP, processes, or persistence mechanisms.
 
 ## Structure
 
-The `kanban_domain` is structured into two main parts: `Agents` and `Domain`.
-
-### Agents
-
-Agents in Elixir are a way to maintain state. In the context of the `kanban_domain`, agents are used to manage the state of different entities in the system such as `Boards`, `Organizations`, and `Simulations`.
-
-For example, the `Boards` agent is responsible for managing the state of a Kanban board. It maintains information about the board's workflow and can be interacted with to update the state of the board.
+The `kanban_domain` is structured around pure domain modules and port contracts.
 
 ### Domain
 

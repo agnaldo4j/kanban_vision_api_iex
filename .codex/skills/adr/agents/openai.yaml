@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADR"
+  short_description: "Architectural decision record guidance"
+  default_prompt: "Use $adr to create or update an ADR for this repository."

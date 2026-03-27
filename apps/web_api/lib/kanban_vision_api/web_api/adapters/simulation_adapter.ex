@@ -1,8 +1,8 @@
 defmodule KanbanVisionApi.WebApi.Adapters.SimulationAdapter do
   @moduledoc """
-  Adapter: bridges the SimulationUsecase port to the Simulation GenServer.
+  Adapter: bridges the SimulationUsecase port to the simulation application boundary.
 
-  Calls the registered GenServer using the module name as the server reference.
+  Calls the configured runtime entrypoint without leaking transport details into HTTP code.
   """
 
   @behaviour KanbanVisionApi.WebApi.Ports.SimulationUsecase

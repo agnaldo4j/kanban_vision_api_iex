@@ -2,7 +2,7 @@ defmodule KanbanVisionApi.WebApi.Ports.SimulationUsecase do
   @moduledoc """
   Port: defines the Simulation use case interface for the web layer.
 
-  Decouples HTTP adapters from the concrete GenServer implementation,
+  Decouples HTTP adapters from the concrete application boundary,
   enabling Mox-based unit testing of controllers.
   """
 

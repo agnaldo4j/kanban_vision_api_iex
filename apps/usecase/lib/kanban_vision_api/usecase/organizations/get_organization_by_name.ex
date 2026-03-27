@@ -8,15 +8,14 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationByName do
   require Logger
 
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
-
-  @default_repository KanbanVisionApi.Agent.Organizations
+  alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, list()} | {:error, String.t()}
 
   @spec execute(GetOrganizationByNameQuery.t(), pid(), keyword()) :: result()
   def execute(%GetOrganizationByNameQuery{} = query, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
     Logger.debug("Retrieving organizations by name",
       correlation_id: correlation_id,

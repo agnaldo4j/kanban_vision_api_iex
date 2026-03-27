@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Hexagonal Architecture"
+  short_description: "Refactoring guidance for clean architecture boundaries"
+  default_prompt: "Use $clean-hexagonal-architecture to review or refactor this code toward a clean, hexagonal architecture."

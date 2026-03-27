@@ -31,6 +31,12 @@ config :logger, :console,
 
 config :web_api, port: 4000
 
+config :usecase,
+  repositories: [
+    organization: KanbanVisionApi.Agent.Organizations,
+    simulation: KanbanVisionApi.Agent.Simulations
+  ]
+
 if config_env() == :test do
   import_config "test.exs"
 end

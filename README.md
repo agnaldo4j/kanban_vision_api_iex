@@ -402,7 +402,7 @@ This project recently underwent a major architectural refactoring to align with 
 - **Reliability** — validation catches errors early; contract tests prevent regressions
 - **Testability** — Use Cases are pure functions (except I/O), easy to unit test
 
-See [CLAUDE.md](CLAUDE.md) for the complete architectural standards and patterns followed.
+See [AGENTS.md](AGENTS.md) for the current Codex-oriented architectural standards, workflow rules, and project conventions.
 
 ## Contributing
 
@@ -413,7 +413,7 @@ Contributions are welcome! Please:
 3. Ensure all tests pass (`mix test`)
 4. Run the linter (`mix credo`)
 5. Check formatting (`mix format --check-formatted`)
-6. Read [CLAUDE.md](CLAUDE.md) and [GEMINI.md](GEMINI.md) for architectural patterns and the Definition of Done skill (`.claude/skills/definition-of-done/SKILL.md`) before completing features
+6. Read [AGENTS.md](AGENTS.md) and the project Codex skills under `.codex/skills/` before completing features
 7. Submit a pull request
 
 ## License
