@@ -30,12 +30,10 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   # Client
 
-  @spec start_link(t()) :: {:ok, runtime()} | {:error, term()}
+  @spec start_link(t()) :: {:ok, runtime()}
   def start_link(default \\ __MODULE__.new()) do
-    case Agent.start_link(fn -> default end) do
-      {:ok, pid} -> {:ok, %Runtime{pid: pid}}
-      {:error, reason} -> {:error, reason}
-    end
+    {:ok, pid} = Agent.start_link(fn -> default end)
+    {:ok, %Runtime{pid: pid}}
   end
 
   def get_all(%Runtime{pid: pid}) do
