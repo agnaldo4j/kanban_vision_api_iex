@@ -22,6 +22,7 @@ Keep business logic in use cases and domain modules. Controllers, routers, jobs,
 - Repository mutations must use `Agent.get_and_update/3` for atomicity.
 - Agent access stays internal to persistence adapters; do not expose raw `pid` in domain ports or introduce atom registration.
 - GenServers orchestrate and delegate. They do not own business rules.
+- Application-visible failures must use structured errors; adapters must not infer behavior by parsing error message text.
 - New business flows must include structured logging and telemetry.
 
 ## Build, Test, and Verification

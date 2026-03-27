@@ -9,12 +9,14 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
   require Logger
 
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.OrganizationRepository
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
-  @type result :: {:ok, Organization.t()} | {:error, String.t()}
+  @type result :: ApplicationError.result(Organization.t())
 
   @spec execute(
           DeleteOrganizationCommand.t(),
@@ -52,11 +54,11 @@ defmodule KanbanVisionApi.Usecase.Organizations.DeleteOrganization do
         {:ok, org}
 
       {:error, reason} = error ->
-        Logger.error("Failed to delete organization",
-          correlation_id: correlation_id,
-          organization_id: cmd.id,
-          reason: reason
-        )
+        metadata =
+          [correlation_id: correlation_id, organization_id: cmd.id] ++
+            ErrorMetadata.from_reason(reason)
+
+        Logger.error("Failed to delete organization", metadata)
 
         error
     end

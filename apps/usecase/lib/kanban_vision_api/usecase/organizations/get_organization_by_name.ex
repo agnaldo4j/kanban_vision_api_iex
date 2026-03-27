@@ -7,11 +7,13 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationByName do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.OrganizationRepository
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
-  @type result :: {:ok, list()} | {:error, String.t()}
+  @type result :: ApplicationError.result(list())
 
   @spec execute(
           GetOrganizationByNameQuery.t(),
@@ -38,11 +40,11 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationByName do
         )
 
       {:error, reason} ->
-        Logger.warning("Organizations not found",
-          correlation_id: correlation_id,
-          organization_name: query.name,
-          reason: reason
-        )
+        metadata =
+          [correlation_id: correlation_id, organization_name: query.name] ++
+            ErrorMetadata.from_reason(reason)
+
+        Logger.warning("Organizations not found", metadata)
     end
 
     result

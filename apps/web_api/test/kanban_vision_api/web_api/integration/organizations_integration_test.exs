@@ -55,6 +55,22 @@ defmodule KanbanVisionApi.WebApi.Integration.OrganizationsIntegrationTest do
 
       assert conn.status == 422
     end
+
+    test "returns 409 when organization already exists" do
+      org = create_organization("Duplicated Integration Org")
+
+      conn =
+        :post
+        |> conn("/api/v1/organizations", Jason.encode!(%{name: "Duplicated Integration Org"}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 409
+      assert Jason.decode!(conn.resp_body)["error"] ==
+               "Organization with name: Duplicated Integration Org already exist"
+
+      cleanup_organization(org["id"])
+    end
   end
 
   describe "GET /api/v1/organizations/:id" do

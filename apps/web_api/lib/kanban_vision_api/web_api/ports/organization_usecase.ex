@@ -6,22 +6,25 @@ defmodule KanbanVisionApi.WebApi.Ports.OrganizationUsecase do
   enabling Mox-based unit testing of controllers.
   """
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Usecase.Organization.CreateOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
 
+  @type error_reason :: ApplicationError.t() | atom()
+
   @callback get_all(opts :: keyword()) :: {:ok, map()}
 
   @callback get_by_id(GetOrganizationByIdQuery.t(), opts :: keyword()) ::
-              {:ok, any()} | {:error, String.t()}
+              {:ok, any()} | {:error, error_reason()}
 
   @callback get_by_name(GetOrganizationByNameQuery.t(), opts :: keyword()) ::
-              {:ok, list()} | {:error, String.t()}
+              {:ok, list()} | {:error, error_reason()}
 
   @callback add(CreateOrganizationCommand.t(), opts :: keyword()) ::
-              {:ok, any()} | {:error, String.t()}
+              {:ok, any()} | {:error, error_reason()}
 
   @callback delete(DeleteOrganizationCommand.t(), opts :: keyword()) ::
-              {:ok, any()} | {:error, String.t()}
+              {:ok, any()} | {:error, error_reason()}
 end

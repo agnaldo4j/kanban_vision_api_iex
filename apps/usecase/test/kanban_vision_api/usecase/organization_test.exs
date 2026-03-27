@@ -1,6 +1,7 @@
 defmodule KanbanVisionApi.Usecase.OrganizationTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Usecase.Organization
   alias KanbanVisionApi.Usecase.Organization.CreateOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
@@ -48,12 +49,22 @@ defmodule KanbanVisionApi.Usecase.OrganizationTest do
 
     test "should return error for non-existent id", %{pid: pid} do
       {:ok, query} = GetOrganizationByIdQuery.new("invalid")
-      assert {:error, _} = Organization.get_by_id(pid, query)
+
+      assert Organization.get_by_id(pid, query) ==
+               ApplicationError.not_found(
+                 "Organization with id: invalid not found",
+                 %{entity: :organization, id: "invalid"}
+               )
     end
 
     test "should return error for non-existent name", %{pid: pid} do
       {:ok, query} = GetOrganizationByNameQuery.new("Invalid")
-      assert {:error, _} = Organization.get_by_name(pid, query)
+
+      assert Organization.get_by_name(pid, query) ==
+               ApplicationError.not_found(
+                 "Organization with name: Invalid not found",
+                 %{entity: :organization, field: :name, name: "Invalid"}
+               )
     end
 
     test "should not allow duplicate organization names", %{pid: pid} do
@@ -61,7 +72,12 @@ defmodule KanbanVisionApi.Usecase.OrganizationTest do
       {:ok, _} = Organization.add(pid, cmd)
 
       {:ok, cmd2} = CreateOrganizationCommand.new("TestOrg")
-      assert {:error, _} = Organization.add(pid, cmd2)
+
+      assert Organization.add(pid, cmd2) ==
+               ApplicationError.conflict(
+                 "Organization with name: TestOrg already exist",
+                 %{entity: :organization, field: :name, name: "TestOrg"}
+               )
     end
 
     test "should reject invalid command", %{pid: _pid} do

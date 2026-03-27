@@ -5,6 +5,9 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   @behaviour KanbanVisionApi.Domain.Ports.BoardRepository
 
+  alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
+
   defmodule Runtime do
     @moduledoc false
 
@@ -38,7 +41,7 @@ defmodule KanbanVisionApi.Agent.Boards do
   @spec runtime(pid()) :: runtime()
   def runtime(pid), do: %Runtime{pid: pid}
 
-  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Board{} = new_board) do
+  def add(%Runtime{pid: pid}, %Board{} = new_board) do
     Agent.get_and_update(pid, fn state ->
       case get_by_board(state.boards, new_board) do
         {:error, _} ->
@@ -51,11 +54,7 @@ defmodule KanbanVisionApi.Agent.Boards do
           {{:ok, new_board}, new_state}
 
         {:ok, _} ->
-          {{:error,
-            """
-            Board with name: #{new_board.name}
-            from simulation_id: #{new_board.simulation_id} already exist
-            """}, state}
+          {conflict_by_name_and_simulation_id(new_board.name, new_board.simulation_id), state}
       end
     end)
   end
@@ -63,7 +62,7 @@ defmodule KanbanVisionApi.Agent.Boards do
   def get_by_id(%Runtime{pid: pid}, board_id) do
     Agent.get(pid, fn state ->
       case Map.get(state.boards, board_id) do
-        nil -> {:error, "Board with id: #{board_id} not found"}
+        nil -> not_found_by_id(board_id)
         board -> {:ok, board}
       end
     end)
@@ -77,7 +76,7 @@ defmodule KanbanVisionApi.Agent.Boards do
     Agent.get_and_update(pid, fn state ->
       case Map.get(state.boards, board_id) do
         nil ->
-          {{:error, "Board with id: #{board_id} not found"}, state}
+          {not_found_by_id(board_id), state}
 
         board ->
           new_state = put_in(state.boards, Map.delete(state.boards, board_id))
@@ -100,7 +99,7 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defp prepare_by_boards_result(result_list, simulation_id) do
     case result_list do
-      [] -> {:error, "Boards by simulation_id: #{simulation_id} not found"}
+      [] -> not_found_by_simulation_id(simulation_id)
       _ -> {:ok, result_list}
     end
   end
@@ -117,12 +116,40 @@ defmodule KanbanVisionApi.Agent.Boards do
         boards_by_name = Enum.filter(filtered_boards, fn board -> board.name == name end)
 
         case boards_by_name do
-          [] -> {:error, "Boards by name: #{name} and simulation_id: #{simulation_id} not found"}
+          [] -> not_found_by_name_and_simulation_id(name, simulation_id)
           _ -> {:ok, boards_by_name}
         end
 
       _ ->
         result
     end
+  end
+
+  defp not_found_by_id(board_id) do
+    ApplicationError.not_found(
+      "Board with id: #{board_id} not found",
+      %{entity: :board, id: board_id}
+    )
+  end
+
+  defp not_found_by_simulation_id(simulation_id) do
+    ApplicationError.not_found(
+      "Boards by simulation_id: #{simulation_id} not found",
+      %{entity: :board, field: :simulation_id, simulation_id: simulation_id}
+    )
+  end
+
+  defp not_found_by_name_and_simulation_id(name, simulation_id) do
+    ApplicationError.not_found(
+      "Boards by name: #{name} and simulation_id: #{simulation_id} not found",
+      %{entity: :board, field: :name, name: name, simulation_id: simulation_id}
+    )
+  end
+
+  defp conflict_by_name_and_simulation_id(name, simulation_id) do
+    ApplicationError.conflict(
+      "Board with name: #{name} from simulation_id: #{simulation_id} already exist",
+      %{entity: :board, field: :name, name: name, simulation_id: simulation_id}
+    )
   end
 end

@@ -5,6 +5,9 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   @behaviour KanbanVisionApi.Domain.Ports.SimulationRepository
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
+  alias KanbanVisionApi.Domain.Simulation
+
   defmodule Runtime do
     @moduledoc false
 
@@ -42,7 +45,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
     Agent.get(pid, fn state -> state.simulations_by_organization end)
   end
 
-  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Simulation{} = new_simulation) do
+  def add(%Runtime{pid: pid}, %Simulation{} = new_simulation) do
     Agent.get_and_update(pid, fn state ->
       result =
         internal_find_by_org_and_name(
@@ -80,11 +83,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
           {{:ok, new_simulation}, new_state}
 
         {:ok, _} ->
-          {{:error,
-            """
-            Simulation with organization_id: #{new_simulation.organization_id}
-            name: #{new_simulation.name} already exist
-            """}, state}
+          {conflict_by_org_and_name(new_simulation.organization_id, new_simulation.name), state}
       end
     end)
   end
@@ -134,7 +133,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
       |> Enum.find(fn sim -> sim.id == simulation_id end)
 
     case result do
-      nil -> {:error, "Simulation with id: #{simulation_id} not found"}
+      nil -> not_found_by_id(simulation_id)
       simulation -> {:ok, simulation}
     end
   end
@@ -142,7 +141,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
   defp internal_find_by_org_and_name(state, organization_id, simulation_name) do
     case Map.get(state.simulations_by_organization, organization_id) do
       nil ->
-        {:error, "Simulation with organization id: #{organization_id} not found"}
+        not_found_by_organization_id(organization_id)
 
       map_of_simulations ->
         find_by_simulation_name(map_of_simulations, organization_id, simulation_name)
@@ -151,7 +150,7 @@ defmodule KanbanVisionApi.Agent.Simulations do
 
   defp find_by_simulation_name(map_of_simulations, organization_id, simulation_name) do
     case Map.values(map_of_simulations) do
-      [] -> {:error, "Simulation with organization id: #{organization_id} not found"}
+      [] -> not_found_by_organization_id(organization_id)
       list_of_simulations -> find_by_simulation_name(list_of_simulations, simulation_name)
     end
   end
@@ -161,8 +160,41 @@ defmodule KanbanVisionApi.Agent.Simulations do
            list_of_simulations,
            fn simulation -> simulation.name == simulation_name end
          ) do
-      nil -> {:error, "Simulation with name: #{simulation_name} not found"}
+      nil -> not_found_by_name(simulation_name)
       simulation -> {:ok, simulation}
     end
+  end
+
+  defp not_found_by_id(simulation_id) do
+    ApplicationError.not_found(
+      "Simulation with id: #{simulation_id} not found",
+      %{entity: :simulation, id: simulation_id}
+    )
+  end
+
+  defp not_found_by_organization_id(organization_id) do
+    ApplicationError.not_found(
+      "Simulation with organization id: #{organization_id} not found",
+      %{entity: :simulation, field: :organization_id, organization_id: organization_id}
+    )
+  end
+
+  defp not_found_by_name(simulation_name) do
+    ApplicationError.not_found(
+      "Simulation with name: #{simulation_name} not found",
+      %{entity: :simulation, field: :name, name: simulation_name}
+    )
+  end
+
+  defp conflict_by_org_and_name(organization_id, simulation_name) do
+    ApplicationError.conflict(
+      "Simulation with organization_id: #{organization_id} name: #{simulation_name} already exist",
+      %{
+        entity: :simulation,
+        field: :name,
+        name: simulation_name,
+        organization_id: organization_id
+      }
+    )
   end
 end

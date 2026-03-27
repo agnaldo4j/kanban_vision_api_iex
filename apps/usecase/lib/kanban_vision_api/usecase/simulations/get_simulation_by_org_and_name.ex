@@ -7,12 +7,13 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.SimulationRepository
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
 
-  @type result ::
-          {:ok, KanbanVisionApi.Domain.Simulation.t()} | {:error, String.t()}
+  @type result :: ApplicationError.result(KanbanVisionApi.Domain.Simulation.t())
 
   @spec execute(
           GetSimulationByOrgAndNameQuery.t(),
@@ -48,12 +49,14 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName do
         {:ok, simulation}
 
       {:error, reason} = error ->
-        Logger.warning("Simulation not found",
-          correlation_id: correlation_id,
-          organization_id: query.organization_id,
-          simulation_name: query.name,
-          reason: reason
-        )
+        metadata =
+          [
+            correlation_id: correlation_id,
+            organization_id: query.organization_id,
+            simulation_name: query.name
+          ] ++ ErrorMetadata.from_reason(reason)
+
+        Logger.warning("Simulation not found", metadata)
 
         error
     end

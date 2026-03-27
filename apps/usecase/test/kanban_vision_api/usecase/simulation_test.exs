@@ -2,6 +2,7 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
   use ExUnit.Case, async: true
 
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Usecase.Simulation
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
@@ -35,7 +36,12 @@ defmodule KanbanVisionApi.Usecase.SimulationTest do
 
     test "should return error for non-existent simulation", %{pid: pid} do
       {:ok, query} = GetSimulationByOrgAndNameQuery.new("invalid", "Invalid")
-      assert {:error, _} = Simulation.get_by_org_and_name(pid, query)
+
+      assert Simulation.get_by_org_and_name(pid, query) ==
+               ApplicationError.not_found(
+                 "Simulation with organization id: invalid not found",
+                 %{entity: :simulation, field: :organization_id, organization_id: "invalid"}
+               )
     end
 
     test "should reject invalid command", %{pid: _pid} do
