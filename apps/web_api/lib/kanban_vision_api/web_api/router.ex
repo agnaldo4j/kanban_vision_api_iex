@@ -13,10 +13,13 @@ defmodule KanbanVisionApi.WebApi.Router do
   alias KanbanVisionApi.WebApi.Plugs.CorrelationId
   alias KanbanVisionApi.WebApi.Plugs.RequestLogger
   alias KanbanVisionApi.WebApi.Simulations.SimulationController
+  alias OpenApiSpex.Plug.PutApiSpec
+  alias OpenApiSpex.Plug.RenderSpec
+  alias OpenApiSpex.Plug.SwaggerUI
 
   plug CorrelationId
   plug RequestLogger
-  plug OpenApiSpex.Plug.PutApiSpec, module: Spec
+  plug PutApiSpec, module: Spec
 
   plug Plug.Parsers,
     parsers: [:json],
@@ -30,13 +33,13 @@ defmodule KanbanVisionApi.WebApi.Router do
   # OpenAPI documentation routes
 
   get "/api/openapi" do
-    opts = OpenApiSpex.Plug.RenderSpec.init([])
-    OpenApiSpex.Plug.RenderSpec.call(conn, opts)
+    opts = RenderSpec.init([])
+    RenderSpec.call(conn, opts)
   end
 
   get "/api/swagger" do
-    opts = OpenApiSpex.Plug.SwaggerUI.init(path: "/api/openapi")
-    OpenApiSpex.Plug.SwaggerUI.call(conn, opts)
+    opts = SwaggerUI.init(path: "/api/openapi")
+    SwaggerUI.call(conn, opts)
   end
 
   # Organization routes — /search before /:id

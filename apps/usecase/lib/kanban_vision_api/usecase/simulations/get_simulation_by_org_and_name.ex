@@ -7,14 +7,19 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.SimulationRepository
   alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
 
   @type result ::
           {:ok, KanbanVisionApi.Domain.Simulation.t()} | {:error, String.t()}
 
-  @spec execute(GetSimulationByOrgAndNameQuery.t(), pid(), keyword()) :: result()
-  def execute(%GetSimulationByOrgAndNameQuery{} = query, repository_pid, opts \\ []) do
+  @spec execute(
+          GetSimulationByOrgAndNameQuery.t(),
+          SimulationRepository.repository_runtime(),
+          keyword()
+        ) :: result()
+  def execute(%GetSimulationByOrgAndNameQuery{} = query, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
@@ -26,7 +31,7 @@ defmodule KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName do
 
     result =
       repository.get_by_organization_id_and_simulation_name(
-        repository_pid,
+        repository_runtime,
         query.organization_id,
         query.name
       )

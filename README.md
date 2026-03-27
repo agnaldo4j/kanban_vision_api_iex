@@ -106,11 +106,11 @@ Each business operation has a dedicated Use Case module with **logging**, **tele
 ```elixir
 # Use Case structure
 defmodule Organizations.CreateOrganization do
-  def execute(cmd, repository_pid, opts \\ []) do
+  def execute(cmd, repository_runtime, opts \\ []) do
     Logger.info("Creating organization", ...)  # 📊 Observability
     organization = Organization.new(cmd.name)
 
-    case OrganizationRepository.add(repository_pid, organization) do
+    case OrganizationRepository.add(repository_runtime, organization) do
       {:ok, org} ->
         emit_telemetry_event(...)               # 📈 Metrics
         {:ok, org}
@@ -221,7 +221,7 @@ apps/
 - ✅ **Early Failure** — invalid input rejected before domain logic executes
 
 ### **4. Repository Pattern (Ports & Adapters)**
-- 🔌 **Agents use pid-based access** (no atom name registration) to avoid atom table exhaustion
+- 🔌 **Agents stay internal to persistence adapters** through opaque runtimes (still no atom name registration)
 - 🔌 **Agent mutations use `Agent.get_and_update`** (not separate get + update) to prevent race conditions
 - 🔌 **Agents implement @behaviour Ports** — easy to swap implementations (e.g., Postgres adapter)
 

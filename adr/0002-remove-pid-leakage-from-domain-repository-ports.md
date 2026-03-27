@@ -1,6 +1,6 @@
 # 0002. Remove PID Leakage From Domain Repository Ports
 
-- Status: planned
+- Status: accepted
 - Date: 2026-03-27
 - Supersedes: none
 - Related: 0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence
@@ -114,7 +114,7 @@ Why it is preferred:
 - Remove `pid` from behaviour callbacks.
 
 Status:
-- Planned.
+- Completed on 2026-03-27.
 
 ### Phase 2: Application Boundary Adaptation
 
@@ -124,7 +124,7 @@ Status:
 - Keep GenServer only as orchestration/runtime mechanism, not as a port shape.
 
 Status:
-- Planned.
+- Completed on 2026-03-27.
 
 ### Phase 3: Adapter Migration
 
@@ -134,7 +134,7 @@ Status:
 - Preserve the current in-memory behavior.
 
 Status:
-- Planned.
+- Completed on 2026-03-27.
 
 ### Phase 4: Test And Documentation Alignment
 
@@ -143,7 +143,7 @@ Status:
 - Validate that ADR 0001 remains respected after the change.
 
 Status:
-- Planned.
+- Completed on 2026-03-27.
 
 ## Acceptance Criteria For Future Implementation
 
@@ -155,5 +155,9 @@ Status:
 
 ## Notes
 
-This ADR records planning only. It does not authorize or imply implementation in
-the current session.
+Implementation completed on 2026-03-27 with these boundaries:
+
+- domain ports now accept opaque repository runtimes instead of `pid`
+- `usecase` orchestrators store `repository_runtime` and delegate through ports
+- Agent adapters encapsulate the raw `pid` in runtime structs
+- contract and adapter tests were updated to the new boundary

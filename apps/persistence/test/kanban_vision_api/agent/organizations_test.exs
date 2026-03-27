@@ -11,42 +11,42 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     @tag :domain_organizations
     test "should not have any organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations
          } = _context do
       template = %{}
-      assert Organizations.get_all(pid) == template
+      assert Organizations.get_all(repository_runtime) == template
     end
 
     @tag :domain_organizations
     test "should be able to add new organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations
          } = _context do
       domain = Organization.new("ExampleOrg")
-      assert Organizations.add(pid, domain) == {:ok, domain}
+      assert Organizations.add(repository_runtime, domain) == {:ok, domain}
     end
 
     @tag :domain_organizations
     test "should be able to delete an existent organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations
          } = _context do
       domain = Organization.new("ExampleOrg")
-      assert Organizations.add(pid, domain) == {:ok, domain}
-      assert Organizations.delete(pid, domain.id) == {:ok, domain}
+      assert Organizations.add(repository_runtime, domain) == {:ok, domain}
+      assert Organizations.delete(repository_runtime, domain.id) == {:ok, domain}
     end
 
     @tag :domain_organizations
     test "should not be able to delete a non-existent organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations
          } = _context do
       template = {:error, "Organization with id: nada not found"}
-      assert Organizations.delete(pid, :nada) == template
+      assert Organizations.delete(repository_runtime, :nada) == template
     end
   end
 
@@ -56,75 +56,76 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     @tag :domain_organizations
     test "should has one organization",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: my_domain
          } = _context do
       template = %{my_domain.id => my_domain}
 
-      assert Organizations.get_all(pid) == template
+      assert Organizations.get_all(repository_runtime) == template
     end
 
     @tag :domain_organizations
     test "should be possible to find the organization by the id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: domain
          } = _context do
-      assert Organizations.get_by_id(pid, domain.id) == {:ok, domain}
+      assert Organizations.get_by_id(repository_runtime, domain.id) == {:ok, domain}
     end
 
     @tag :domain_organizations
     test "should be possible to find the organization by the name",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: domain
          } = _context do
-      assert Organizations.get_by_name(pid, domain.name) == {:ok, [domain]}
+      assert Organizations.get_by_name(repository_runtime, domain.name) == {:ok, [domain]}
     end
 
     @tag :domain_organizations
     test "should not be possible to find the organization by the wrong id",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: _domain
          } = _context do
       template = {:error, "Organization with id: nada not found"}
-      assert Organizations.get_by_id(pid, :nada) == template
+      assert Organizations.get_by_id(repository_runtime, :nada) == template
     end
 
     @tag :domain_organizations
     test "should no be possible to find the organization by the wrong name",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: _domain
          } = _context do
       template = {:error, "Organization with name: Invalid Name not found"}
-      assert Organizations.get_by_name(pid, "Invalid Name") == template
+      assert Organizations.get_by_name(repository_runtime, "Invalid Name") == template
     end
 
     @tag :domain_organizations
     test "should no be possible to add one organization with the name already exist",
          %{
-           actor_pid: pid,
+           repository_runtime: repository_runtime,
            organizations: _organizations,
            domain: domain
          } = _context do
       template = {:error, "Organization with name: ExampleOrg already exist"}
-      assert Organizations.add(pid, domain) == template
+      assert Organizations.add(repository_runtime, domain) == template
     end
   end
 
   defp prepare_empty_context(_context) do
     organizations_domain = Organizations.new()
-    {:ok, pid} = Organizations.start_link(organizations_domain)
+    {:ok, repository_pid} = Organizations.start_link(organizations_domain)
+    repository_runtime = Organizations.runtime(repository_pid)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       organizations: organizations_domain
     ]
   end
@@ -135,10 +136,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
     initial_state =
       Organizations.new(%{organization_domain.id => organization_domain})
 
-    {:ok, pid} = Organizations.start_link(initial_state)
+    {:ok, repository_pid} = Organizations.start_link(initial_state)
+    repository_runtime = Organizations.runtime(repository_pid)
 
     [
-      actor_pid: pid,
+      repository_runtime: repository_runtime,
       organizations: initial_state,
       domain: organization_domain
     ]

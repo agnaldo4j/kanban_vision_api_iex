@@ -8,6 +8,7 @@ defmodule KanbanVisionApi.Usecase.Simulation do
 
   use GenServer
 
+  alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.DeleteSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
@@ -15,7 +16,6 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   alias KanbanVisionApi.Usecase.Simulations.DeleteSimulation
   alias KanbanVisionApi.Usecase.Simulations.GetAllSimulations
   alias KanbanVisionApi.Usecase.Simulations.GetSimulationByOrgAndName
-  alias KanbanVisionApi.Usecase.RepositoryConfig
 
   # Client API
 
@@ -43,32 +43,33 @@ defmodule KanbanVisionApi.Usecase.Simulation do
   @impl true
   def init(opts) do
     repository = Keyword.fetch!(opts, :repository)
-    {:ok, agent_pid} = repository.start_link()
-    {:ok, %{repository_pid: agent_pid, repository: repository}}
+    {:ok, repository_pid} = repository.start_link()
+    repository_runtime = repository.runtime(repository_pid)
+    {:ok, %{repository_runtime: repository_runtime, repository: repository}}
   end
 
   @impl true
   def handle_call({:get_all, opts}, _from, state) do
-    result = GetAllSimulations.execute(state.repository_pid, enrich_opts(opts, state))
+    result = GetAllSimulations.execute(state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:add, cmd, opts}, _from, state) do
-    result = CreateSimulation.execute(cmd, state.repository_pid, enrich_opts(opts, state))
+    result = CreateSimulation.execute(cmd, state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:delete, cmd, opts}, _from, state) do
-    result = DeleteSimulation.execute(cmd, state.repository_pid, enrich_opts(opts, state))
+    result = DeleteSimulation.execute(cmd, state.repository_runtime, enrich_opts(opts, state))
     {:reply, result, state}
   end
 
   @impl true
   def handle_call({:get_by_org_and_name, query, opts}, _from, state) do
     result =
-      GetSimulationByOrgAndName.execute(query, state.repository_pid, enrich_opts(opts, state))
+      GetSimulationByOrgAndName.execute(query, state.repository_runtime, enrich_opts(opts, state))
 
     {:reply, result, state}
   end

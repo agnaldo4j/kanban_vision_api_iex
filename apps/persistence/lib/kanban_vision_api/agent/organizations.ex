@@ -5,12 +5,21 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   @behaviour KanbanVisionApi.Domain.Ports.OrganizationRepository
 
+  defmodule Runtime do
+    @moduledoc false
+
+    @enforce_keys [:pid]
+    defstruct [:pid]
+  end
+
   defstruct [:id, :organizations]
 
   @type t :: %__MODULE__{
           id: String.t(),
           organizations: map()
         }
+
+  @opaque runtime :: %Runtime{pid: pid()}
 
   def new(organizations \\ %{}, id \\ UUID.uuid4()) do
     %__MODULE__{
@@ -26,11 +35,14 @@ defmodule KanbanVisionApi.Agent.Organizations do
     Agent.start_link(fn -> default end)
   end
 
-  def get_all(pid) do
+  @spec runtime(pid()) :: runtime()
+  def runtime(pid), do: %Runtime{pid: pid}
+
+  def get_all(%Runtime{pid: pid}) do
     Agent.get(pid, fn state -> state.organizations end)
   end
 
-  def get_by_id(pid, domain_id) do
+  def get_by_id(%Runtime{pid: pid}, domain_id) do
     Agent.get(pid, fn state ->
       case Map.get(state.organizations, domain_id) do
         nil -> {:error, "Organization with id: #{domain_id} not found"}
@@ -39,13 +51,13 @@ defmodule KanbanVisionApi.Agent.Organizations do
     end)
   end
 
-  def get_by_name(pid, domain_name) do
+  def get_by_name(%Runtime{pid: pid}, domain_name) do
     Agent.get(pid, fn state ->
       internal_get_by_name(state.organizations, domain_name)
     end)
   end
 
-  def add(pid, %KanbanVisionApi.Domain.Organization{} = new_organization) do
+  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Organization{} = new_organization) do
     Agent.get_and_update(pid, fn state ->
       case internal_get_by_name(state.organizations, new_organization.name) do
         {:error, _} ->
@@ -59,7 +71,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
     end)
   end
 
-  def delete(pid, domain_id) do
+  def delete(%Runtime{pid: pid}, domain_id) do
     Agent.get_and_update(pid, fn state ->
       case Map.get(state.organizations, domain_id) do
         nil ->

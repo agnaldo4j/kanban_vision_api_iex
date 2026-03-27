@@ -20,7 +20,7 @@ Keep business logic in use cases and domain modules. Controllers, routers, jobs,
 - Follow CQS, not CQRS for now: use cases receive either a command or a query DTO, never mixed ad-hoc parameters from adapters.
 - Domain code must not depend on HTTP, Plug, Agent, GenServer, or persistence details.
 - Repository mutations must use `Agent.get_and_update/3` for atomicity.
-- Agent access is pid-based; do not introduce atom registration.
+- Agent access stays internal to persistence adapters; do not expose raw `pid` in domain ports or introduce atom registration.
 - GenServers orchestrate and delegate. They do not own business rules.
 - New business flows must include structured logging and telemetry.
 

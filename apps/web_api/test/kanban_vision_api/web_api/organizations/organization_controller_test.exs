@@ -6,8 +6,8 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
   import Plug.Test
 
   alias KanbanVisionApi.Domain.Organization
-  alias KanbanVisionApi.WebApi.OrganizationUsecaseMock
   alias KanbanVisionApi.WebApi.Organizations.OrganizationController
+  alias KanbanVisionApi.WebApi.OrganizationUsecaseMock
 
   setup :verify_on_exit!
 

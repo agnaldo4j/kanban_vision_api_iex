@@ -13,40 +13,45 @@ defmodule KanbanVisionApi.Agent.SimulationRepositoryContractTest do
 
   describe "SimulationRepository contract" do
     setup do
-      {:ok, pid} = Simulations.start_link()
-      [repository_pid: pid]
+      {:ok, repository_pid} = Simulations.start_link()
+      repository_runtime = Simulations.runtime(repository_pid)
+      [repository_runtime: repository_runtime]
     end
 
-    test "implements get_all/1 callback", %{repository_pid: pid} do
+    test "implements get_all/1 callback", %{repository_runtime: repository_runtime} do
       assert function_exported?(Simulations, :get_all, 1)
-      assert is_map(Simulations.get_all(pid))
+      assert is_map(Simulations.get_all(repository_runtime))
     end
 
-    test "implements add/2 callback", %{repository_pid: pid} do
+    test "implements add/2 callback", %{repository_runtime: repository_runtime} do
       assert function_exported?(Simulations, :add, 2)
 
       org_id = UUID.uuid4()
       sim = Simulation.new("TestSim", "Description", org_id)
-      assert {:ok, added} = Simulations.add(pid, sim)
+      assert {:ok, added} = Simulations.add(repository_runtime, sim)
       assert added.id == sim.id
       assert added.name == "TestSim"
     end
 
     test "implements get_by_organization_id_and_simulation_name/3 callback", %{
-      repository_pid: pid
+      repository_runtime: repository_runtime
     } do
       assert function_exported?(Simulations, :get_by_organization_id_and_simulation_name, 3)
 
       org_id = UUID.uuid4()
       sim = Simulation.new("FindableSim", "Description", org_id)
-      {:ok, created} = Simulations.add(pid, sim)
+      {:ok, created} = Simulations.add(repository_runtime, sim)
 
       assert {:ok, ^created} =
-               Simulations.get_by_organization_id_and_simulation_name(pid, org_id, "FindableSim")
+               Simulations.get_by_organization_id_and_simulation_name(
+                 repository_runtime,
+                 org_id,
+                 "FindableSim"
+               )
 
       assert {:error, _} =
                Simulations.get_by_organization_id_and_simulation_name(
-                 pid,
+                 repository_runtime,
                  org_id,
                  "NonExistentSim"
                )

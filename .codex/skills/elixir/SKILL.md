@@ -27,7 +27,7 @@ mix format
 ## Repository-Specific Rules
 
 - `apps/kanban_domain` stays pure: no HTTP, Agent, or GenServer dependencies.
-- `apps/persistence` implements domain ports with Agents and pid-based access.
+- `apps/persistence` implements domain ports with Agents while keeping raw `pid` access internal to the adapter runtime.
 - `apps/usecase` contains one use case per operation; GenServers orchestrate only.
 - `apps/web_api` adapts HTTP requests to commands and queries through Plug + Bandit.
 - Commands and queries should validate at construction time through factory functions.

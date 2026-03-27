@@ -8,13 +8,18 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationById do
   require Logger
 
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.OrganizationRepository
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, Organization.t()} | {:error, String.t()}
 
-  @spec execute(GetOrganizationByIdQuery.t(), pid(), keyword()) :: result()
-  def execute(%GetOrganizationByIdQuery{} = query, repository_pid, opts \\ []) do
+  @spec execute(
+          GetOrganizationByIdQuery.t(),
+          OrganizationRepository.repository_runtime(),
+          keyword()
+        ) :: result()
+  def execute(%GetOrganizationByIdQuery{} = query, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
@@ -23,7 +28,7 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationById do
       organization_id: query.id
     )
 
-    result = repository.get_by_id(repository_pid, query.id)
+    result = repository.get_by_id(repository_runtime, query.id)
 
     case result do
       {:ok, org} ->

@@ -9,14 +9,20 @@ defmodule KanbanVisionApi.Usecase.Organizations.CreateOrganization do
   require Logger
 
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.OrganizationRepository
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.Organization.CreateOrganizationCommand
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
   @type result :: {:ok, Organization.t()} | {:error, String.t()}
 
-  @spec execute(CreateOrganizationCommand.t(), pid(), keyword()) :: result()
-  def execute(%CreateOrganizationCommand{} = cmd, repository_pid, opts \\ []) do
+  @spec execute(
+          CreateOrganizationCommand.t(),
+          OrganizationRepository.repository_runtime(),
+          keyword()
+        ) ::
+          result()
+  def execute(%CreateOrganizationCommand{} = cmd, repository_runtime, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
     repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
@@ -28,7 +34,7 @@ defmodule KanbanVisionApi.Usecase.Organizations.CreateOrganization do
 
     organization = Organization.new(cmd.name, cmd.tribes)
 
-    case repository.add(repository_pid, organization) do
+    case repository.add(repository_runtime, organization) do
       {:ok, org} ->
         Logger.info("Organization created successfully",
           correlation_id: correlation_id,
