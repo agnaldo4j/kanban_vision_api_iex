@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flow"
+  short_description: "Flow pipeline guidance for this repository"
+  default_prompt: "Use $flow to evaluate or implement a Flow-based pipeline in this repository."

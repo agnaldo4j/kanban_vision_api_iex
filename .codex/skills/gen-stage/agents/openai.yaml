@@ -1,0 +1,4 @@
+interface:
+  display_name: "GenStage"
+  short_description: "GenStage pipeline guidance for this repository"
+  default_prompt: "Use $gen-stage to design or review a GenStage pipeline in this repository."

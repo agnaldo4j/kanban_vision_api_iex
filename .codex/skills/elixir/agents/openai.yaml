@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elixir"
+  short_description: "Elixir workflow guidance for this repository"
+  default_prompt: "Use $elixir to guide an implementation in this Kanban Vision API umbrella project."

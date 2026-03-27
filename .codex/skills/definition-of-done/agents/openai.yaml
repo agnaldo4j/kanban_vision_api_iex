@@ -1,0 +1,4 @@
+interface:
+  display_name: "Definition of Done"
+  short_description: "Closure checklist for Kanban Vision API work"
+  default_prompt: "Use $definition-of-done to verify whether this Kanban Vision API task is actually complete."
