@@ -10,6 +10,7 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
 
   alias KanbanVisionApi.Domain.Simulation
   alias KanbanVisionApi.Usecase.EventEmitter
+  alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
 
   @type result :: {:ok, Simulation.t()} | {:error, String.t()}
@@ -17,7 +18,7 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
   @spec execute(CreateSimulationCommand.t(), pid(), keyword()) :: result()
   def execute(%CreateSimulationCommand{} = cmd, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.fetch!(opts, :repository)
+    repository = RepositoryConfig.fetch_from_opts!(__MODULE__, opts)
 
     Logger.info("Creating simulation",
       correlation_id: correlation_id,

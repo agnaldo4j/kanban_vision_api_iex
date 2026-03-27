@@ -16,4 +16,17 @@ defmodule KanbanVisionApi.Usecase.RepositoryConfig do
 
     Keyword.fetch!(repositories, key)
   end
+
+  @spec fetch_from_opts!(module(), keyword()) :: module()
+  def fetch_from_opts!(caller, opts) when is_list(opts) do
+    case Keyword.fetch(opts, :repository) do
+      {:ok, repository} ->
+        repository
+
+      :error ->
+        raise ArgumentError,
+              "missing required :repository option when calling " <>
+                "#{inspect(caller)}.execute/3. Ensure repository wiring is configured."
+    end
+  end
 end

@@ -11,5 +11,5 @@ This directory stores the project's Architectural Decision Records (ADRs).
 
 ## Index
 
-- [0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence](/Users/agnaldo4j/workspace/elixir/kanban_vision_api_iex/adr/0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence.md)
-- [0002-remove-pid-leakage-from-domain-repository-ports](/Users/agnaldo4j/workspace/elixir/kanban_vision_api_iex/adr/0002-remove-pid-leakage-from-domain-repository-ports.md)
+- [0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence](0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence.md)
+- [0002-remove-pid-leakage-from-domain-repository-ports](0002-remove-pid-leakage-from-domain-repository-ports.md)
