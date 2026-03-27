@@ -10,14 +10,12 @@ defmodule KanbanVisionApi.Usecase.Organizations.GetOrganizationById do
   alias KanbanVisionApi.Domain.Organization
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
 
-  @default_repository KanbanVisionApi.Agent.Organizations
-
   @type result :: {:ok, Organization.t()} | {:error, String.t()}
 
   @spec execute(GetOrganizationByIdQuery.t(), pid(), keyword()) :: result()
   def execute(%GetOrganizationByIdQuery{} = query, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = Keyword.fetch!(opts, :repository)
 
     Logger.debug("Retrieving organization by ID",
       correlation_id: correlation_id,

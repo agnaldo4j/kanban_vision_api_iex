@@ -12,14 +12,12 @@ defmodule KanbanVisionApi.Usecase.Simulations.DeleteSimulation do
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.Simulation.DeleteSimulationCommand
 
-  @default_repository KanbanVisionApi.Agent.Simulations
-
   @type result :: {:ok, Simulation.t()} | {:error, String.t()}
 
   @spec execute(DeleteSimulationCommand.t(), pid(), keyword()) :: result()
   def execute(%DeleteSimulationCommand{} = cmd, repository_pid, opts \\ []) do
     correlation_id = Keyword.get(opts, :correlation_id, UUID.uuid4())
-    repository = Keyword.get(opts, :repository, @default_repository)
+    repository = Keyword.fetch!(opts, :repository)
 
     Logger.info("Deleting simulation",
       correlation_id: correlation_id,
