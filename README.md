@@ -1,5 +1,7 @@
 [![Elixir CI](https://github.com/agnaldo4j/kanban_vision_api_iex/actions/workflows/elixir.yml/badge.svg)](https://github.com/agnaldo4j/kanban_vision_api_iex/actions/workflows/elixir.yml)
 [![Coverage Status](https://coveralls.io/repos/github/agnaldo4j/kanban_vision_api_iex/badge.svg?branch=main)](https://coveralls.io/github/agnaldo4j/kanban_vision_api_iex?branch=main)
+![Elixir](https://img.shields.io/badge/Elixir-1.18-4B275F)
+![OTP](https://img.shields.io/badge/OTP-28-8A2BE2)
 
 # Kanban Vision API
 
