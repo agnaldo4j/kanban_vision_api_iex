@@ -7,6 +7,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
 
   @behaviour OpenApiSpex.OpenApi
 
+  alias KanbanVisionApi.WebApi.OpenApi.Schemas.BoardSchema
   alias KanbanVisionApi.WebApi.OpenApi.Schemas.ErrorSchema
   alias KanbanVisionApi.WebApi.OpenApi.Schemas.OrganizationSchema
   alias KanbanVisionApi.WebApi.OpenApi.Schemas.SimulationSchema
@@ -26,6 +27,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
       paths: paths(),
       components: %OpenApiSpex.Components{
         schemas: %{
+          "Board" => BoardSchema.schema(),
           "Organization" => OrganizationSchema.schema(),
           "Simulation" => SimulationSchema.schema(),
           "Error" => ErrorSchema.schema()
@@ -34,6 +36,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
     }
   end
 
+  defp board_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Board"}
   defp org_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Organization"}
   defp sim_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Simulation"}
   defp error_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Error"}
@@ -44,6 +47,10 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
 
   defp sim_list_schema do
     %OpenApiSpex.Schema{type: :array, items: sim_ref()}
+  end
+
+  defp board_list_schema do
+    %OpenApiSpex.Schema{type: :array, items: board_ref()}
   end
 
   defp json_content(schema) do
@@ -279,6 +286,127 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
             200 => %OpenApiSpex.Response{
               description: "Deleted simulation",
               content: json_content(sim_ref())
+            },
+            404 => %OpenApiSpex.Response{
+              description: "Not found",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        }
+      },
+      "/api/v1/simulations/{simulation_id}/boards" => %OpenApiSpex.PathItem{
+        get: %OpenApiSpex.Operation{
+          summary: "List boards by simulation ID",
+          operationId: "listBoardsBySimulationId",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :simulation_id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Boards for the simulation",
+              content: json_content(board_list_schema())
+            },
+            404 => %OpenApiSpex.Response{
+              description: "Not found",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        },
+        post: %OpenApiSpex.Operation{
+          summary: "Create a board in a simulation",
+          operationId: "createBoard",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :simulation_id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          requestBody: %OpenApiSpex.RequestBody{
+            required: true,
+            content:
+              json_content(%OpenApiSpex.Schema{
+                type: :object,
+                properties: %{name: %OpenApiSpex.Schema{type: :string}},
+                required: [:name]
+              })
+          },
+          responses: %{
+            201 => %OpenApiSpex.Response{
+              description: "Board created",
+              content: json_content(board_ref())
+            },
+            409 => %OpenApiSpex.Response{
+              description: "Already exists",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        }
+      },
+      "/api/v1/boards/{id}" => %OpenApiSpex.PathItem{
+        get: %OpenApiSpex.Operation{
+          summary: "Get board by ID",
+          operationId: "getBoardById",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board",
+              content: json_content(board_ref())
+            },
+            404 => %OpenApiSpex.Response{
+              description: "Not found",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        },
+        delete: %OpenApiSpex.Operation{
+          summary: "Delete a board",
+          operationId: "deleteBoard",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Deleted board",
+              content: json_content(board_ref())
             },
             404 => %OpenApiSpex.Response{
               description: "Not found",

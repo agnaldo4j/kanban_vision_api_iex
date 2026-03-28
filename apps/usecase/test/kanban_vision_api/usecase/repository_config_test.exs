@@ -1,6 +1,7 @@
 defmodule KanbanVisionApi.Usecase.RepositoryConfigTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Agent.Boards
   alias KanbanVisionApi.Agent.Organizations
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
@@ -19,6 +20,22 @@ defmodule KanbanVisionApi.Usecase.RepositoryConfigTest do
       end)
 
       assert RepositoryConfig.fetch!(:organization) == Organizations
+    end
+
+    test "returns the configured board repository module" do
+      original = Application.get_env(:usecase, :repositories)
+
+      Application.put_env(:usecase, :repositories, board: Boards)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:usecase, :repositories, original)
+        else
+          Application.delete_env(:usecase, :repositories)
+        end
+      end)
+
+      assert RepositoryConfig.fetch!(:board) == Boards
     end
   end
 

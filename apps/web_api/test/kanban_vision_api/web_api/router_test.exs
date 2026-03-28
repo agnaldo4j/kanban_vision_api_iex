@@ -9,8 +9,10 @@ defmodule KanbanVisionApi.WebApi.RouterTest do
   import Plug.Conn
   import Plug.Test
 
+  alias KanbanVisionApi.Domain.Board
   alias KanbanVisionApi.Domain.Organization
   alias KanbanVisionApi.Domain.Simulation
+  alias KanbanVisionApi.WebApi.BoardUsecaseMock
   alias KanbanVisionApi.WebApi.OrganizationUsecaseMock
   alias KanbanVisionApi.WebApi.Router
   alias KanbanVisionApi.WebApi.SimulationUsecaseMock
@@ -22,15 +24,18 @@ defmodule KanbanVisionApi.WebApi.RouterTest do
   setup do
     Application.put_env(:web_api, :organization_usecase, OrganizationUsecaseMock)
     Application.put_env(:web_api, :simulation_usecase, SimulationUsecaseMock)
+    Application.put_env(:web_api, :board_usecase, BoardUsecaseMock)
 
     on_exit(fn ->
+      Application.delete_env(:web_api, :board_usecase)
       Application.delete_env(:web_api, :organization_usecase)
       Application.delete_env(:web_api, :simulation_usecase)
     end)
 
     org = Organization.new("RouterTestOrg")
     sim = Simulation.new("RouterTestSim", "desc", org.id)
-    %{org: org, sim: sim}
+    board = Board.new("RouterTestBoard", sim.id)
+    %{org: org, sim: sim, board: board}
   end
 
   describe "Organization routes" do
@@ -119,6 +124,49 @@ defmodule KanbanVisionApi.WebApi.RouterTest do
       stub(SimulationUsecaseMock, :delete, fn _cmd, _opts -> {:ok, sim} end)
 
       conn = conn(:delete, "/api/v1/simulations/#{sim.id}") |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+  end
+
+  describe "Board routes" do
+    test "GET /api/v1/simulations/:simulation_id/boards dispatches to get_by_simulation_id", %{
+      board: board
+    } do
+      stub(BoardUsecaseMock, :get_by_simulation_id, fn _query, _opts -> {:ok, [board]} end)
+
+      conn = conn(:get, "/api/v1/simulations/#{board.simulation_id}/boards") |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "POST /api/v1/simulations/:simulation_id/boards dispatches to create", %{board: board} do
+      stub(BoardUsecaseMock, :add, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :post
+        |> conn(
+          "/api/v1/simulations/#{board.simulation_id}/boards",
+          Jason.encode!(%{name: "RouterTestBoard"})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 201
+    end
+
+    test "GET /api/v1/boards/:id dispatches to get_by_id", %{board: board} do
+      stub(BoardUsecaseMock, :get_by_id, fn _query, _opts -> {:ok, board} end)
+
+      conn = conn(:get, "/api/v1/boards/#{board.id}") |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "DELETE /api/v1/boards/:id dispatches to delete", %{board: board} do
+      stub(BoardUsecaseMock, :delete, fn _cmd, _opts -> {:ok, board} end)
+
+      conn = conn(:delete, "/api/v1/boards/#{board.id}") |> Router.call(@opts)
 
       assert conn.status == 200
     end

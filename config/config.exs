@@ -34,7 +34,8 @@ config :web_api, port: 4000
 config :usecase,
   repositories: [
     organization: KanbanVisionApi.Agent.Organizations,
-    simulation: KanbanVisionApi.Agent.Simulations
+    simulation: KanbanVisionApi.Agent.Simulations,
+    board: KanbanVisionApi.Agent.Boards
   ]
 
 if config_env() == :test do

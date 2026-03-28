@@ -8,6 +8,7 @@ defmodule KanbanVisionApi.WebApi.Router do
 
   use Plug.Router
 
+  alias KanbanVisionApi.WebApi.Boards.BoardController
   alias KanbanVisionApi.WebApi.OpenApi.Spec
   alias KanbanVisionApi.WebApi.Organizations.OrganizationController
   alias KanbanVisionApi.WebApi.Plugs.CorrelationId
@@ -80,6 +81,24 @@ defmodule KanbanVisionApi.WebApi.Router do
 
   delete "/api/v1/simulations/:id" do
     SimulationController.call(conn, :delete)
+  end
+
+  # Board routes
+
+  get "/api/v1/simulations/:simulation_id/boards" do
+    BoardController.call(conn, :get_by_simulation_id)
+  end
+
+  post "/api/v1/simulations/:simulation_id/boards" do
+    BoardController.call(conn, :create)
+  end
+
+  get "/api/v1/boards/:id" do
+    BoardController.call(conn, :get_by_id)
+  end
+
+  delete "/api/v1/boards/:id" do
+    BoardController.call(conn, :delete)
   end
 
   match _ do
