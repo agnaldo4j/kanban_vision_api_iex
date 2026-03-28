@@ -435,7 +435,7 @@ Os command/query DTOs ainda podem retornar átomos de validação (`:invalid_nam
 mas os adapters externos devem trabalhar com erros estruturados:
 
 ```elixir
-{:error, %{code: :not_found, message: "...", details: %{...}}}
+{:error, %ApplicationError{code: :not_found, message: "...", details: %{...}}}
 ```
 
 O controller traduz isso para HTTP status codes usando `code`, sem depender do texto:

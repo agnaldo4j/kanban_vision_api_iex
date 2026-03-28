@@ -19,7 +19,8 @@ defmodule KanbanVisionApi.Domain.Ports.ApplicationError do
 
   @spec new(code(), String.t(), map()) :: t()
   def new(code, message, details \\ %{})
-      when is_atom(code) and is_binary(message) and is_map(details) do
+      when code in [:invalid_input, :not_found, :conflict, :internal_error] and
+             is_binary(message) and is_map(details) do
     %__MODULE__{code: code, message: message, details: details}
   end
 

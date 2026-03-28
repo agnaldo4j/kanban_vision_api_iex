@@ -36,4 +36,5 @@ defmodule KanbanVisionApi.WebApi.ErrorMapper do
   def http_status(%ApplicationError{code: :not_found}), do: 404
   def http_status(%ApplicationError{code: :conflict}), do: 409
   def http_status(%ApplicationError{code: :internal_error}), do: 500
+  def http_status(%ApplicationError{}), do: 500
 end

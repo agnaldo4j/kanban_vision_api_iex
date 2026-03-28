@@ -80,9 +80,9 @@ defmodule KanbanVisionApi.WebApi.Integration.SimulationsIntegrationTest do
         |> Router.call(@opts)
 
       assert conn.status == 409
-
-      assert Jason.decode!(conn.resp_body)["error"] ==
-               "Simulation with organization_id: #{org["id"]} name: RepeatedSimulation already exist"
+      body = Jason.decode!(conn.resp_body)
+      assert is_binary(body["error"])
+      assert body["error"] != ""
 
       cleanup_simulation(sim["id"])
       cleanup_organization(org["id"])

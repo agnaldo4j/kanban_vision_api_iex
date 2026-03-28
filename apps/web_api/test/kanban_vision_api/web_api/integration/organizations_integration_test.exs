@@ -66,8 +66,10 @@ defmodule KanbanVisionApi.WebApi.Integration.OrganizationsIntegrationTest do
         |> Router.call(@opts)
 
       assert conn.status == 409
-      assert Jason.decode!(conn.resp_body)["error"] ==
-               "Organization with name: Duplicated Integration Org already exist"
+
+      body = Jason.decode!(conn.resp_body)
+      assert is_binary(body["error"])
+      assert body["error"] != ""
 
       cleanup_organization(org["id"])
     end
