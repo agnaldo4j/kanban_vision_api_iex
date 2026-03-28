@@ -5,10 +5,16 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardController do
 
   import Plug.Conn
 
+  alias KanbanVisionApi.Usecase.Board.AddBoardWorkflowStepCommand
+  alias KanbanVisionApi.Usecase.Board.AllocateBoardWorkerCommand
   alias KanbanVisionApi.Usecase.Board.CreateBoardCommand
   alias KanbanVisionApi.Usecase.Board.DeleteBoardCommand
   alias KanbanVisionApi.Usecase.Board.GetBoardByIdQuery
   alias KanbanVisionApi.Usecase.Board.GetBoardsBySimulationIdQuery
+  alias KanbanVisionApi.Usecase.Board.RemoveBoardWorkerCommand
+  alias KanbanVisionApi.Usecase.Board.RemoveBoardWorkflowStepCommand
+  alias KanbanVisionApi.Usecase.Board.RenameBoardCommand
+  alias KanbanVisionApi.Usecase.Board.ReorderBoardWorkflowStepCommand
   alias KanbanVisionApi.WebApi.Boards.BoardSerializer
   alias KanbanVisionApi.WebApi.ErrorMapper
 
@@ -18,7 +24,7 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardController do
 
     with {:ok, query} <- GetBoardByIdQuery.new(id),
          {:ok, board} <- board_usecase().get_by_id(query, build_opts(conn)) do
-      respond(conn, 200, BoardSerializer.serialize(board))
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
     else
       {:error, reason} -> respond_error(conn, reason)
     end
@@ -53,6 +59,82 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardController do
     with {:ok, cmd} <- DeleteBoardCommand.new(id),
          {:ok, board} <- board_usecase().delete(cmd, build_opts(conn)) do
       respond(conn, 200, BoardSerializer.serialize(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :rename) do
+    id = conn.path_params["id"]
+    name = conn.body_params["name"]
+
+    with {:ok, cmd} <- RenameBoardCommand.new(id, name),
+         {:ok, board} <- board_usecase().rename(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :add_workflow_step) do
+    board_id = conn.path_params["id"]
+    name = conn.body_params["name"]
+    order = conn.body_params["order"]
+    required_ability_name = conn.body_params["required_ability_name"]
+
+    with {:ok, cmd} <- AddBoardWorkflowStepCommand.new(board_id, name, order, required_ability_name),
+         {:ok, board} <- board_usecase().add_workflow_step(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :remove_workflow_step) do
+    board_id = conn.path_params["id"]
+    step_id = conn.path_params["step_id"]
+
+    with {:ok, cmd} <- RemoveBoardWorkflowStepCommand.new(board_id, step_id),
+         {:ok, board} <- board_usecase().remove_workflow_step(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :reorder_workflow_step) do
+    board_id = conn.path_params["id"]
+    step_id = conn.path_params["step_id"]
+    order = conn.body_params["order"]
+
+    with {:ok, cmd} <- ReorderBoardWorkflowStepCommand.new(board_id, step_id, order),
+         {:ok, board} <- board_usecase().reorder_workflow_step(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :allocate_worker) do
+    board_id = conn.path_params["id"]
+    name = conn.body_params["name"]
+    abilities = conn.body_params["abilities"]
+
+    with {:ok, cmd} <- AllocateBoardWorkerCommand.new(board_id, name, abilities),
+         {:ok, board} <- board_usecase().allocate_worker(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
+    else
+      {:error, reason} -> respond_error(conn, reason)
+    end
+  end
+
+  def call(conn, :remove_worker) do
+    board_id = conn.path_params["id"]
+    worker_id = conn.path_params["worker_id"]
+
+    with {:ok, cmd} <- RemoveBoardWorkerCommand.new(board_id, worker_id),
+         {:ok, board} <- board_usecase().remove_worker(cmd, build_opts(conn)) do
+      respond(conn, 200, BoardSerializer.serialize_detail(board))
     else
       {:error, reason} -> respond_error(conn, reason)
     end

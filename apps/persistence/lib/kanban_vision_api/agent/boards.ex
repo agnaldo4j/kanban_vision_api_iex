@@ -43,8 +43,8 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   def add(%Runtime{pid: pid}, %Board{} = new_board) do
     Agent.get_and_update(pid, fn state ->
-      case get_by_board(state.boards, new_board) do
-        {:error, _} ->
+      case find_by_name_and_simulation_id(state.boards, new_board.name, new_board.simulation_id) do
+        nil ->
           new_state =
             put_in(
               state.boards,
@@ -53,9 +53,15 @@ defmodule KanbanVisionApi.Agent.Boards do
 
           {{:ok, new_board}, new_state}
 
-        {:ok, _} ->
+        _existing_board ->
           {conflict_by_name_and_simulation_id(new_board.name, new_board.simulation_id), state}
       end
+    end)
+  end
+
+  def update(%Runtime{pid: pid}, %Board{} = updated_board) do
+    Agent.get_and_update(pid, fn state ->
+      update_state(state, updated_board)
     end)
   end
 
@@ -104,24 +110,37 @@ defmodule KanbanVisionApi.Agent.Boards do
     end
   end
 
-  defp get_by_board(boards, new_board) do
-    get_by_name_and_simulation_id(boards, new_board.name, new_board.simulation_id)
+  defp find_by_name_and_simulation_id(boards, name, simulation_id) do
+    boards
+    |> Map.values()
+    |> Enum.find(fn board -> board.name == name and board.simulation_id == simulation_id end)
   end
 
-  defp get_by_name_and_simulation_id(boards, name, simulation_id) do
-    result = get_by_simulation_id(boards, simulation_id)
+  defp name_taken_by_other_board?(boards, name, simulation_id, board_id) do
+    boards
+    |> Map.values()
+    |> Enum.any?(fn board ->
+      board.id != board_id and board.name == name and board.simulation_id == simulation_id
+    end)
+  end
 
-    case result do
-      {:ok, filtered_boards} ->
-        boards_by_name = Enum.filter(filtered_boards, fn board -> board.name == name end)
+  defp update_state(state, %Board{} = updated_board) do
+    cond do
+      is_nil(Map.get(state.boards, updated_board.id)) ->
+        {not_found_by_id(updated_board.id), state}
 
-        case boards_by_name do
-          [] -> not_found_by_name_and_simulation_id(name, simulation_id)
-          _ -> {:ok, boards_by_name}
-        end
+      name_taken_by_other_board?(
+        state.boards,
+        updated_board.name,
+        updated_board.simulation_id,
+        updated_board.id
+      ) ->
+        {conflict_by_name_and_simulation_id(updated_board.name, updated_board.simulation_id),
+         state}
 
-      _ ->
-        result
+      true ->
+        new_state = put_in(state.boards, Map.put(state.boards, updated_board.id, updated_board))
+        {{:ok, updated_board}, new_state}
     end
   end
 
@@ -136,13 +155,6 @@ defmodule KanbanVisionApi.Agent.Boards do
     ApplicationError.not_found(
       "Boards by simulation_id: #{simulation_id} not found",
       %{entity: :board, field: :simulation_id, simulation_id: simulation_id}
-    )
-  end
-
-  defp not_found_by_name_and_simulation_id(name, simulation_id) do
-    ApplicationError.not_found(
-      "Boards by name: #{name} and simulation_id: #{simulation_id} not found",
-      %{entity: :board, field: :name, name: name, simulation_id: simulation_id}
     )
   end
 

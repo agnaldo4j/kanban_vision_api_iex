@@ -3,10 +3,16 @@ defmodule KanbanVisionApi.Usecase.BoardTest do
 
   alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Usecase.Board
+  alias KanbanVisionApi.Usecase.Board.AddBoardWorkflowStepCommand
+  alias KanbanVisionApi.Usecase.Board.AllocateBoardWorkerCommand
   alias KanbanVisionApi.Usecase.Board.CreateBoardCommand
   alias KanbanVisionApi.Usecase.Board.DeleteBoardCommand
   alias KanbanVisionApi.Usecase.Board.GetBoardByIdQuery
   alias KanbanVisionApi.Usecase.Board.GetBoardsBySimulationIdQuery
+  alias KanbanVisionApi.Usecase.Board.RemoveBoardWorkerCommand
+  alias KanbanVisionApi.Usecase.Board.RemoveBoardWorkflowStepCommand
+  alias KanbanVisionApi.Usecase.Board.RenameBoardCommand
+  alias KanbanVisionApi.Usecase.Board.ReorderBoardWorkflowStepCommand
 
   describe "When start with empty state" do
     setup [:start_usecase]
@@ -82,8 +88,74 @@ defmodule KanbanVisionApi.Usecase.BoardTest do
     test "should reject invalid command", %{pid: _pid} do
       assert {:error, :invalid_name} = CreateBoardCommand.new("", "sim-123")
       assert {:error, :invalid_simulation_id} = CreateBoardCommand.new("Dev Board", "")
+
+      assert {:error, :invalid_order} =
+               AddBoardWorkflowStepCommand.new("board-1", "Dev", -1, "Coding")
+
+      assert {:error, :invalid_abilities} =
+               AllocateBoardWorkerCommand.new("board-1", "Alice", [1])
+
       assert {:error, :invalid_id} = GetBoardByIdQuery.new("")
       assert {:error, :invalid_simulation_id} = GetBoardsBySimulationIdQuery.new("")
+    end
+
+    test "should rename a board", %{pid: pid} do
+      {:ok, create_cmd} = CreateBoardCommand.new("Dev Board", "sim-123")
+      {:ok, board} = Board.add(pid, create_cmd)
+
+      {:ok, rename_cmd} = RenameBoardCommand.new(board.id, "Renamed Board")
+      assert {:ok, renamed_board} = Board.rename(pid, rename_cmd)
+      assert renamed_board.name == "Renamed Board"
+    end
+
+    test "should add a workflow step to a board", %{pid: pid} do
+      {:ok, create_cmd} = CreateBoardCommand.new("Dev Board", "sim-123")
+      {:ok, board} = Board.add(pid, create_cmd)
+
+      {:ok, add_step_cmd} = AddBoardWorkflowStepCommand.new(board.id, "In Progress", 0, "Coding")
+      assert {:ok, updated_board} = Board.add_workflow_step(pid, add_step_cmd)
+      assert [%{name: "In Progress", order: 0}] = updated_board.workflow.steps
+    end
+
+    test "should remove a workflow step from a board", %{pid: pid} do
+      {:ok, create_cmd} = CreateBoardCommand.new("Dev Board", "sim-123")
+      {:ok, board} = Board.add(pid, create_cmd)
+      {:ok, add_step_cmd} = AddBoardWorkflowStepCommand.new(board.id, "In Progress", 0, "Coding")
+      {:ok, board_with_step} = Board.add_workflow_step(pid, add_step_cmd)
+      step = hd(board_with_step.workflow.steps)
+
+      {:ok, remove_step_cmd} = RemoveBoardWorkflowStepCommand.new(board.id, step.id)
+      assert {:ok, updated_board} = Board.remove_workflow_step(pid, remove_step_cmd)
+      assert updated_board.workflow.steps == []
+    end
+
+    test "should reorder a workflow step in a board", %{pid: pid} do
+      {:ok, create_cmd} = CreateBoardCommand.new("Dev Board", "sim-123")
+      {:ok, board} = Board.add(pid, create_cmd)
+      {:ok, first_step_cmd} = AddBoardWorkflowStepCommand.new(board.id, "Backlog", 0, "Analysis")
+      {:ok, _} = Board.add_workflow_step(pid, first_step_cmd)
+      {:ok, second_step_cmd} = AddBoardWorkflowStepCommand.new(board.id, "Done", 1, "Review")
+      {:ok, board_with_steps} = Board.add_workflow_step(pid, second_step_cmd)
+      step = Enum.find(board_with_steps.workflow.steps, &(&1.name == "Done"))
+
+      {:ok, reorder_cmd} = ReorderBoardWorkflowStepCommand.new(board.id, step.id, 0)
+      assert {:ok, updated_board} = Board.reorder_workflow_step(pid, reorder_cmd)
+      assert Enum.map(updated_board.workflow.steps, & &1.name) == ["Done", "Backlog"]
+    end
+
+    test "should allocate and remove a worker from a board", %{pid: pid} do
+      {:ok, create_cmd} = CreateBoardCommand.new("Dev Board", "sim-123")
+      {:ok, board} = Board.add(pid, create_cmd)
+
+      {:ok, allocate_cmd} =
+        AllocateBoardWorkerCommand.new(board.id, "Alice", ["Coding", "Review"])
+
+      assert {:ok, board_with_worker} = Board.allocate_worker(pid, allocate_cmd)
+      [%{id: worker_id, name: "Alice"}] = Map.values(board_with_worker.workers)
+
+      {:ok, remove_cmd} = RemoveBoardWorkerCommand.new(board.id, worker_id)
+      assert {:ok, updated_board} = Board.remove_worker(pid, remove_cmd)
+      assert updated_board.workers == %{}
     end
   end
 

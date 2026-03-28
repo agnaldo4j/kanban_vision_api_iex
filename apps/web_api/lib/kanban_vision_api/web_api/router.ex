@@ -97,6 +97,30 @@ defmodule KanbanVisionApi.WebApi.Router do
     BoardController.call(conn, :get_by_id)
   end
 
+  patch "/api/v1/boards/:id" do
+    BoardController.call(conn, :rename)
+  end
+
+  post "/api/v1/boards/:id/workflow/steps" do
+    BoardController.call(conn, :add_workflow_step)
+  end
+
+  delete "/api/v1/boards/:id/workflow/steps/:step_id" do
+    BoardController.call(conn, :remove_workflow_step)
+  end
+
+  patch "/api/v1/boards/:id/workflow/steps/:step_id/order" do
+    BoardController.call(conn, :reorder_workflow_step)
+  end
+
+  post "/api/v1/boards/:id/workers" do
+    BoardController.call(conn, :allocate_worker)
+  end
+
+  delete "/api/v1/boards/:id/workers/:worker_id" do
+    BoardController.call(conn, :remove_worker)
+  end
+
   delete "/api/v1/boards/:id" do
     BoardController.call(conn, :delete)
   end

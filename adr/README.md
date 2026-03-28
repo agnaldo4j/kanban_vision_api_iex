@@ -15,3 +15,4 @@ This directory stores the project's Architectural Decision Records (ADRs).
 - [0002-remove-pid-leakage-from-domain-repository-ports](0002-remove-pid-leakage-from-domain-repository-ports.md)
 - [0003-adopt-structured-application-errors](0003-adopt-structured-application-errors.md)
 - [0004-complete-board-context-as-a-first-class-bounded-context](0004-complete-board-context-as-a-first-class-bounded-context.md)
+- [0005-evolve-board-with-explicit-cqs-operations](0005-evolve-board-with-explicit-cqs-operations.md)
