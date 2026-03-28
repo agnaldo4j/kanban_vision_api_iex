@@ -5,6 +5,9 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   @behaviour KanbanVisionApi.Domain.Ports.OrganizationRepository
 
+  alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
+
   defmodule Runtime do
     @moduledoc false
 
@@ -45,7 +48,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
   def get_by_id(%Runtime{pid: pid}, domain_id) do
     Agent.get(pid, fn state ->
       case Map.get(state.organizations, domain_id) do
-        nil -> {:error, "Organization with id: #{domain_id} not found"}
+        nil -> not_found_by_id(domain_id)
         domain -> {:ok, domain}
       end
     end)
@@ -57,7 +60,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
     end)
   end
 
-  def add(%Runtime{pid: pid}, %KanbanVisionApi.Domain.Organization{} = new_organization) do
+  def add(%Runtime{pid: pid}, %Organization{} = new_organization) do
     Agent.get_and_update(pid, fn state ->
       case internal_get_by_name(state.organizations, new_organization.name) do
         {:error, _} ->
@@ -66,7 +69,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
           {{:ok, new_organization}, new_state}
 
         {:ok, _} ->
-          {{:error, "Organization with name: #{new_organization.name} already exist"}, state}
+          {conflict_by_name(new_organization.name), state}
       end
     end)
   end
@@ -75,7 +78,7 @@ defmodule KanbanVisionApi.Agent.Organizations do
     Agent.get_and_update(pid, fn state ->
       case Map.get(state.organizations, domain_id) do
         nil ->
-          {{:error, "Organization with id: #{domain_id} not found"}, state}
+          {not_found_by_id(domain_id), state}
 
         domain ->
           new_orgs = Map.delete(state.organizations, domain.id)
@@ -93,8 +96,29 @@ defmodule KanbanVisionApi.Agent.Organizations do
 
   defp prepare_by_name_result(result_list, domain_name) do
     case result_list do
-      values when values == [] -> {:error, "Organization with name: #{domain_name} not found"}
+      values when values == [] -> not_found_by_name(domain_name)
       values -> {:ok, values}
     end
+  end
+
+  defp not_found_by_id(domain_id) do
+    ApplicationError.not_found(
+      "Organization with id: #{domain_id} not found",
+      %{entity: :organization, id: domain_id}
+    )
+  end
+
+  defp not_found_by_name(domain_name) do
+    ApplicationError.not_found(
+      "Organization with name: #{domain_name} not found",
+      %{entity: :organization, field: :name, name: domain_name}
+    )
+  end
+
+  defp conflict_by_name(domain_name) do
+    ApplicationError.conflict(
+      "Organization with name: #{domain_name} already exist",
+      %{entity: :organization, field: :name, name: domain_name}
+    )
   end
 end

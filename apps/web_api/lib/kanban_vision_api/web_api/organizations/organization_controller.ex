@@ -3,7 +3,8 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationController do
   HTTP adapter: translates HTTP requests to Organization use case calls.
 
   Pure adapter — no business logic. Maps HTTP → Command/Query → use case → JSON response.
-  Error mapping: :invalid_* → 422, "not found" → 404, "already exist" → 409, other → 500.
+  Error mapping: validation atoms normalize to `:invalid_input`, structured application
+  errors map by `code`, and transport logic never parses message text.
   """
 
   import Plug.Conn
@@ -12,6 +13,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationController do
   alias KanbanVisionApi.Usecase.Organization.DeleteOrganizationCommand
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByIdQuery
   alias KanbanVisionApi.Usecase.Organization.GetOrganizationByNameQuery
+  alias KanbanVisionApi.WebApi.ErrorMapper
   alias KanbanVisionApi.WebApi.Organizations.OrganizationSerializer
 
   @spec call(Plug.Conn.t(), atom()) :: Plug.Conn.t()
@@ -84,21 +86,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationController do
   end
 
   defp respond_error(conn, reason) do
-    {status, message} = map_error(reason)
-    respond(conn, status, %{error: message})
+    error = ErrorMapper.normalize(reason)
+    respond(conn, ErrorMapper.http_status(error), %{error: error.message})
   end
-
-  defp map_error(:invalid_name), do: {422, "Invalid name"}
-  defp map_error(:invalid_id), do: {422, "Invalid ID"}
-  defp map_error(:invalid_tribes), do: {422, "Invalid tribes"}
-
-  defp map_error(reason) when is_binary(reason) do
-    cond do
-      String.contains?(reason, "not found") -> {404, reason}
-      String.contains?(reason, "already exist") -> {409, reason}
-      true -> {500, reason}
-    end
-  end
-
-  defp map_error(_), do: {500, "Internal server error"}
 end

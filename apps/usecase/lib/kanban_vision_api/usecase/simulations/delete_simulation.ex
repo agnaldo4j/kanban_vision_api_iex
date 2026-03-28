@@ -8,13 +8,15 @@ defmodule KanbanVisionApi.Usecase.Simulations.DeleteSimulation do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.SimulationRepository
   alias KanbanVisionApi.Domain.Simulation
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.DeleteSimulationCommand
 
-  @type result :: {:ok, Simulation.t()} | {:error, String.t()}
+  @type result :: ApplicationError.result(Simulation.t())
 
   @spec execute(DeleteSimulationCommand.t(), SimulationRepository.repository_runtime(), keyword()) ::
           result()
@@ -50,11 +52,11 @@ defmodule KanbanVisionApi.Usecase.Simulations.DeleteSimulation do
         {:ok, sim}
 
       {:error, reason} = error ->
-        Logger.error("Failed to delete simulation",
-          correlation_id: correlation_id,
-          simulation_id: cmd.id,
-          reason: reason
-        )
+        metadata =
+          [correlation_id: correlation_id, simulation_id: cmd.id] ++
+            ErrorMetadata.from_reason(reason)
+
+        Logger.error("Failed to delete simulation", metadata)
 
         error
     end

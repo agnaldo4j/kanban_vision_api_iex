@@ -421,32 +421,31 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationController do
     end
   end
 
-  # Mapeia erros de domínio para HTTP status codes
-  defp map_error(:invalid_name), do: {422, "Invalid name"}
-  defp map_error(:invalid_id),   do: {422, "Invalid ID"}
-
-  defp map_error(reason) when is_binary(reason) do
-    cond do
-      String.contains?(reason, "not found")    -> {404, reason}
-      String.contains?(reason, "already exist") -> {409, reason}
-      true                                      -> {500, reason}
-    end
+  # Normaliza erros de aplicação e mapeia o status por código sem fazer parsing de texto
+  defp respond_error(conn, reason) do
+    error = ErrorMapper.normalize(reason)
+    respond(conn, ErrorMapper.http_status(error), %{error: error.message})
   end
 end
 ```
 
 ### O mapeamento de erros
 
-O domínio retorna átomos (`:invalid_name`) ou strings ("Organization not found").
-O controller traduz isso para HTTP status codes sem que o domínio saiba de HTTP:
+Os command/query DTOs ainda podem retornar átomos de validação (`:invalid_name`),
+mas os adapters externos devem trabalhar com erros estruturados:
+
+```elixir
+{:error, %ApplicationError{code: :not_found, message: "...", details: %{...}}}
+```
+
+O controller traduz isso para HTTP status codes usando `code`, sem depender do texto:
 
 ```
-Domínio            →   HTTP
-:invalid_name      →   422 Unprocessable Entity
-:invalid_id        →   422 Unprocessable Entity
-"not found"        →   404 Not Found
-"already exist"    →   409 Conflict
-outros             →   500 Internal Server Error
+Erro estruturado   →   HTTP
+:invalid_input     →   422 Unprocessable Entity
+:not_found         →   404 Not Found
+:conflict          →   409 Conflict
+:internal_error    →   500 Internal Server Error
 ```
 
 ### O padrão `with` para pipelines de sucesso
@@ -755,7 +754,9 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
   describe "GET /api/v1/organizations/:id" do
     test "retorna 404 quando não encontrado" do
       MockOrganizationUsecase
-      |> expect(:get_by_id, fn _query, _opts -> {:error, "Organization not found"} end)
+      |> expect(:get_by_id, fn _query, _opts ->
+        {:error, %{code: :not_found, message: "Organization not found", details: %{}}}
+      end)
 
       conn =
         :get

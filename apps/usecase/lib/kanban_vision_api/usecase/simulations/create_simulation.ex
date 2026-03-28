@@ -8,13 +8,15 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
 
   require Logger
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.SimulationRepository
   alias KanbanVisionApi.Domain.Simulation
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.RepositoryConfig
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
 
-  @type result :: {:ok, Simulation.t()} | {:error, String.t()}
+  @type result :: ApplicationError.result(Simulation.t())
 
   @spec execute(CreateSimulationCommand.t(), SimulationRepository.repository_runtime(), keyword()) ::
           result()
@@ -53,12 +55,14 @@ defmodule KanbanVisionApi.Usecase.Simulations.CreateSimulation do
         {:ok, sim}
 
       {:error, reason} = error ->
-        Logger.error("Failed to create simulation",
-          correlation_id: correlation_id,
-          simulation_name: cmd.name,
-          organization_id: cmd.organization_id,
-          reason: reason
-        )
+        metadata =
+          [
+            correlation_id: correlation_id,
+            simulation_name: cmd.name,
+            organization_id: cmd.organization_id
+          ] ++ ErrorMetadata.from_reason(reason)
+
+        Logger.error("Failed to create simulation", metadata)
 
         error
     end

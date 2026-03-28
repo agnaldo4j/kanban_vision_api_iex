@@ -4,6 +4,7 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
 
   alias KanbanVisionApi.Agent.Organizations
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
 
   describe "When start the system with empty state" do
     setup [:prepare_empty_context]
@@ -45,8 +46,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            repository_runtime: repository_runtime,
            organizations: _organizations
          } = _context do
-      template = {:error, "Organization with id: nada not found"}
-      assert Organizations.delete(repository_runtime, :nada) == template
+      assert Organizations.delete(repository_runtime, :nada) ==
+               ApplicationError.not_found(
+                 "Organization with id: nada not found",
+                 %{entity: :organization, id: :nada}
+               )
     end
   end
 
@@ -92,8 +96,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations,
            domain: _domain
          } = _context do
-      template = {:error, "Organization with id: nada not found"}
-      assert Organizations.get_by_id(repository_runtime, :nada) == template
+      assert Organizations.get_by_id(repository_runtime, :nada) ==
+               ApplicationError.not_found(
+                 "Organization with id: nada not found",
+                 %{entity: :organization, id: :nada}
+               )
     end
 
     @tag :domain_organizations
@@ -103,8 +110,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations,
            domain: _domain
          } = _context do
-      template = {:error, "Organization with name: Invalid Name not found"}
-      assert Organizations.get_by_name(repository_runtime, "Invalid Name") == template
+      assert Organizations.get_by_name(repository_runtime, "Invalid Name") ==
+               ApplicationError.not_found(
+                 "Organization with name: Invalid Name not found",
+                 %{entity: :organization, field: :name, name: "Invalid Name"}
+               )
     end
 
     @tag :domain_organizations
@@ -114,8 +124,11 @@ defmodule KanbanVisionApi.Agent.OrganizationsTest do
            organizations: _organizations,
            domain: domain
          } = _context do
-      template = {:error, "Organization with name: ExampleOrg already exist"}
-      assert Organizations.add(repository_runtime, domain) == template
+      assert Organizations.add(repository_runtime, domain) ==
+               ApplicationError.conflict(
+                 "Organization with name: ExampleOrg already exist",
+                 %{entity: :organization, field: :name, name: "ExampleOrg"}
+               )
     end
   end
 

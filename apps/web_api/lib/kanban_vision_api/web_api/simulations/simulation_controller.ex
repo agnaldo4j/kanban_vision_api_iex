@@ -3,7 +3,8 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationController do
   HTTP adapter: translates HTTP requests to Simulation use case calls.
 
   Pure adapter — no business logic. Maps HTTP → Command/Query → use case → JSON response.
-  Error mapping: :invalid_* → 422, "not found" → 404, "already exist" → 409, other → 500.
+  Error mapping: validation atoms normalize to `:invalid_input`, structured application
+  errors map by `code`, and transport logic never parses message text.
   """
 
   import Plug.Conn
@@ -11,6 +12,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationController do
   alias KanbanVisionApi.Usecase.Simulation.CreateSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.DeleteSimulationCommand
   alias KanbanVisionApi.Usecase.Simulation.GetSimulationByOrgAndNameQuery
+  alias KanbanVisionApi.WebApi.ErrorMapper
   alias KanbanVisionApi.WebApi.Simulations.SimulationSerializer
 
   @spec call(Plug.Conn.t(), atom()) :: Plug.Conn.t()
@@ -74,21 +76,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationController do
   end
 
   defp respond_error(conn, reason) do
-    {status, message} = map_error(reason)
-    respond(conn, status, %{error: message})
+    error = ErrorMapper.normalize(reason)
+    respond(conn, ErrorMapper.http_status(error), %{error: error.message})
   end
-
-  defp map_error(:invalid_name), do: {422, "Invalid name"}
-  defp map_error(:invalid_id), do: {422, "Invalid ID"}
-  defp map_error(:invalid_organization_id), do: {422, "Invalid organization ID"}
-
-  defp map_error(reason) when is_binary(reason) do
-    cond do
-      String.contains?(reason, "not found") -> {404, reason}
-      String.contains?(reason, "already exist") -> {409, reason}
-      true -> {500, reason}
-    end
-  end
-
-  defp map_error(_), do: {500, "Internal server error"}
 end

@@ -6,6 +6,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
   import Plug.Test
 
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.WebApi.Organizations.OrganizationController
   alias KanbanVisionApi.WebApi.OrganizationUsecaseMock
 
@@ -83,7 +84,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
 
     test "returns 404 when no organizations found" do
       expect(OrganizationUsecaseMock, :get_by_name, fn _query, _opts ->
-        {:error, "not found"}
+        ApplicationError.not_found("Organization with name: Unknown not found", %{})
       end)
 
       conn =
@@ -117,7 +118,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
 
     test "returns 404 when organization not found", %{org: org} do
       expect(OrganizationUsecaseMock, :get_by_id, fn _query, _opts ->
-        {:error, "not found"}
+        ApplicationError.not_found("Organization with id: #{org.id} not found", %{})
       end)
 
       conn =
@@ -174,7 +175,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
 
     test "returns 409 when organization already exists", %{org: org} do
       expect(OrganizationUsecaseMock, :add, fn _cmd, _opts ->
-        {:error, "already exist"}
+        ApplicationError.conflict("Organization with name: #{org.name} already exist", %{})
       end)
 
       conn =
@@ -208,7 +209,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
 
     test "returns 404 when organization not found", %{org: org} do
       expect(OrganizationUsecaseMock, :delete, fn _cmd, _opts ->
-        {:error, "not found"}
+        ApplicationError.not_found("Organization with id: #{org.id} not found", %{})
       end)
 
       conn =
@@ -236,7 +237,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
 
     test "returns 500 for a generic binary server error" do
       expect(OrganizationUsecaseMock, :delete, fn _cmd, _opts ->
-        {:error, "unexpected server failure"}
+        ApplicationError.internal_error("unexpected server failure", %{})
       end)
 
       conn =
@@ -247,6 +248,7 @@ defmodule KanbanVisionApi.WebApi.Organizations.OrganizationControllerTest do
         |> OrganizationController.call(:delete)
 
       assert conn.status == 500
+      assert Jason.decode!(conn.resp_body)["error"] == "unexpected server failure"
     end
 
     test "returns 500 for an unknown error type" do

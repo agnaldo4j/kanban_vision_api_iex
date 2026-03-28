@@ -4,6 +4,7 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
 
   alias KanbanVisionApi.Agent.Boards
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Workflow
 
   describe "When start the system with empty state" do
@@ -25,8 +26,11 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
            repository_runtime: repository_runtime,
            boards: _boards
          } = _context do
-      template = {:error, "Boards by simulation_id: nada not found"}
-      assert Boards.get_all_by_simulation_id(repository_runtime, "nada") == template
+      assert Boards.get_all_by_simulation_id(repository_runtime, "nada") ==
+               ApplicationError.not_found(
+                 "Boards by simulation_id: nada not found",
+                 %{entity: :board, field: :simulation_id, simulation_id: "nada"}
+               )
     end
 
     @tag :domain_boards
@@ -101,8 +105,11 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
          %{
            repository_runtime: repository_runtime
          } = _context do
-      assert {:error, "Board with id: unknown-id not found"} =
-               Boards.get_by_id(repository_runtime, "unknown-id")
+      assert Boards.get_by_id(repository_runtime, "unknown-id") ==
+               ApplicationError.not_found(
+                 "Board with id: unknown-id not found",
+                 %{entity: :board, id: "unknown-id"}
+               )
     end
 
     @tag :domain_boards
@@ -120,8 +127,11 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
          %{
            repository_runtime: repository_runtime
          } = _context do
-      assert {:error, "Board with id: unknown-id not found"} =
-               Boards.delete(repository_runtime, "unknown-id")
+      assert Boards.delete(repository_runtime, "unknown-id") ==
+               ApplicationError.not_found(
+                 "Board with id: unknown-id not found",
+                 %{entity: :board, id: "unknown-id"}
+               )
     end
   end
 

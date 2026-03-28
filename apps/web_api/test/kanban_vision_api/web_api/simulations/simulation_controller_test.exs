@@ -4,6 +4,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
   import Mox
   import Plug.Test
 
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Simulation
   alias KanbanVisionApi.WebApi.Simulations.SimulationController
   alias KanbanVisionApi.WebApi.SimulationUsecaseMock
@@ -82,7 +83,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
 
     test "returns 404 when simulation not found" do
       expect(SimulationUsecaseMock, :get_by_org_and_name, fn _query, _opts ->
-        {:error, "not found"}
+        ApplicationError.not_found("Simulation with name: Missing not found", %{})
       end)
 
       conn =
@@ -138,7 +139,10 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
 
     test "returns 409 when simulation already exists" do
       expect(SimulationUsecaseMock, :add, fn _cmd, _opts ->
-        {:error, "already exist"}
+        ApplicationError.conflict(
+          "Simulation with organization_id: org-123 name: Sprint 1 already exist",
+          %{}
+        )
       end)
 
       conn =
@@ -172,7 +176,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
 
     test "returns 404 when simulation not found", %{sim: sim} do
       expect(SimulationUsecaseMock, :delete, fn _cmd, _opts ->
-        {:error, "not found"}
+        ApplicationError.not_found("Simulation with id: #{sim.id} not found", %{})
       end)
 
       conn =
@@ -200,7 +204,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
   describe "error mapping" do
     test "returns 500 for a generic binary server error" do
       expect(SimulationUsecaseMock, :delete, fn _cmd, _opts ->
-        {:error, "unexpected server failure"}
+        ApplicationError.internal_error("unexpected server failure", %{})
       end)
 
       conn =
@@ -211,6 +215,7 @@ defmodule KanbanVisionApi.WebApi.Simulations.SimulationControllerTest do
         |> SimulationController.call(:delete)
 
       assert conn.status == 500
+      assert Jason.decode!(conn.resp_body)["error"] == "unexpected server failure"
     end
 
     test "returns 500 for an unknown error type" do

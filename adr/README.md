@@ -13,3 +13,4 @@ This directory stores the project's Architectural Decision Records (ADRs).
 
 - [0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence](0001-use-cqs-and-hexagonal-boundaries-with-in-memory-persistence.md)
 - [0002-remove-pid-leakage-from-domain-repository-ports](0002-remove-pid-leakage-from-domain-repository-ports.md)
+- [0003-adopt-structured-application-errors](0003-adopt-structured-application-errors.md)

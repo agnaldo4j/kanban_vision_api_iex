@@ -4,6 +4,7 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
 
   alias KanbanVisionApi.Agent.Simulations
   alias KanbanVisionApi.Domain.Organization
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Simulation
 
   describe "When start the system with empty state" do
@@ -90,10 +91,17 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          } = _context do
       assert Simulations.add(repository_runtime, simulation) == {
                :error,
-               """
-               Simulation with organization_id: #{simulation.organization_id}
-               name: #{simulation.name} already exist
-               """
+               %ApplicationError{
+                 code: :conflict,
+                 message:
+                   "Simulation with organization_id: #{simulation.organization_id} name: #{simulation.name} already exist",
+                 details: %{
+                   entity: :simulation,
+                   field: :name,
+                   name: simulation.name,
+                   organization_id: simulation.organization_id
+                 }
+               }
              }
     end
 
@@ -104,13 +112,15 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            simulations: _simulations,
            organization: _organization
          } = _context do
-      template = {:error, "Simulation with organization id: INVALID not found"}
-
       assert Simulations.get_by_organization_id_and_simulation_name(
                repository_runtime,
                "INVALID",
                "Simulation Name"
-             ) == template
+             ) ==
+               ApplicationError.not_found(
+                 "Simulation with organization id: INVALID not found",
+                 %{entity: :simulation, field: :organization_id, organization_id: "INVALID"}
+               )
     end
 
     @tag :domain_simulations
@@ -119,13 +129,15 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            repository_runtime: repository_runtime,
            organization: organization
          } = _context do
-      template = {:error, "Simulation with name: Missing Simulation not found"}
-
       assert Simulations.get_by_organization_id_and_simulation_name(
                repository_runtime,
                organization.id,
                "Missing Simulation"
-             ) == template
+             ) ==
+               ApplicationError.not_found(
+                 "Simulation with name: Missing Simulation not found",
+                 %{entity: :simulation, field: :name, name: "Missing Simulation"}
+               )
     end
 
     @tag :domain_simulations
@@ -143,8 +155,11 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
          %{
            repository_runtime: repository_runtime
          } = _context do
-      assert {:error, "Simulation with id: unknown-id not found"} =
-               Simulations.delete(repository_runtime, "unknown-id")
+      assert Simulations.delete(repository_runtime, "unknown-id") ==
+               ApplicationError.not_found(
+                 "Simulation with id: unknown-id not found",
+                 %{entity: :simulation, id: "unknown-id"}
+               )
     end
 
     @tag :domain_simulations
@@ -175,13 +190,19 @@ defmodule KanbanVisionApi.Agent.SimulationsTest do
            repository_runtime: repository_runtime,
            organization: organization
          } = _context do
-      template = {:error, "Simulation with organization id: #{organization.id} not found"}
-
       assert Simulations.get_by_organization_id_and_simulation_name(
                repository_runtime,
                organization.id,
                "Any Simulation"
-             ) == template
+             ) ==
+               ApplicationError.not_found(
+                 "Simulation with organization id: #{organization.id} not found",
+                 %{
+                   entity: :simulation,
+                   field: :organization_id,
+                   organization_id: organization.id
+                 }
+               )
     end
   end
 

@@ -9,12 +9,14 @@ defmodule KanbanVisionApi.Usecase.Boards.DeleteBoard do
   require Logger
 
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Ports.ApplicationError
   alias KanbanVisionApi.Domain.Ports.BoardRepository
   alias KanbanVisionApi.Usecase.Board.DeleteBoardCommand
+  alias KanbanVisionApi.Usecase.ErrorMetadata
   alias KanbanVisionApi.Usecase.EventEmitter
   alias KanbanVisionApi.Usecase.RepositoryConfig
 
-  @type result :: {:ok, Board.t()} | {:error, String.t()}
+  @type result :: ApplicationError.result(Board.t())
 
   @spec execute(DeleteBoardCommand.t(), BoardRepository.repository_runtime(), keyword()) ::
           result()
@@ -50,11 +52,11 @@ defmodule KanbanVisionApi.Usecase.Boards.DeleteBoard do
         {:ok, board}
 
       {:error, reason} = error ->
-        Logger.error("Failed to delete board",
-          correlation_id: correlation_id,
-          board_id: cmd.id,
-          reason: reason
-        )
+        metadata =
+          [correlation_id: correlation_id, board_id: cmd.id] ++
+            ErrorMetadata.from_reason(reason)
+
+        Logger.error("Failed to delete board", metadata)
 
         error
     end
