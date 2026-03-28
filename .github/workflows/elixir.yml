@@ -2,51 +2,200 @@ name: Elixir CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
 
-jobs:
-  build:
+env:
+  ELIXIR_VERSION: "1.18.4"
+  OTP_VERSION: "28.0.2_1"
+  IMAGE_OS: ubuntu22
 
-    name: Build and test
+jobs:
+  credo:
+    name: Credo
     runs-on: ubuntu-latest
 
-    env:
-      ImageOS: ubuntu22
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.18.4' # Define the elixir version [required]
-        otp-version: '28.0.2_1' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v3
-      with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
-    - name: Restore PLT cache
-      uses: actions/cache@v3
-      with:
-        path: _build/dev/dialyxir_*.plt*
-        key: ${{ runner.os }}-plt-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-plt-
-    - name: Install dependencies
-      run: mix deps.get
-    - name: Compile dependencies
-      run: mix deps.compile
-    - name: Run Credo
-      run: mix credo
-    - name: Run Dialyzer
-      run: mix dialyzer
-    - name: Run Coverage
-      run: MIX_ENV=test mix coveralls.github --umbrella
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run tests
-      run: mix test --cover
+      - uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Write job summary
+        if: success()
+        run: |
+          {
+            echo "## Credo"
+            echo
+            echo "- Status: passed"
+            echo "- Command: \`mix credo\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dialyzer:
+    name: Dialyzer
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Restore PLT cache
+        uses: actions/cache@v3
+        with:
+          path: _build/dev/dialyxir_*.plt*
+          key: ${{ runner.os }}-plt-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-plt-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run Dialyzer
+        run: mix dialyzer
+
+      - name: Write job summary
+        if: success()
+        run: |
+          {
+            echo "## Dialyzer"
+            echo
+            echo "- Status: passed"
+            echo "- Command: \`mix dialyzer\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run Coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: MIX_ENV=test mix coveralls.github --umbrella
+
+      - name: Write job summary
+        if: success()
+        run: |
+          {
+            echo "## Coverage"
+            echo
+            echo "- Status: passed"
+            echo "- Command: \`MIX_ENV=test mix coveralls.github --umbrella\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run tests
+        run: mix test --cover
+
+      - name: Write job summary
+        if: success()
+        run: |
+          {
+            echo "## Tests"
+            echo
+            echo "- Status: passed"
+            echo "- Command: \`mix test --cover\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [credo, dialyzer, coverage, test]
+
+    steps:
+      - name: Write workflow summary
+        run: |
+          {
+            echo "# Elixir CI Summary"
+            echo
+            echo "| Check | Result |"
+            echo "| --- | --- |"
+            echo "| Credo | ${{ needs.credo.result }} |"
+            echo "| Dialyzer | ${{ needs.dialyzer.result }} |"
+            echo "| Coverage | ${{ needs.coverage.result }} |"
+            echo "| Test | ${{ needs.test.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
