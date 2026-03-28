@@ -51,9 +51,28 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mix credo suggest --all --strict --format=flycheck --mute-exit-status \
+          mix credo suggest --all --strict --format=json --mute-exit-status \
+            | jq -c '{
+                source: {name: "credo"},
+                diagnostics: [
+                  .issues[] | {
+                    message: .message,
+                    location: {
+                      path: .filename,
+                      range: {
+                        start: {
+                          line: (.line_no // 1),
+                          column: (.column // 1)
+                        }
+                      }
+                    },
+                    severity: "WARNING",
+                    code: {value: (.check // .category // "Credo")}
+                  }
+                ]
+              }' \
             | reviewdog \
-                -f=flycheck \
+                -f=rdjson \
                 -name=credo \
                 -reporter=github-pr-review \
                 -filter-mode=nofilter \
