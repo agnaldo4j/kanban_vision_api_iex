@@ -104,7 +104,12 @@ jobs:
       - name: Compile dependencies
         run: mix deps.compile
 
+      - name: Run Dialyzer with GitHub annotations
+        if: github.event_name == 'pull_request'
+        run: mix dialyzer --format github --quiet
+
       - name: Run Dialyzer
+        if: github.event_name != 'pull_request'
         run: mix dialyzer
 
       - name: Write job summary
