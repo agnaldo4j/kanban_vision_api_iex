@@ -83,7 +83,152 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
         |> Router.call(@opts)
 
       assert conn.status == 200
-      assert Jason.decode!(conn.resp_body)["name"] == "QA Board"
+      body = Jason.decode!(conn.resp_body)
+      assert body["name"] == "QA Board"
+      assert body["workflow"]["steps"] == []
+      assert body["workers"] == []
+    end
+  end
+
+  describe "board detail mutations" do
+    test "renames board, manages workflow steps, and manages workers" do
+      org = create_organization("BoardLifecycleOrg")
+      sim = create_simulation("BoardLifecycleSim", org["id"])
+      board = create_board("Lifecycle Board", sim["id"])
+      register_cleanup(board_id: board["id"], simulation_id: sim["id"], organization_id: org["id"])
+
+      renamed =
+        :patch
+        |> conn("/api/v1/boards/#{board["id"]}", Jason.encode!(%{name: "Renamed Board"}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert renamed.status == 200
+      assert Jason.decode!(renamed.resp_body)["name"] == "Renamed Board"
+
+      add_step =
+        :post
+        |> conn(
+          "/api/v1/boards/#{board["id"]}/workflow/steps",
+          Jason.encode!(%{name: "In Progress", order: 0, required_ability_name: "Coding"})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert add_step.status == 200
+      add_step_body = Jason.decode!(add_step.resp_body)
+      [step] = add_step_body["workflow"]["steps"]
+      assert step["name"] == "In Progress"
+      assert step["order"] == 0
+      assert step["required_ability"]["name"] == "Coding"
+
+      reorder_step =
+        :patch
+        |> conn(
+          "/api/v1/boards/#{board["id"]}/workflow/steps/#{step["id"]}/order",
+          Jason.encode!(%{order: 0})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert reorder_step.status == 200
+
+      allocate_worker =
+        :post
+        |> conn(
+          "/api/v1/boards/#{board["id"]}/workers",
+          Jason.encode!(%{name: "Alice", abilities: ["Coding", "Review"]})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert allocate_worker.status == 200
+      allocate_worker_body = Jason.decode!(allocate_worker.resp_body)
+      [worker] = allocate_worker_body["workers"]
+      assert worker["name"] == "Alice"
+      assert Enum.map(worker["abilities"], & &1["name"]) == ["Coding", "Review"]
+
+      remove_worker =
+        :delete
+        |> conn("/api/v1/boards/#{board["id"]}/workers/#{worker["id"]}")
+        |> Router.call(@opts)
+
+      assert remove_worker.status == 200
+      assert Jason.decode!(remove_worker.resp_body)["workers"] == []
+
+      remove_step =
+        :delete
+        |> conn("/api/v1/boards/#{board["id"]}/workflow/steps/#{step["id"]}")
+        |> Router.call(@opts)
+
+      assert remove_step.status == 200
+      assert Jason.decode!(remove_step.resp_body)["workflow"]["steps"] == []
+    end
+
+    test "returns 409 for duplicate board rename and duplicate worker allocation" do
+      org = create_organization("BoardConflictOrg")
+      sim = create_simulation("BoardConflictSim", org["id"])
+      board_a = create_board("Alpha Board", sim["id"])
+      board_b = create_board("Beta Board", sim["id"])
+
+      register_cleanup(
+        board_id: board_a["id"],
+        simulation_id: sim["id"],
+        organization_id: org["id"]
+      )
+
+      register_cleanup(board_id: board_b["id"])
+
+      rename_conflict =
+        :patch
+        |> conn("/api/v1/boards/#{board_b["id"]}", Jason.encode!(%{name: "Alpha Board"}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert rename_conflict.status == 409
+
+      first_worker =
+        :post
+        |> conn(
+          "/api/v1/boards/#{board_a["id"]}/workers",
+          Jason.encode!(%{name: "Alice", abilities: ["Coding"]})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert first_worker.status == 200
+
+      duplicate_worker =
+        :post
+        |> conn(
+          "/api/v1/boards/#{board_a["id"]}/workers",
+          Jason.encode!(%{name: "Alice", abilities: ["Review"]})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert duplicate_worker.status == 409
+    end
+
+    test "returns 404 for unknown workflow step and unknown worker removal" do
+      org = create_organization("BoardNotFoundOrg")
+      sim = create_simulation("BoardNotFoundSim", org["id"])
+      board = create_board("Support Board", sim["id"])
+      register_cleanup(board_id: board["id"], simulation_id: sim["id"], organization_id: org["id"])
+
+      missing_step =
+        :delete
+        |> conn("/api/v1/boards/#{board["id"]}/workflow/steps/step-404")
+        |> Router.call(@opts)
+
+      assert missing_step.status == 404
+
+      missing_worker =
+        :delete
+        |> conn("/api/v1/boards/#{board["id"]}/workers/worker-404")
+        |> Router.call(@opts)
+
+      assert missing_worker.status == 404
     end
   end
 

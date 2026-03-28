@@ -83,6 +83,32 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     end
 
     @tag :domain_boards
+    test "should update an existing board",
+         %{
+           repository_runtime: repository_runtime,
+           board: board
+         } = _context do
+      renamed_board = Board.rename(board, "Renamed Board")
+
+      assert {:ok, updated_board} = Boards.update(repository_runtime, renamed_board)
+      assert updated_board.name == "Renamed Board"
+    end
+
+    @tag :domain_boards
+    test "should not update a board to a duplicate name in the same simulation",
+         %{
+           repository_runtime: repository_runtime,
+           board: board
+         } = _context do
+      other_board = Board.new("QA Board", board.simulation_id)
+      {:ok, other_board} = Boards.add(repository_runtime, other_board)
+
+      conflicting_board = Board.rename(other_board, board.name)
+
+      assert {:error, _} = Boards.update(repository_runtime, conflicting_board)
+    end
+
+    @tag :domain_boards
     test "should return error for unknown simulation_id",
          %{
            repository_runtime: repository_runtime

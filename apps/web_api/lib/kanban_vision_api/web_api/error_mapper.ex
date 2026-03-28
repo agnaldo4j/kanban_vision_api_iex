@@ -31,6 +31,36 @@ defmodule KanbanVisionApi.WebApi.ErrorMapper do
     )
   end
 
+  def normalize(:invalid_order),
+    do: ApplicationError.new(:invalid_input, "Invalid order", %{reason: :invalid_order})
+
+  def normalize(:invalid_required_ability_name) do
+    ApplicationError.new(
+      :invalid_input,
+      "Invalid required ability name",
+      %{reason: :invalid_required_ability_name}
+    )
+  end
+
+  def normalize(:invalid_abilities) do
+    ApplicationError.new(
+      :invalid_input,
+      "Invalid abilities",
+      %{reason: :invalid_abilities}
+    )
+  end
+
+  def normalize(:invalid_step_id),
+    do: ApplicationError.new(:invalid_input, "Invalid step ID", %{reason: :invalid_step_id})
+
+  def normalize(:invalid_worker_id) do
+    ApplicationError.new(
+      :invalid_input,
+      "Invalid worker ID",
+      %{reason: :invalid_worker_id}
+    )
+  end
+
   def normalize(reason) when is_binary(reason) do
     ApplicationError.new(:internal_error, reason, %{legacy_reason: :binary})
   end

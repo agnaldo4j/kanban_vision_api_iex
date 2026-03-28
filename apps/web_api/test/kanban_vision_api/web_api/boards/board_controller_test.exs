@@ -5,8 +5,11 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardControllerTest do
   import Plug.Conn
   import Plug.Test
 
+  alias KanbanVisionApi.Domain.Ability
   alias KanbanVisionApi.Domain.Board
   alias KanbanVisionApi.Domain.Ports.ApplicationError
+  alias KanbanVisionApi.Domain.Step
+  alias KanbanVisionApi.Domain.Worker
   alias KanbanVisionApi.WebApi.Boards.BoardController
   alias KanbanVisionApi.WebApi.BoardUsecaseMock
 
@@ -173,6 +176,114 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardControllerTest do
         |> BoardController.call(:delete)
 
       assert conn.status == 404
+    end
+  end
+
+  describe "call/2 :rename" do
+    test "returns 200 with renamed board", %{board: board} do
+      renamed_board = %{board | name: "Renamed Board"}
+      expect(BoardUsecaseMock, :rename, fn _cmd, _opts -> {:ok, renamed_board} end)
+
+      conn =
+        :patch
+        |> conn("/api/v1/boards/#{board.id}", Jason.encode!(%{name: "Renamed Board"}))
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id})
+        |> Map.put(:body_params, %{"name" => "Renamed Board"})
+        |> BoardController.call(:rename)
+
+      assert conn.status == 200
+      assert Jason.decode!(conn.resp_body)["name"] == "Renamed Board"
+    end
+  end
+
+  describe "call/2 :add_workflow_step" do
+    test "returns 200 with board detail after adding a step", %{board: board} do
+      step = Step.new("In Progress", 0, [], Ability.new("Coding"))
+      updated_board = %{board | workflow: %{board.workflow | steps: [step]}}
+
+      expect(BoardUsecaseMock, :add_workflow_step, fn _cmd, _opts -> {:ok, updated_board} end)
+
+      conn =
+        :post
+        |> conn("/api/v1/boards/#{board.id}/workflow/steps", Jason.encode!(%{name: "In Progress", order: 0, required_ability_name: "Coding"}))
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id})
+        |> Map.put(:body_params, %{"name" => "In Progress", "order" => 0, "required_ability_name" => "Coding"})
+        |> BoardController.call(:add_workflow_step)
+
+      assert conn.status == 200
+      assert hd(Jason.decode!(conn.resp_body)["workflow"]["steps"])["name"] == "In Progress"
+    end
+  end
+
+  describe "call/2 :remove_workflow_step" do
+    test "returns 200 with board detail after removing a step", %{board: board} do
+      expect(BoardUsecaseMock, :remove_workflow_step, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/boards/#{board.id}/workflow/steps/step-1")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id, "step_id" => "step-1"})
+        |> BoardController.call(:remove_workflow_step)
+
+      assert conn.status == 200
+    end
+  end
+
+  describe "call/2 :reorder_workflow_step" do
+    test "returns 200 with board detail after reordering a step", %{board: board} do
+      expect(BoardUsecaseMock, :reorder_workflow_step, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :patch
+        |> conn("/api/v1/boards/#{board.id}/workflow/steps/step-1/order", Jason.encode!(%{order: 0}))
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id, "step_id" => "step-1"})
+        |> Map.put(:body_params, %{"order" => 0})
+        |> BoardController.call(:reorder_workflow_step)
+
+      assert conn.status == 200
+    end
+  end
+
+  describe "call/2 :allocate_worker" do
+    test "returns 200 with board detail after allocating worker", %{board: board} do
+      worker = Worker.new("Alice", [Ability.new("Coding")])
+      updated_board = %{board | workers: %{worker.id => worker}}
+
+      expect(BoardUsecaseMock, :allocate_worker, fn _cmd, _opts -> {:ok, updated_board} end)
+
+      conn =
+        :post
+        |> conn("/api/v1/boards/#{board.id}/workers", Jason.encode!(%{name: "Alice", abilities: ["Coding"]}))
+        |> put_req_header("content-type", "application/json")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id})
+        |> Map.put(:body_params, %{"name" => "Alice", "abilities" => ["Coding"]})
+        |> BoardController.call(:allocate_worker)
+
+      assert conn.status == 200
+      assert hd(Jason.decode!(conn.resp_body)["workers"])["name"] == "Alice"
+    end
+  end
+
+  describe "call/2 :remove_worker" do
+    test "returns 200 with board detail after removing a worker", %{board: board} do
+      expect(BoardUsecaseMock, :remove_worker, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :delete
+        |> conn("/api/v1/boards/#{board.id}/workers/worker-1")
+        |> Plug.Conn.assign(:correlation_id, "test-id")
+        |> Map.put(:path_params, %{"id" => board.id, "worker_id" => "worker-1"})
+        |> BoardController.call(:remove_worker)
+
+      assert conn.status == 200
     end
   end
 end

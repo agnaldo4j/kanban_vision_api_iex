@@ -27,7 +27,8 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
       paths: paths(),
       components: %OpenApiSpex.Components{
         schemas: %{
-          "Board" => BoardSchema.schema(),
+          "BoardSummary" => BoardSchema.summary(),
+          "BoardDetail" => BoardSchema.detail(),
           "Organization" => OrganizationSchema.schema(),
           "Simulation" => SimulationSchema.schema(),
           "Error" => ErrorSchema.schema()
@@ -36,7 +37,8 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
     }
   end
 
-  defp board_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Board"}
+  defp board_summary_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/BoardSummary"}
+  defp board_detail_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/BoardDetail"}
   defp org_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Organization"}
   defp sim_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Simulation"}
   defp error_ref, do: %OpenApiSpex.Reference{"$ref": "#/components/schemas/Error"}
@@ -50,7 +52,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
   end
 
   defp board_list_schema do
-    %OpenApiSpex.Schema{type: :array, items: board_ref()}
+    %OpenApiSpex.Schema{type: :array, items: board_summary_ref()}
   end
 
   defp json_content(schema) do
@@ -350,7 +352,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
           responses: %{
             201 => %OpenApiSpex.Response{
               description: "Board created",
-              content: json_content(board_ref())
+              content: json_content(board_summary_ref())
             },
             409 => %OpenApiSpex.Response{
               description: "Already exists",
@@ -379,10 +381,45 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
           responses: %{
             200 => %OpenApiSpex.Response{
               description: "Board",
-              content: json_content(board_ref())
+              content: json_content(board_detail_ref())
             },
             404 => %OpenApiSpex.Response{
               description: "Not found",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        },
+        patch: %OpenApiSpex.Operation{
+          summary: "Rename a board",
+          operationId: "renameBoard",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          requestBody: %OpenApiSpex.RequestBody{
+            required: true,
+            content: json_content(BoardSchema.rename_request())
+          },
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Renamed board",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{
+              description: "Not found",
+              content: json_content(error_ref())
+            },
+            409 => %OpenApiSpex.Response{
+              description: "Already exists",
               content: json_content(error_ref())
             },
             422 => %OpenApiSpex.Response{
@@ -406,7 +443,7 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
           responses: %{
             200 => %OpenApiSpex.Response{
               description: "Deleted board",
-              content: json_content(board_ref())
+              content: json_content(board_summary_ref())
             },
             404 => %OpenApiSpex.Response{
               description: "Not found",
@@ -416,6 +453,162 @@ defmodule KanbanVisionApi.WebApi.OpenApi.Spec do
               description: "Validation error",
               content: json_content(error_ref())
             }
+          }
+        }
+      },
+      "/api/v1/boards/{id}/workflow/steps" => %OpenApiSpex.PathItem{
+        post: %OpenApiSpex.Operation{
+          summary: "Add a workflow step to a board",
+          operationId: "addBoardWorkflowStep",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          requestBody: %OpenApiSpex.RequestBody{
+            required: true,
+            content: json_content(BoardSchema.add_step_request())
+          },
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board after workflow step addition",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{
+              description: "Not found",
+              content: json_content(error_ref())
+            },
+            409 => %OpenApiSpex.Response{
+              description: "Conflict",
+              content: json_content(error_ref())
+            },
+            422 => %OpenApiSpex.Response{
+              description: "Validation error",
+              content: json_content(error_ref())
+            }
+          }
+        }
+      },
+      "/api/v1/boards/{id}/workflow/steps/{step_id}" => %OpenApiSpex.PathItem{
+        delete: %OpenApiSpex.Operation{
+          summary: "Remove a workflow step from a board",
+          operationId: "removeBoardWorkflowStep",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            },
+            %OpenApiSpex.Parameter{
+              name: :step_id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board after workflow step removal",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{description: "Not found", content: json_content(error_ref())},
+            422 => %OpenApiSpex.Response{description: "Validation error", content: json_content(error_ref())}
+          }
+        }
+      },
+      "/api/v1/boards/{id}/workflow/steps/{step_id}/order" => %OpenApiSpex.PathItem{
+        patch: %OpenApiSpex.Operation{
+          summary: "Reorder a workflow step in a board",
+          operationId: "reorderBoardWorkflowStep",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            },
+            %OpenApiSpex.Parameter{
+              name: :step_id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          requestBody: %OpenApiSpex.RequestBody{
+            required: true,
+            content: json_content(BoardSchema.reorder_step_request())
+          },
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board after workflow step reorder",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{description: "Not found", content: json_content(error_ref())},
+            422 => %OpenApiSpex.Response{description: "Validation error", content: json_content(error_ref())}
+          }
+        }
+      },
+      "/api/v1/boards/{id}/workers" => %OpenApiSpex.PathItem{
+        post: %OpenApiSpex.Operation{
+          summary: "Allocate a worker to a board",
+          operationId: "allocateBoardWorker",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          requestBody: %OpenApiSpex.RequestBody{
+            required: true,
+            content: json_content(BoardSchema.allocate_worker_request())
+          },
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board after worker allocation",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{description: "Not found", content: json_content(error_ref())},
+            409 => %OpenApiSpex.Response{description: "Conflict", content: json_content(error_ref())},
+            422 => %OpenApiSpex.Response{description: "Validation error", content: json_content(error_ref())}
+          }
+        }
+      },
+      "/api/v1/boards/{id}/workers/{worker_id}" => %OpenApiSpex.PathItem{
+        delete: %OpenApiSpex.Operation{
+          summary: "Remove a worker from a board",
+          operationId: "removeBoardWorker",
+          tags: ["Boards"],
+          parameters: [
+            %OpenApiSpex.Parameter{
+              name: :id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            },
+            %OpenApiSpex.Parameter{
+              name: :worker_id,
+              in: :path,
+              required: true,
+              schema: %OpenApiSpex.Schema{type: :string}
+            }
+          ],
+          responses: %{
+            200 => %OpenApiSpex.Response{
+              description: "Board after worker removal",
+              content: json_content(board_detail_ref())
+            },
+            404 => %OpenApiSpex.Response{description: "Not found", content: json_content(error_ref())},
+            422 => %OpenApiSpex.Response{description: "Validation error", content: json_content(error_ref())}
           }
         }
       }

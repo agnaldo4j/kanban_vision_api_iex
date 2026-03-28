@@ -45,6 +45,17 @@ defmodule KanbanVisionApi.Agent.BoardRepositoryContractTest do
       assert {:error, _} = Boards.add(repository_runtime, duplicate)
     end
 
+    test "implements update/2 callback", %{repository_runtime: repository_runtime} do
+      assert function_exported?(Boards, :update, 2)
+
+      board = Board.new("EditableBoard", "sim-456")
+      {:ok, created} = Boards.add(repository_runtime, board)
+      renamed = Board.rename(created, "RenamedBoard")
+
+      assert {:ok, updated} = Boards.update(repository_runtime, renamed)
+      assert updated.name == "RenamedBoard"
+    end
+
     test "implements delete/2 callback", %{repository_runtime: repository_runtime} do
       assert function_exported?(Boards, :delete, 2)
 

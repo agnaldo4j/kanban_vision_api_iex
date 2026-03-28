@@ -1,8 +1,10 @@
 defmodule KanbanVisionApi.Domain.BoardTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Domain.Ability
   alias KanbanVisionApi.Domain.Audit
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Step
   alias KanbanVisionApi.Domain.Worker
   alias KanbanVisionApi.Domain.Workflow
 
@@ -86,6 +88,43 @@ defmodule KanbanVisionApi.Domain.BoardTest do
       b2 = Board.new("Board2", "sim-1")
 
       refute b1.id == b2.id
+    end
+  end
+
+  describe "evolution operations" do
+    test "renames a board" do
+      board = Board.new("Old Name", "sim-123")
+      renamed_board = Board.rename(board, "New Name")
+
+      assert renamed_board.name == "New Name"
+      assert renamed_board.id == board.id
+    end
+
+    test "adds a workflow step through the board aggregate" do
+      board = Board.new("Dev Board", "sim-123")
+      step = Board.build_step("In Progress", 0, "Coding")
+
+      assert {:ok, updated_board} = Board.add_workflow_step(board, step)
+      assert [%Step{name: "In Progress", order: 0}] = updated_board.workflow.steps
+    end
+
+    test "allocates a worker snapshot to the board" do
+      board = Board.new("Dev Board", "sim-123")
+      worker = Board.build_worker("Alice", ["Coding", "Review"])
+
+      assert {:ok, updated_board} = Board.allocate_worker(board, worker)
+
+      assert %Worker{name: "Alice", abilities: [%Ability{}, %Ability{}]} =
+               Map.fetch!(updated_board.workers, worker.id)
+    end
+
+    test "rejects duplicate worker names in the same board" do
+      board = Board.new("Dev Board", "sim-123")
+      worker = Board.build_worker("Alice", ["Coding"])
+      {:ok, updated_board} = Board.allocate_worker(board, worker)
+      duplicate_worker = Board.build_worker("Alice", ["Testing"])
+
+      assert {:error, :worker_name_taken} = Board.allocate_worker(updated_board, duplicate_worker)
     end
   end
 end

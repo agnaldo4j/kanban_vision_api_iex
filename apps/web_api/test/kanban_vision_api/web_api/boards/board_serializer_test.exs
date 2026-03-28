@@ -1,7 +1,10 @@
 defmodule KanbanVisionApi.WebApi.Boards.BoardSerializerTest do
   use ExUnit.Case, async: true
 
+  alias KanbanVisionApi.Domain.Ability
   alias KanbanVisionApi.Domain.Board
+  alias KanbanVisionApi.Domain.Step
+  alias KanbanVisionApi.Domain.Worker
   alias KanbanVisionApi.WebApi.Boards.BoardSerializer
 
   setup do
@@ -38,6 +41,21 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardSerializerTest do
 
     test "returns empty list for empty list" do
       assert BoardSerializer.serialize_many_list([]) == []
+    end
+  end
+
+  describe "serialize_detail/1" do
+    test "returns workflow and workers in a detail representation", %{board: board} do
+      step = Step.new("In Progress", 0, [], Ability.new("Coding"))
+      worker = Worker.new("Alice", [Ability.new("Coding"), Ability.new("Review")])
+      detailed_board = %{board | workflow: %{board.workflow | steps: [step]}, workers: %{worker.id => worker}}
+
+      result = BoardSerializer.serialize_detail(detailed_board)
+
+      assert result.name == "Dev Board"
+      assert [%{"id" => _, "name" => "Alice"}] = Jason.decode!(Jason.encode!(result))["workers"]
+      assert [%{name: "In Progress", order: 0}] = result.workflow.steps
+      assert hd(result.workflow.steps).required_ability.name == "Coding"
     end
   end
 end

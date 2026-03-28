@@ -163,6 +163,74 @@ defmodule KanbanVisionApi.WebApi.RouterTest do
       assert conn.status == 200
     end
 
+    test "PATCH /api/v1/boards/:id dispatches to rename", %{board: board} do
+      renamed_board = %{board | name: "Renamed Board"}
+      stub(BoardUsecaseMock, :rename, fn _cmd, _opts -> {:ok, renamed_board} end)
+
+      conn =
+        :patch
+        |> conn("/api/v1/boards/#{board.id}", Jason.encode!(%{name: "Renamed Board"}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "POST /api/v1/boards/:id/workflow/steps dispatches to add_workflow_step", %{board: board} do
+      stub(BoardUsecaseMock, :add_workflow_step, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :post
+        |> conn(
+          "/api/v1/boards/#{board.id}/workflow/steps",
+          Jason.encode!(%{name: "In Progress", order: 0, required_ability_name: "Coding"})
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "PATCH /api/v1/boards/:id/workflow/steps/:step_id/order dispatches to reorder_workflow_step", %{board: board} do
+      stub(BoardUsecaseMock, :reorder_workflow_step, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :patch
+        |> conn("/api/v1/boards/#{board.id}/workflow/steps/step-1/order", Jason.encode!(%{order: 0}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "DELETE /api/v1/boards/:id/workflow/steps/:step_id dispatches to remove_workflow_step", %{board: board} do
+      stub(BoardUsecaseMock, :remove_workflow_step, fn _cmd, _opts -> {:ok, board} end)
+
+      conn = conn(:delete, "/api/v1/boards/#{board.id}/workflow/steps/step-1") |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "POST /api/v1/boards/:id/workers dispatches to allocate_worker", %{board: board} do
+      stub(BoardUsecaseMock, :allocate_worker, fn _cmd, _opts -> {:ok, board} end)
+
+      conn =
+        :post
+        |> conn("/api/v1/boards/#{board.id}/workers", Jason.encode!(%{name: "Alice", abilities: ["Coding"]}))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
+    test "DELETE /api/v1/boards/:id/workers/:worker_id dispatches to remove_worker", %{board: board} do
+      stub(BoardUsecaseMock, :remove_worker, fn _cmd, _opts -> {:ok, board} end)
+
+      conn = conn(:delete, "/api/v1/boards/#{board.id}/workers/worker-1") |> Router.call(@opts)
+
+      assert conn.status == 200
+    end
+
     test "DELETE /api/v1/boards/:id dispatches to delete", %{board: board} do
       stub(BoardUsecaseMock, :delete, fn _cmd, _opts -> {:ok, board} end)
 
