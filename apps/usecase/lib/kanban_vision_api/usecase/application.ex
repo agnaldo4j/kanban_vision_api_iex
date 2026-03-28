@@ -10,6 +10,8 @@ defmodule KanbanVisionApi.Usecase.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {KanbanVisionApi.Usecase.Board,
+       name: KanbanVisionApi.Usecase.Board, repository: RepositoryConfig.fetch!(:board)},
       {KanbanVisionApi.Usecase.Organization,
        name: KanbanVisionApi.Usecase.Organization,
        repository: RepositoryConfig.fetch!(:organization)},

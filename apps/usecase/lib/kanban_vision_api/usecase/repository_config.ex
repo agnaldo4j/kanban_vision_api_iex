@@ -7,10 +7,10 @@ defmodule KanbanVisionApi.Usecase.RepositoryConfig do
   persistence modules.
   """
 
-  @type repository_key :: :organization | :simulation
+  @type repository_key :: :organization | :simulation | :board
 
   @spec fetch!(repository_key()) :: module()
-  def fetch!(key) when key in [:organization, :simulation] do
+  def fetch!(key) when key in [:organization, :simulation, :board] do
     repositories =
       Application.get_env(:usecase, :repositories, [])
 

@@ -23,6 +23,14 @@ defmodule KanbanVisionApi.WebApi.ErrorMapper do
     )
   end
 
+  def normalize(:invalid_simulation_id) do
+    ApplicationError.new(
+      :invalid_input,
+      "Invalid simulation ID",
+      %{reason: :invalid_simulation_id}
+    )
+  end
+
   def normalize(reason) when is_binary(reason) do
     ApplicationError.new(:internal_error, reason, %{legacy_reason: :binary})
   end
