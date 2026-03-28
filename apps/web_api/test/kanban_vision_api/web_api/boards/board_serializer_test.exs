@@ -47,13 +47,20 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardSerializerTest do
   describe "serialize_detail/1" do
     test "returns workflow and workers in a detail representation", %{board: board} do
       step = Step.new("In Progress", 0, [], Ability.new("Coding"))
-      worker = Worker.new("Alice", [Ability.new("Coding"), Ability.new("Review")])
-      detailed_board = %{board | workflow: %{board.workflow | steps: [step]}, workers: %{worker.id => worker}}
+      worker_a = Worker.new("Alice", [Ability.new("Coding"), Ability.new("Review")], "worker-a")
+      worker_b = Worker.new("Bob", [Ability.new("Testing")], "worker-b")
+
+      detailed_board = %{
+        board
+        | workflow: %{board.workflow | steps: [step]},
+          workers: %{worker_b.id => worker_b, worker_a.id => worker_a}
+      }
 
       result = BoardSerializer.serialize_detail(detailed_board)
 
       assert result.name == "Dev Board"
-      assert [%{"id" => _, "name" => "Alice"}] = Jason.decode!(Jason.encode!(result))["workers"]
+      assert Enum.map(result.workers, & &1.id) == ["worker-a", "worker-b"]
+      assert Enum.map(result.workers, & &1.name) == ["Alice", "Bob"]
       assert [%{name: "In Progress", order: 0}] = result.workflow.steps
       assert hd(result.workflow.steps).required_ability.name == "Coding"
     end

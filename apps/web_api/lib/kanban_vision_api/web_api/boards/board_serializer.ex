@@ -23,7 +23,13 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardSerializer do
   def serialize_detail(%Board{} = board) do
     serialize(board)
     |> Map.put(:workflow, %{steps: Enum.map(board.workflow.steps, &serialize_step/1)})
-    |> Map.put(:workers, board.workers |> Map.values() |> Enum.map(&serialize_worker/1))
+    |> Map.put(
+      :workers,
+      board.workers
+      |> Map.values()
+      |> Enum.sort_by(& &1.id)
+      |> Enum.map(&serialize_worker/1)
+    )
   end
 
   @spec serialize_many_list(list()) :: list(map())
