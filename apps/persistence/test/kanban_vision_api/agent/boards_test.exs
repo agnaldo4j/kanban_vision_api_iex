@@ -109,6 +109,21 @@ defmodule KanbanVisionApi.Agent.BoardsTest do
     end
 
     @tag :domain_boards
+    test "should return error when updating board with unknown id",
+         %{
+           repository_runtime: repository_runtime,
+           board: board
+         } = _context do
+      unknown_board = %{board | id: "unknown-id", name: "Ghost Board"}
+
+      assert Boards.update(repository_runtime, unknown_board) ==
+               ApplicationError.not_found(
+                 "Board with id: unknown-id not found",
+                 %{entity: :board, id: "unknown-id"}
+               )
+    end
+
+    @tag :domain_boards
     test "should return error for unknown simulation_id",
          %{
            repository_runtime: repository_runtime
