@@ -19,6 +19,7 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       org = create_organization("BoardOrg")
       sim = create_simulation("BoardSim", org["id"])
       board = create_board("Dev Board", sim["id"])
+      register_cleanup(board_id: board["id"], simulation_id: sim["id"], organization_id: org["id"])
 
       conn =
         :get
@@ -28,10 +29,6 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
       assert Enum.any?(body, fn item -> item["id"] == board["id"] end)
-
-      cleanup_board(board["id"])
-      cleanup_simulation(sim["id"])
-      cleanup_organization(org["id"])
     end
   end
 
@@ -39,6 +36,7 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
     test "creates a board and returns 201" do
       org = create_organization("CreateBoardOrg")
       sim = create_simulation("CreateBoardSim", org["id"])
+      register_cleanup(simulation_id: sim["id"], organization_id: org["id"])
 
       conn =
         :post
@@ -50,16 +48,14 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       body = Jason.decode!(conn.resp_body)
       assert body["name"] == "Dev Board"
       assert body["simulation_id"] == sim["id"]
-
-      cleanup_board(body["id"])
-      cleanup_simulation(sim["id"])
-      cleanup_organization(org["id"])
+      register_cleanup(board_id: body["id"])
     end
 
     test "returns 409 when board already exists" do
       org = create_organization("ConflictBoardOrg")
       sim = create_simulation("ConflictBoardSim", org["id"])
       board = create_board("Dev Board", sim["id"])
+      register_cleanup(board_id: board["id"], simulation_id: sim["id"], organization_id: org["id"])
 
       conn =
         :post
@@ -71,10 +67,6 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       body = Jason.decode!(conn.resp_body)
       assert is_binary(body["error"])
       assert body["error"] != ""
-
-      cleanup_board(board["id"])
-      cleanup_simulation(sim["id"])
-      cleanup_organization(org["id"])
     end
   end
 
@@ -83,6 +75,7 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       org = create_organization("GetBoardOrg")
       sim = create_simulation("GetBoardSim", org["id"])
       board = create_board("QA Board", sim["id"])
+      register_cleanup(board_id: board["id"], simulation_id: sim["id"], organization_id: org["id"])
 
       conn =
         :get
@@ -91,10 +84,6 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
 
       assert conn.status == 200
       assert Jason.decode!(conn.resp_body)["name"] == "QA Board"
-
-      cleanup_board(board["id"])
-      cleanup_simulation(sim["id"])
-      cleanup_organization(org["id"])
     end
   end
 
@@ -103,6 +92,7 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
       org = create_organization("DeleteBoardOrg")
       sim = create_simulation("DeleteBoardSim", org["id"])
       board = create_board("Delete Board", sim["id"])
+      register_cleanup(simulation_id: sim["id"], organization_id: org["id"])
 
       conn =
         :delete
@@ -110,9 +100,6 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
         |> Router.call(@opts)
 
       assert conn.status == 200
-
-      cleanup_simulation(sim["id"])
-      cleanup_organization(org["id"])
     end
 
     test "returns 404 for non-existent board" do
@@ -123,6 +110,22 @@ defmodule KanbanVisionApi.WebApi.Integration.BoardsIntegrationTest do
 
       assert conn.status == 404
     end
+  end
+
+  defp register_cleanup(resources) do
+    on_exit(fn ->
+      if board_id = resources[:board_id] do
+        cleanup_board(board_id)
+      end
+
+      if simulation_id = resources[:simulation_id] do
+        cleanup_simulation(simulation_id)
+      end
+
+      if organization_id = resources[:organization_id] do
+        cleanup_organization(organization_id)
+      end
+    end)
   end
 
   defp create_organization(name) do

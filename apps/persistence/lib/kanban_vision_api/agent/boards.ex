@@ -148,7 +148,7 @@ defmodule KanbanVisionApi.Agent.Boards do
 
   defp conflict_by_name_and_simulation_id(name, simulation_id) do
     ApplicationError.conflict(
-      "Board with name: #{name} from simulation_id: #{simulation_id} already exist",
+      "Board with name: #{name} from simulation_id: #{simulation_id} already exists",
       %{entity: :board, field: :name, name: name, simulation_id: simulation_id}
     )
   end

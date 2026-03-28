@@ -74,7 +74,7 @@ defmodule KanbanVisionApi.Usecase.BoardTest do
 
       assert Board.add(pid, duplicate_cmd) ==
                ApplicationError.conflict(
-                 "Board with name: Dev Board from simulation_id: sim-123 already exist",
+                 "Board with name: Dev Board from simulation_id: sim-123 already exists",
                  %{entity: :board, field: :name, name: "Dev Board", simulation_id: "sim-123"}
                )
     end

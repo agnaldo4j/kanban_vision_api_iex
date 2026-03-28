@@ -128,7 +128,7 @@ defmodule KanbanVisionApi.WebApi.Boards.BoardControllerTest do
     test "returns 409 when board already exists", %{board: board} do
       expect(BoardUsecaseMock, :add, fn _cmd, _opts ->
         ApplicationError.conflict(
-          "Board with name: #{board.name} from simulation_id: #{board.simulation_id} already exist",
+          "Board with name: #{board.name} from simulation_id: #{board.simulation_id} already exists",
           %{}
         )
       end)
