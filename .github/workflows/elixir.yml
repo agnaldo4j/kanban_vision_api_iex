@@ -42,7 +42,23 @@ jobs:
       - name: Compile dependencies
         run: mix deps.compile
 
+      - name: Set up reviewdog
+        if: github.event_name == 'pull_request'
+        uses: reviewdog/action-setup@v1
+
+      - name: Run Credo with reviewdog
+        if: github.event_name == 'pull_request'
+        run: |
+          mix credo suggest --all --strict --format=flycheck --mute-exit-status \
+            | reviewdog \
+                -f=flycheck \
+                -name=credo \
+                -reporter=github-pr-review \
+                -filter-mode=nofilter \
+                -fail-level=warning
+
       - name: Run Credo
+        if: github.event_name != 'pull_request'
         run: mix credo
 
       - name: Write job summary
