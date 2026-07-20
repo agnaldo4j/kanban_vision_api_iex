@@ -251,7 +251,7 @@ jobs:
 
       - name: Update pull request quality report
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           CREDO_RESULT: ${{ needs.credo.result }}
           DIALYZER_RESULT: ${{ needs.dialyzer.result }}
